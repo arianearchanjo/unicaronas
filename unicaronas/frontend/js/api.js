@@ -1,104 +1,118 @@
-// frontend/js/api.js — Módulo de comunicação com a API
+/**
+ * UniCaronas — cliente de API e utilitários compartilhados
+ * Compatível com uso direto em browser (sem bundler/módulos ES).
+ */
 
 const API_URL = 'http://localhost:3000/api';
 
-// ── Token JWT ────────────────────────────────────────────────
-const getToken  = ()       => localStorage.getItem('unicaronas_token');
-const setToken  = (t)      => localStorage.setItem('unicaronas_token', t);
-const clearToken= ()       => localStorage.removeItem('unicaronas_token');
-const getUser   = ()       => JSON.parse(localStorage.getItem('unicaronas_user') || 'null');
-const setUser   = (u)      => localStorage.setItem('unicaronas_user', JSON.stringify(u));
-const clearUser = ()       => localStorage.removeItem('unicaronas_user');
+// ─── Auth ─────────────────────────────────────────────────────────────────────
 
-const isLogado = () => !!getToken();
+const getToken  = () => localStorage.getItem('unicaronas_token');
+const getUser   = () => JSON.parse(localStorage.getItem('unicaronas_user') || 'null');
+const setToken  = (t) => localStorage.setItem('unicaronas_token', t);
+const setUser   = (u) => localStorage.setItem('unicaronas_user', JSON.stringify(u));
+const clearToken= () => localStorage.removeItem('unicaronas_token');
+const clearUser = () => localStorage.removeItem('unicaronas_user');
+const isLogado  = () => !!getToken();
 
-const logout = () => { clearToken(); clearUser(); window.location.href = '/frontend/pages/login.html'; };
+// Idêntico ao original — redireciona para login.html relativo à página atual
+const logout = () => {
+  clearToken();
+  clearUser();
+  window.location.href = 'login.html';
+};
 
-// ── Fetch wrapper ────────────────────────────────────────────
+// Redireciona se não estiver logado (nome original mantido)
+const protegerRota = () => {
+  if (!isLogado()) {
+    window.location.href = 'login.html';
+    return false;
+  }
+  return true;
+};
+
+// ─── Requisição base ───────────────────────────────────────────────────────────
+
 const request = async (path, options = {}) => {
   const token = getToken();
   const headers = { 'Content-Type': 'application/json', ...options.headers };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res  = await fetch(`${API_URL}${path}`, { ...options, headers });
-  const data = await res.json();
+  let response;
+  try {
+    response = await fetch(`${API_URL}${path}`, { ...options, headers });
+  } catch (e) {
+    throw new Error('Não foi possível conectar ao servidor. Verifique sua conexão.');
+  }
 
-  if (!res.ok) throw new Error(data.error || 'Erro na requisição');
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || `Erro ${response.status}`);
   return data;
 };
 
-// ── API calls ────────────────────────────────────────────────
+// ─── Endpoints ─────────────────────────────────────────────────────────────────
+
 const api = {
-  // Usuários
-  cadastrar:  (body) => request('/usuarios',       { method: 'POST', body: JSON.stringify(body) }),
-  login:      (body) => request('/usuarios/login', { method: 'POST', body: JSON.stringify(body) }),
-  perfil:     (id)   => request(`/usuarios/${id}`),
+  cadastrar:       (body) => request('/usuarios', { method: 'POST', body: JSON.stringify(body) }),
+  login:           (body) => request('/usuarios/login', { method: 'POST', body: JSON.stringify(body) }),
+  perfil:          (id)   => request(`/usuarios/${id}`),
   atualizarPerfil: (body) => request('/usuarios/perfil', { method: 'PATCH', body: JSON.stringify(body) }),
 
-  // Caronas
-  listarCaronas:  (params = {}) => {
-    const qs = new URLSearchParams(params).toString();
+  listarCaronas: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== ''))
+    ).toString();
     return request(`/caronas${qs ? '?' + qs : ''}`);
   },
-  criarCarona:    (body)  => request('/caronas', { method: 'POST', body: JSON.stringify(body) }),
-  buscarCarona:   (id)    => request(`/caronas/${id}`),
-  solicitarVaga:  (id)    => request(`/caronas/${id}/solicitar`, { method: 'POST' }),
-  responderSolicitacao: (id, status) =>
-    request(`/caronas/solicitacoes/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  criarCarona:          (body)       => request('/caronas', { method: 'POST', body: JSON.stringify(body) }),
+  buscarCarona:         (id)         => request(`/caronas/${id}`),
+  solicitarVaga:        (id)         => request(`/caronas/${id}/solicitar`, { method: 'POST' }),
+  responderSolicitacao: (id, status) => request(`/caronas/solicitacoes/${id}`, {
+    method: 'PATCH', body: JSON.stringify({ status }),
+  }),
 
-  // Chat
-  enviarMensagem: (body)  => request('/mensagens', { method: 'POST', body: JSON.stringify(body) }),
-  listarMensagens:(sid)   => request(`/mensagens/${sid}`),
+  enviarMensagem:      (body) => request('/mensagens', { method: 'POST', body: JSON.stringify(body) }),
+  listarMensagens:     (sid)  => request(`/mensagens/${sid}`),
 
-  // Pagamentos
-  pagar:      (body)  => request('/pagamentos', { method: 'POST', body: JSON.stringify(body) }),
-  historicoPagamentos: () => request('/pagamentos/historico'),
+  pagar:               (body) => request('/pagamentos', { method: 'POST', body: JSON.stringify(body) }),
+  historicoPagamentos: ()     => request('/pagamentos/historico'),
 
-  // Avaliações
-  avaliar:    (body)  => request('/avaliacoes', { method: 'POST', body: JSON.stringify(body) }),
-  avaliacoes: (uid)   => request(`/avaliacoes/${uid}`),
+  avaliar:    (body) => request('/avaliacoes', { method: 'POST', body: JSON.stringify(body) }),
+  avaliacoes: (uid)  => request(`/avaliacoes/${uid}`),
 };
 
-// ── Helpers de UI ────────────────────────────────────────────
+// ─── Utilitários ──────────────────────────────────────────────────────────────
+
 const showAlert = (msg, tipo = 'success', containerId = 'alert-container') => {
   const el = document.getElementById(containerId);
   if (!el) return;
-  el.innerHTML = `<div class="alert alert-${tipo}">${msg}</div>`;
-  setTimeout(() => el.innerHTML = '', 4000);
+  el.innerHTML = `<div class="alert alert-${tipo}" role="alert">${msg}</div>`;
+  setTimeout(() => { el.innerHTML = ''; }, 5000);
 };
 
 const formatarData = (iso) =>
   new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
 
+const formatarDataCurta = (iso) =>
+  new Date(iso).toLocaleDateString('pt-BR', { dateStyle: 'long' });
+
 const formatarMoeda = (v) =>
   Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 const iniciais = (nome) =>
-  nome?.split(' ').slice(0,2).map(n => n[0]).join('').toUpperCase() || '?';
+  nome?.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase() || '?';
 
-// ── Cálculo de sugestão de preço (frontend) ──────────────────
-const calcularValorSugerido = (distanciaKm, custoPorKm = 0.30) => {
-  return Math.round(distanciaKm * custoPorKm * 100) / 100;
-};
-
-// ── Proteção de rota ─────────────────────────────────────────
-const protegerRota = () => {
-  if (!isLogado()) {
-    window.location.href = '/frontend/pages/login.html';
+const renderEstrelas = (nota, total) => {
+  const n = Math.round(Number(nota) * 2) / 2;
+  let html = `<span class="estrelas" aria-label="${nota} de 5 estrelas">`;
+  for (let i = 1; i <= 5; i++) {
+    if (i <= n)           html += '<span class="estrela estrela-cheia"></span>';
+    else if (i - 0.5 ===n) html += '<span class="estrela estrela-meia"></span>';
+    else                   html += '<span class="estrela estrela-vazia"></span>';
   }
+  html += '</span>';
+  if (total !== undefined) html += `<span class="estrelas-total">(${total})</span>`;
+  return html;
 };
 
-// Expor globalmente
-window.api          = api;
-window.getToken     = getToken;
-window.setToken     = setToken;
-window.getUser      = getUser;
-window.setUser      = setUser;
-window.logout       = logout;
-window.isLogado     = isLogado;
-window.showAlert    = showAlert;
-window.formatarData = formatarData;
-window.formatarMoeda= formatarMoeda;
-window.iniciais     = iniciais;
-window.calcularValorSugerido = calcularValorSugerido;
-window.protegerRota = protegerRota;
+const getParam = (nome) => new URLSearchParams(window.location.search).get(nome);

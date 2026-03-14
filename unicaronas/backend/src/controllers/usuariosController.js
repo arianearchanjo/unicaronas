@@ -1,85 +1,79 @@
-// backend/src/controllers/usuariosController.js
 const bcrypt = require('bcrypt');
 const jwt    = require('jsonwebtoken');
 const db     = require('../../config/database');
 
-// ──────────────────────────────────────────
-// POST /api/usuarios — Cadastrar usuário
-// ──────────────────────────────────────────
+const BCRYPT_ROUNDS = 12;
+
+/**
+ * POST /api/usuarios
+ * Cadastra novo usuário. Validação de campos é feita pelo middleware validar() na rota.
+ */
 const cadastrar = async (req, res, next) => {
   try {
     const { nome, email, matricula, senha, telefone, curso } = req.body;
 
-    // Validar domínio institucional
-    const dominiosPermitidos = (process.env.EMAIL_DOMINIOS || '@uni.edu.br').split(',');
-    const emailValido = dominiosPermitidos.some(d => email.endsWith(d));
+    // Valida domínio de e-mail institucional
+    const dominiosPermitidos = (process.env.EMAIL_DOMINIOS || '@uni.edu.br')
+      .split(',')
+      .map((d) => d.trim().toLowerCase());
+    const emailNorm = email.toLowerCase();
+    const emailValido = dominiosPermitidos.some((d) => emailNorm.endsWith(d));
     if (!emailValido) {
       return res.status(400).json({
         success: false,
-        error: 'Use um e-mail institucional da universidade'
+        error: `Use um e-mail institucional (${dominiosPermitidos.join(', ')})`,
       });
     }
 
-    // Verificar duplicatas
-    const existente = await db.query(
+    // Verifica duplicidade por e-mail ou matrícula
+    const { rows: existentes } = await db.query(
       'SELECT id FROM usuarios WHERE email = $1 OR matricula = $2',
-      [email, matricula]
+      [emailNorm, matricula]
     );
-    if (existente.rows.length > 0) {
-      return res.status(409).json({
-        success: false,
-        error: 'E-mail ou matrícula já cadastrados'
-      });
+    if (existentes.length > 0) {
+      return res.status(409).json({ success: false, error: 'E-mail ou matrícula já cadastrados' });
     }
 
-    // Hash da senha
-    const senhaHash = await bcrypt.hash(senha, 10);
+    const senhaHash = await bcrypt.hash(senha, BCRYPT_ROUNDS);
 
-    const resultado = await db.query(
+    const { rows } = await db.query(
       `INSERT INTO usuarios (nome, email, matricula, senha_hash, telefone, curso)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, nome, email, matricula, curso, criado_em`,
-      [nome, email, matricula, senhaHash, telefone, curso]
+      [nome.trim(), emailNorm, matricula.trim(), senhaHash, telefone || null, curso || null]
     );
 
     res.status(201).json({
       success: true,
-      data:    resultado.rows[0],
-      message: 'Usuário cadastrado com sucesso'
+      data: rows[0],
+      message: 'Usuário cadastrado com sucesso',
     });
   } catch (err) {
     next(err);
   }
 };
 
-// ──────────────────────────────────────────
-// POST /api/login — Autenticação
-// ──────────────────────────────────────────
+/**
+ * POST /api/usuarios/login
+ */
 const login = async (req, res, next) => {
   try {
     const { email, senha } = req.body;
 
-    const resultado = await db.query(
+    const { rows } = await db.query(
       'SELECT * FROM usuarios WHERE email = $1 AND ativo = true',
-      [email]
+      [email.toLowerCase().trim()]
     );
 
-    if (resultado.rows.length === 0) {
-      return res.status(401).json({
-        success: false,
-        error: 'Credenciais inválidas'
-      });
-    }
+    // Resposta genérica para não revelar se o e-mail existe
+    const credenciaisInvalidas = () =>
+      res.status(401).json({ success: false, error: 'Credenciais inválidas' });
 
-    const usuario = resultado.rows[0];
+    if (rows.length === 0) return credenciaisInvalidas();
+
+    const usuario = rows[0];
     const senhaOk = await bcrypt.compare(senha, usuario.senha_hash);
-
-    if (!senhaOk) {
-      return res.status(401).json({
-        success: false,
-        error: 'Credenciais inválidas'
-      });
-    }
+    if (!senhaOk) return credenciaisInvalidas();
 
     const token = jwt.sign(
       { id: usuario.id, email: usuario.email, nome: usuario.nome },
@@ -92,65 +86,112 @@ const login = async (req, res, next) => {
       data: {
         token,
         usuario: {
-          id:              usuario.id,
-          nome:            usuario.nome,
-          email:           usuario.email,
-          curso:           usuario.curso,
-          avaliacao_media: usuario.avaliacao_media,
-          foto_url:        usuario.foto_url
-        }
-      }
+          id:               usuario.id,
+          nome:             usuario.nome,
+          email:            usuario.email,
+          curso:            usuario.curso,
+          avaliacao_media:  usuario.avaliacao_media,
+          foto_url:         usuario.foto_url,
+        },
+      },
     });
   } catch (err) {
     next(err);
   }
 };
 
-// ──────────────────────────────────────────
-// GET /api/usuarios/:id — Perfil público
-// ──────────────────────────────────────────
+/**
+ * GET /api/usuarios/:id
+ * Requer autenticação. Retorna dados públicos + contagem de caronas.
+ */
 const buscarPorId = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id) || id <= 0) {
+      return res.status(400).json({ success: false, error: 'ID inválido' });
+    }
 
-    const resultado = await db.query(
+    const { rows } = await db.query(
       `SELECT id, nome, email, curso, telefone, foto_url,
               avaliacao_media, total_avaliacoes, criado_em
-       FROM usuarios WHERE id = $1 AND ativo = true`,
+       FROM usuarios
+       WHERE id = $1 AND ativo = true`,
       [id]
     );
 
-    if (resultado.rows.length === 0) {
+    if (rows.length === 0) {
       return res.status(404).json({ success: false, error: 'Usuário não encontrado' });
     }
 
-    res.json({ success: true, data: resultado.rows[0] });
+    // Contagem de caronas como motorista
+    const { rows: rowsMotorista } = await db.query(
+      `SELECT COUNT(*) AS total
+       FROM caronas
+       WHERE motorista_id = $1 AND status IN ('concluida','ativa','em_andamento')`,
+      [id]
+    );
+
+    // Contagem de caronas como passageiro
+    const { rows: rowsPassageiro } = await db.query(
+      `SELECT COUNT(*) AS total
+       FROM solicitacoes_carona
+       WHERE passageiro_id = $1 AND status = 'aceita'`,
+      [id]
+    );
+
+    res.json({
+      success: true,
+      data: {
+        ...rows[0],
+        total_caronas_motorista:  parseInt(rowsMotorista[0].total, 10),
+        total_caronas_passageiro: parseInt(rowsPassageiro[0].total, 10),
+      },
+    });
   } catch (err) {
     next(err);
   }
 };
 
-// ──────────────────────────────────────────
-// PATCH /api/usuarios/perfil — Atualizar perfil
-// ──────────────────────────────────────────
+/**
+ * PATCH /api/usuarios/perfil
+ * Atualiza dados do próprio usuário autenticado.
+ * Validação de campos feita pelo middleware validar() na rota.
+ */
 const atualizarPerfil = async (req, res, next) => {
   try {
-    const { nome, telefone, curso, foto_url } = req.body;
     const id = req.usuario.id;
+    const { nome, telefone, curso, foto_url } = req.body;
 
-    const resultado = await db.query(
+    // Valida URL da foto se fornecida
+    if (foto_url) {
+      try {
+        const url = new URL(foto_url);
+        if (!['http:', 'https:'].includes(url.protocol)) {
+          return res.status(400).json({ success: false, error: 'URL da foto inválida' });
+        }
+      } catch {
+        return res.status(400).json({ success: false, error: 'URL da foto inválida' });
+      }
+    }
+
+    const { rows } = await db.query(
       `UPDATE usuarios
-       SET nome = COALESCE($1, nome),
-           telefone = COALESCE($2, telefone),
-           curso = COALESCE($3, curso),
-           foto_url = COALESCE($4, foto_url),
-           atualizado_em = NOW()
+       SET
+         nome          = COALESCE($1, nome),
+         telefone      = COALESCE($2, telefone),
+         curso         = COALESCE($3, curso),
+         foto_url      = COALESCE($4, foto_url),
+         atualizado_em = NOW()
        WHERE id = $5
        RETURNING id, nome, email, curso, telefone, foto_url`,
-      [nome, telefone, curso, foto_url, id]
+      [nome?.trim() || null, telefone?.trim() || null, curso?.trim() || null, foto_url || null, id]
     );
 
-    res.json({ success: true, data: resultado.rows[0] });
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Usuário não encontrado' });
+    }
+
+    res.json({ success: true, data: rows[0] });
   } catch (err) {
     next(err);
   }

@@ -10,16 +10,16 @@
   </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="container">
-      <a class="navbar-brand" href="dashboard.html">Uni<span>Caronas</span></a>
-      <div class="navbar-links">
-        <a href="dashboard.html">Dashboard</a>
-        <a href="criar-carona.html">Oferecer carona</a>
-        <a href="#" onclick="logout()">Sair</a>
-      </div>
-    </div>
-  </nav>
+<nav class="navbar" aria-label="Navegação principal">
+  <a href="../pages/dashboard.html" class="navbar-brand">UniCaronas</a>
+  <ul class="navbar-links" role="list">
+    <li><a href="../pages/dashboard.html">Painel</a></li>
+    <li><a href="../pages/buscar.html" aria-current="page">Buscar carona</a></li>
+    <li><a href="../pages/criar-carona.html">Oferecer carona</a></li>
+    <li><a href="../pages/perfil.html">Perfil</a></li>
+  </ul>
+  <button class="btn btn-ghost btn-sm" id="btn-logout" type="button">Sair</button>
+</nav>
 
   <div class="container">
     <div class="page-header fade-up">
@@ -119,6 +119,8 @@
     }
 
     buscar();
+
+    document.getElementById('btn-logout')?.addEventListener('click', () => logout());
   </script>
 </body>
 </html>

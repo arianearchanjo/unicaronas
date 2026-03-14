@@ -1,59 +1,62 @@
-// backend/src/controllers/avaliacoesController.js
 const db = require('../../config/database');
-// chama pool (já configurado) para esse doc
 
-// POST /api/avaliacoes — Registrar avaliação
+/**
+ * POST /api/avaliacoes
+ * Avalia um participante de uma carona concluída.
+ */
 const avaliar = async (req, res, next) => {
   try {
-    const { solicitacao_id, avaliado_id, nota, comentario } = req.body; // desestrutura dados
-    /*
-     usuario mostra:
-      qual foi a carona
-      quem está sendo avaliado
-      comentario
-    */
-    const avaliador_id = req.usuario.id; // garante que o avaliador é alguem autenticado
+    const { solicitacao_id, avaliado_id, nota, comentario } = req.body;
+    const avaliador_id = req.usuario.id;
 
-    // Verificar que a carona foi concluída e o avaliador faz parte
-    const solicitacao = await db.query(
-      `SELECT s.passageiro_id, c.motorista_id, c.status AS carona_status
+    const solId  = parseInt(solicitacao_id, 10);
+    const avalId = parseInt(avaliado_id, 10);
+    const notaNum = parseInt(nota, 10);
+
+    if (isNaN(solId)  || solId  <= 0) return res.status(400).json({ success: false, error: 'solicitacao_id inválido' });
+    if (isNaN(avalId) || avalId <= 0) return res.status(400).json({ success: false, error: 'avaliado_id inválido' });
+    if (isNaN(notaNum) || notaNum < 1 || notaNum > 5) {
+      return res.status(400).json({ success: false, error: 'A nota deve ser um inteiro entre 1 e 5' });
+    }
+
+    if (avalId === avaliador_id) {
+      return res.status(400).json({ success: false, error: 'Você não pode se auto-avaliar' });
+    }
+
+    // Verifica se a solicitação existe e está aceita
+    const { rows: solicitacoes } = await db.query(
+      `SELECT s.passageiro_id, c.motorista_id
        FROM solicitacoes_carona s
        JOIN caronas c ON c.id = s.carona_id
-       WHERE s.id = $1 AND s.status = 'aceita'`, // $1 -> parametro que impede SQL injection
-      [solicitacao_id]
+       WHERE s.id = $1 AND s.status = 'aceita'`,
+      [solId]
     );
 
-    if (solicitacao.rows.length === 0) {
-      // se não for encontrado corrida retorna erro 400 (return garante que o código pare aqui)
-      return res.status(400).json({ success: false, error: 'Carona não encontrada ou não concluída' });
+    if (solicitacoes.length === 0) {
+      return res.status(404).json({ success: false, error: 'Solicitação não encontrada ou ainda não aceita' });
     }
 
-    // extrai id do passageiro e motorista da query
-    const { passageiro_id, motorista_id } = solicitacao.rows[0];
+    const { passageiro_id, motorista_id } = solicitacoes[0];
 
-    // Verificar que avaliador é motorista ou passageiro
+    // Verifica se o avaliador participa da carona
     if (avaliador_id !== passageiro_id && avaliador_id !== motorista_id) {
-      return res.status(403).json({ success: false, error: 'Não autorizado' });
+      return res.status(403).json({ success: false, error: 'Você não participa desta carona' });
     }
 
-    // Verificar que avaliado é alguem que participou das caronas
-    if (avaliado_id === passageiro_id || avaliado_id === motorista_id) {
-      if (avaliado_id === avaliador_id) { // verifica se alguem está tentando se auto-avaliar
-        return res.status(400).json({ success: false, error: 'Você não pode se auto-avaliar' });
-      }
-    } else {
-      return res.status(400).json({ success: false, error: 'Usuário avaliado não participa desta carona' });
+    // Verifica se o avaliado participa da carona
+    if (avalId !== passageiro_id && avalId !== motorista_id) {
+      return res.status(400).json({ success: false, error: 'O usuário avaliado não participa desta carona' });
     }
 
-    // insere a avaliação no banco 
-    const resultado = await db.query(
+    const { rows } = await db.query(
       `INSERT INTO avaliacoes (solicitacao_id, avaliador_id, avaliado_id, nota, comentario)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [solicitacao_id, avaliador_id, avaliado_id, nota, comentario]
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [solId, avaliador_id, avalId, notaNum, comentario?.trim() || null]
     );
 
-    res.status(201).json({ success: true, data: resultado.rows[0] }); // retorna sucesso
-  } catch (err) { // tratamento para caso já tenha uma avaliação desse usuario para a corrida
+    res.status(201).json({ success: true, data: rows[0] });
+  } catch (err) {
     if (err.code === '23505') {
       return res.status(409).json({ success: false, error: 'Você já avaliou esta carona' });
     }
@@ -61,43 +64,42 @@ const avaliar = async (req, res, next) => {
   }
 };
 
-// GET /api/avaliacoes/:usuario_id — Avaliações de um usuário
+/**
+ * GET /api/avaliacoes/:usuario_id
+ * Lista avaliações recebidas por um usuário.
+ */
 const listarPorUsuario = async (req, res, next) => {
   try {
-    const { usuario_id } = req.params; // pega id do usuario pela URL
+    const usuario_id = parseInt(req.params.usuario_id, 10);
+    if (isNaN(usuario_id) || usuario_id <= 0) {
+      return res.status(400).json({ success: false, error: 'ID inválido' });
+    }
 
-    // busca todas as avaliações recebidas por um usuario 
-    // 3 JOIN para enriquecer o resultado
-    const resultado = await db.query(
-      `SELECT a.*, u.nome AS avaliador_nome, u.foto_url AS avaliador_foto,
-              c.origem, c.destino, c.horario_partida
+    const { rows } = await db.query(
+      `SELECT
+         a.id,
+         a.nota,
+         a.comentario,
+         a.criado_em,
+         u.id   AS avaliador_id,
+         u.nome AS avaliador_nome,
+         u.foto_url AS avaliador_foto,
+         c.origem,
+         c.destino,
+         c.horario_partida
        FROM avaliacoes a
-       JOIN usuarios u ON u.id = a.avaliador_id
-       JOIN solicitacoes_carona s ON s.id = a.solicitacao_id
-       JOIN caronas c ON c.id = s.carona_id
+       JOIN usuarios u             ON u.id = a.avaliador_id
+       JOIN solicitacoes_carona s  ON s.id = a.solicitacao_id
+       JOIN caronas c              ON c.id = s.carona_id
        WHERE a.avaliado_id = $1
        ORDER BY a.criado_em DESC`,
       [usuario_id]
     );
 
-    res.json({ success: true, data: resultado.rows }); // retorna todas as avaliaçoes encontradas
-    // caso não tenha retorna array vazio sem erro
+    res.json({ success: true, data: rows });
   } catch (err) {
     next(err);
   }
 };
 
-module.exports = { avaliar, listarPorUsuario }; // exporta as duas funcões
-
-
-// inserir no código:
-// 'avaliacao_media' nunca atualizada🔴 Crítica
-// Nota sem validação de range🔴 Crítica
-// Campos obrigatórios sem validação🟠 Alta
-// Carona não verifica se já aconteceu🟠 Alta
-// Lógica de validação do avaliado confusa🟠 Alta
-// Sem transação atômica no banco🟠 Alta
-// 'listarPorUsuario' não verifica se usuário existe🟡 Média
-// Sem paginação na listagem🟡 Média
-// Sem distinção motorista/passageiro🟡 Média
-// Comentário sem limite de tamanho🟢 Baixa
+module.exports = { avaliar, listarPorUsuario };
