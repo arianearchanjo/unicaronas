@@ -18,7 +18,7 @@
  * calcularValorSugerido(15)  // → 4.50
  */
 const calcularValorSugerido = (distancia_km) => {
-  const custoPorKm = parseFloat(process.env.CUSTO_POR_KM || '0.30');
+  const custoPorKm = parseFloat(process.env.CUSTO_POR_KM || '0.90');
   const valor = distancia_km * custoPorKm;
   return Math.round(valor * 100) / 100; // arredondar para 2 casas
 };

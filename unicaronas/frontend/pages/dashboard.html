@@ -23,14 +23,16 @@
 <body>
 
 <nav class="navbar" aria-label="Navegação principal">
-  <a href="../pages/dashboard.html" class="navbar-brand">UniCaronas</a>
-  <ul class="navbar-links" role="list">
-    <li><a href="../pages/dashboard.html" aria-current="page">Painel</a></li>
-    <li><a href="../pages/buscar.html">Buscar carona</a></li>
-    <li><a href="../pages/criar-carona.html">Oferecer carona</a></li>
-    <li><a href="../pages/perfil.html">Perfil</a></li>
-  </ul>
-  <button class="btn btn-ghost btn-sm" id="btn-logout" type="button">Sair</button>
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;">
+    <a href="../pages/dashboard.html" class="navbar-brand">Uni<span>Caronas</span></a>
+    <ul class="navbar-links" role="list" style="list-style:none;">
+      <li><a href="../pages/dashboard.html" aria-current="page">Painel</a></li>
+      <li><a href="../pages/buscar.html">Buscar carona</a></li>
+      <li><a href="../pages/criar-carona.html">Oferecer carona</a></li>
+      <li><a href="../pages/perfil.html">Perfil</a></li>
+    </ul>
+    <button class="btn btn-ghost btn-sm" id="btn-logout" type="button">Sair</button>
+  </div>
 </nav>
 
   <div class="container">
@@ -71,11 +73,13 @@
     protegerRota();
     const usuario = getUser();
 
+    // Saudação
     const hora = new Date().getHours();
     const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
-    document.getElementById('boas-vindas').textContent = `${saudacao}, ${usuario?.nome?.split(' ')[0]}`;
-    document.getElementById('nav-nome').textContent = usuario?.nome?.split(' ')[0] || 'Perfil';
+    document.getElementById('boas-vindas').textContent =
+      `${saudacao}, ${usuario?.nome?.split(' ')[0] || 'Usuário'}`;
 
+    // Avaliação
     const av = parseFloat(usuario?.avaliacao_media || 0);
     document.getElementById('stat-avaliacao').textContent = av > 0 ? av.toFixed(1) : 'Novo';
 
@@ -120,22 +124,27 @@
 
     (async () => {
       try {
-        const res    = await api.listarCaronas();
+        const res     = await api.listarCaronas();
         const caronas = res.data;
+
         document.getElementById('stat-caronas').textContent = caronas.length;
-        document.getElementById('stat-minhas').textContent  = caronas.filter(c => c.motorista_id === usuario?.id).length;
+        document.getElementById('stat-minhas').textContent  =
+          caronas.filter(c => c.motorista_id === usuario?.id).length;
 
         const lista = document.getElementById('lista-caronas');
         if (caronas.length === 0) {
           lista.innerHTML = '<div class="empty-state"><p>Nenhuma carona disponível no momento.</p></div>';
           return;
         }
-        lista.innerHTML = caronas.slice(0,5).map(renderCarona).join('');
-      } catch(err) {
-        document.getElementById('lista-caronas').innerHTML = '<div class="empty-state"><p>Erro ao carregar caronas.</p></div>';
+        lista.innerHTML = caronas.slice(0, 5).map(renderCarona).join('');
+      } catch (err) {
+        document.getElementById('stat-caronas').textContent = '—';
+        document.getElementById('stat-minhas').textContent  = '—';
+        document.getElementById('lista-caronas').innerHTML =
+          '<div class="empty-state"><p>Erro ao carregar caronas. Verifique se o servidor está rodando.</p></div>';
       }
     })();
-    
+
     document.getElementById('btn-logout')?.addEventListener('click', () => logout());
   </script>
 </body>
