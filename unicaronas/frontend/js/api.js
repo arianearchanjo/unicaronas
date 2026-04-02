@@ -116,6 +116,12 @@ const formatarDataCurta = (iso) =>
 const formatarMoeda = (v) =>
   Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+const calcularValorSugerido = (distancia_km) => {
+  const custoPorKm = 0.30;
+  const valor = distancia_km * custoPorKm;
+  return Math.round(valor * 100) / 100;
+};
+
 const iniciais = (nome) =>
   nome?.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase() || '?';
 
