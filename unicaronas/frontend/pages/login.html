@@ -63,8 +63,10 @@
     .login-subtitle { color: var(--text-3); font-size: .88rem; margin-bottom: 2rem; }
 
     @media(max-width:768px){
-      body { grid-template-columns: 1fr; }
+      body { display: block; height: auto; }
       .login-visual { display: none; }
+      .login-form-panel { padding: 4rem 1.5rem; min-height: 100vh; align-items: flex-start; }
+      .login-box { max-width: 100%; margin: 0; }
     }
   </style>
 </head>
@@ -116,6 +118,14 @@
       </p>
     </div>
   </div>
+
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-logo">Uni<span>Caronas</span></div>
+      <div class="footer-dev">Desenvolvido por <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
+      <div class="footer-copyright">© 2026 UniCaronas — Todos os direitos reservados.</div>
+    </div>
+  </footer>
 
   <script src="../js/api.js"></script>
   <script src="../js/i18n.js"></script>

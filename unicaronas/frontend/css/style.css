@@ -50,6 +50,9 @@ body {
   line-height: 1.65;
   font-size: 15px;
   -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 ::-webkit-scrollbar { width: 5px; }
@@ -70,10 +73,19 @@ a:hover { color: var(--text); }
   padding: .9rem 0;
   position: sticky; top: 0; z-index: 200;
 }
-.navbar .container { display: flex; align-items: center; justify-content: space-between; }
+.navbar .container { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+}
 .navbar-brand { font-size: 1.15rem; font-weight: 700; letter-spacing: -.4px; color: var(--text); }
 .navbar-brand span { color: var(--accent-2); }
-.navbar-links { display: flex; gap: 2rem; align-items: center; }
+
+.navbar-links { 
+  display: flex; 
+  gap: 2rem; 
+  align-items: center; 
+}
 .navbar-links a {
   color: var(--text-3); font-size: .82rem; font-weight: 600;
   letter-spacing: .06em; text-transform: uppercase; transition: color .2s;
@@ -288,9 +300,131 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .text-center{text-align:center} .text-muted{color:var(--text-3);font-size:.88rem}
 .flex{display:flex} .gap-1{gap:.5rem} .gap-2{gap:1rem}
 
-@media(max-width:768px){
-  .grid-2,.grid-3{grid-template-columns:1fr}
-  .filtros-grid{grid-template-columns:1fr}
-  .navbar-links{gap:1rem}
-  .carona-footer{flex-direction:column;align-items:flex-start;gap:1rem}
+/* --- RESPONSIVIDADE GLOBAL --- */
+
+.navbar-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  z-index: 201;
+}
+
+.navbar-toggle span {
+  width: 25px;
+  height: 2px;
+  background-color: var(--text);
+  border-radius: 2px;
+  transition: 0.3s;
+}
+
+@media (max-width: 768px) {
+  .navbar .container { 
+    justify-content: flex-start;
+    gap: 1rem;
+  }
+
+  .navbar-toggle { display: flex; }
+  
+  .navbar-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: var(--surface);
+    flex-direction: column;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    z-index: 200;
+  }
+
+  .navbar-links.active {
+    display: flex;
+  }
+
+  .navbar-links li {
+    width: 100%;
+    text-align: center;
+  }
+
+  .navbar-links a {
+    display: block;
+    padding: 12px;
+    font-size: .9rem;
+  }
+
+  /* (3) Dashboard & Perfil Stats Grid */
+  .stats-grid { 
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: 1rem !important;
+  }
+
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .filtros-grid { grid-template-columns: 1fr; }
+  .carona-footer { flex-direction: column; align-items: flex-start; gap: 1rem; }
+}
+
+@media (max-width: 600px) {
+  /* (4) Buscar Button Width */
+  .filtros-grid .btn { width: 100%; }
+  
+  /* (7) Perfil Avaliação Rota */
+  .avaliacao-rota { margin-left: 0 !important; margin-top: .5rem; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ── Footer ───────────────────────────────────────────────── */
+.footer {
+  background: var(--bg-2);
+  border-top: 1px solid var(--border);
+  padding: 3rem 0;
+  margin-top: auto;
+  color: var(--text-3);
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.footer-logo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-2);
+  letter-spacing: -.3px;
+}
+
+.footer-logo span { color: var(--accent-2); }
+
+.footer-dev {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.footer-dev a {
+  color: var(--accent-2);
+  text-decoration: none;
+}
+
+.footer-dev a:hover {
+  text-decoration: underline;
+}
+
+.footer-copyright {
+  font-size: 0.75rem;
+  color: var(--text-3);
+  font-family: var(--font-mono);
 }

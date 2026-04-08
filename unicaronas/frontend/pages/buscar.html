@@ -11,8 +11,12 @@
 </head>
 <body>
 <nav class="navbar" aria-label="Navegação principal">
-  <div class="container" style="display:flex;align-items:center;justify-content:space-between;">
+  <div class="container" style="position: relative;">
+    <button class="navbar-toggle" onclick="document.querySelector('.navbar-links').classList.toggle('active')">
+      <span></span><span></span><span></span>
+    </button>
     <a href="../pages/dashboard.html" class="navbar-brand">Uni<span>Caronas</span></a>
+    
     <ul class="navbar-links" role="list" style="list-style:none;">
       <li><a href="../pages/dashboard.html" data-i18n="nav-dashboard">Painel</a></li>
       <li><a href="../pages/buscar.html" aria-current="page" data-i18n="nav-buscar">Buscar carona</a></li>
@@ -51,6 +55,14 @@
       <p class="text-muted" data-i18n="welcome-loading">Carregando...</p>
     </div>
   </div>
+
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-logo">Uni<span>Caronas</span></div>
+      <div class="footer-dev">Desenvolvido por <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
+      <div class="footer-copyright">© 2026 UniCaronas — Todos os direitos reservados.</div>
+    </div>
+  </footer>
 
   <script src="../js/api.js"></script>
   <script src="../js/i18n.js"></script>
