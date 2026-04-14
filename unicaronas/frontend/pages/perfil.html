@@ -170,8 +170,9 @@
       
       <ul class="navbar-links" role="list" style="list-style:none;">
         <li><a href="../pages/dashboard.html" data-i18n="nav-dashboard">Painel <span id="nav-painel-badge" class="nav-badge" style="display: none;">0</span></a></li>
-        <li><a href="../pages/buscar.html" data-i18n="nav-buscar">Buscar carona</a></li>
-        <li><a href="../pages/criar-carona.html" data-i18n="nav-oferecer">Oferecer carona</a></li>
+        <li id="nav-buscar-wrap"><a href="../pages/buscar.html" data-i18n="nav-buscar">Buscar carona</a></li>
+        <li id="nav-oferecer-wrap"><a href="../pages/criar-carona.html" data-i18n="nav-oferecer">Oferecer carona</a></li>
+        <li id="nav-gerenciar-wrap"><a href="../pages/gerenciar-caronas.html" data-i18n="nav-gerenciar">Gerenciar caronas</a></li>
         <li><a href="../pages/perfil.html" aria-current="page" data-i18n="nav-perfil">Perfil</a></li>
       </ul>
       <button class="btn btn-ghost btn-sm" id="btn-logout" type="button" data-i18n="nav-sair">Sair</button>
@@ -209,11 +210,11 @@
       </section>
 
       <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card role-motorista" id="stat-motorista-card">
           <div class="stat-num" id="stat-motorista">—</div>
           <div class="stat-label" data-i18n="profile-stats-driver">Caronas como motorista</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card role-passageiro" id="stat-passageiro-card">
           <div class="stat-num" id="stat-passageiro">—</div>
           <div class="stat-label" data-i18n="profile-stats-passenger">Caronas como passageiro</div>
         </div>

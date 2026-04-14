@@ -9,6 +9,7 @@ const translations = {
     'nav-dashboard': 'Painel',
     'nav-buscar': 'Buscar carona',
     'nav-oferecer': 'Oferecer carona',
+    'nav-gerenciar': 'Gerenciar caronas',
     'nav-perfil': 'Perfil',
     'nav-sair': 'Sair',
     
@@ -117,6 +118,7 @@ const translations = {
     'nav-dashboard': 'Dashboard',
     'nav-buscar': 'Search ride',
     'nav-oferecer': 'Offer ride',
+    'nav-gerenciar': 'Manage rides',
     'nav-perfil': 'Profile',
     'nav-sair': 'Logout',
     
@@ -222,7 +224,8 @@ const translations = {
     // Navbar
     'nav-dashboard': 'Panel',
     'nav-buscar': 'Buscar viaje',
-    'nav-oferecer': 'Ofrecer viaje',
+    'nav-oferecer': 'Oferecer viaje',
+    'nav-gerenciar': 'Gestionar viajes',
     'nav-perfil': 'Perfil',
     'nav-sair': 'Salir',
     

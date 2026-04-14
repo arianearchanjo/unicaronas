@@ -28,7 +28,39 @@ const protegerRota = () => {
     window.location.href = 'login.html';
     return false;
   }
+  aplicarRegrasPerfil();
   return true;
+};
+
+const aplicarRegrasPerfil = () => {
+  const u = getUser();
+  if (!u) return;
+
+  const tipo = u.perfil_tipo || 'misto';
+
+  // Regras para Passageiro (estudante)
+  if (tipo === 'estudante') {
+    document.querySelectorAll('.role-motorista, #nav-oferecer-wrap, #nav-gerenciar-wrap').forEach(el => el.style.display = 'none');
+  }
+  
+  // Regras para Motorista
+  if (tipo === 'motorista') {
+    document.querySelectorAll('.role-passageiro, #nav-buscar-wrap').forEach(el => el.style.display = 'none');
+  }
+
+  // Se for misto, garante que tudo apareça (exceto se houver lógica específica)
+  if (tipo === 'misto') {
+    document.querySelectorAll('#nav-oferecer-wrap, #nav-gerenciar-wrap, #nav-buscar-wrap').forEach(el => el.style.display = 'block');
+  }
+
+  // Proteção de acesso direto a páginas proibidas
+  const path = window.location.pathname;
+  if (tipo === 'estudante' && (path.includes('criar-carona.html') || path.includes('gerenciar-caronas.html'))) {
+    window.location.href = 'dashboard.html';
+  }
+  if (tipo === 'motorista' && path.includes('buscar.html')) {
+    window.location.href = 'dashboard.html';
+  }
 };
 
 // ─── Requisição base ───────────────────────────────────────────────────────────

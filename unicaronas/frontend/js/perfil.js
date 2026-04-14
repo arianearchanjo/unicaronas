@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const [resU, resAv, resHis] = await Promise.all([
       api.perfil(perfilId),
       api.avaliacoes(perfilId),
-      api.historicoCaronas(perfilId)
+      api.getHistorico(perfilId)
     ]);
 
     renderPerfil(resU.data, ehProprio);

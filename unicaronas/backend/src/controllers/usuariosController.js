@@ -123,7 +123,7 @@ const buscarPorId = async (req, res, next) => {
     }
 
     const { rows } = await db.query(
-      `SELECT id, nome, email, curso, telefone, foto_url, dia_ead,
+      `SELECT id, nome, email, curso, telefone, foto_url, dia_ead, perfil_tipo,
               avaliacao_media, total_avaliacoes, criado_em
        FROM usuarios
        WHERE id = $1 AND ativo = true`,
@@ -201,7 +201,15 @@ const atualizarPerfil = async (req, res, next) => {
          atualizado_em = NOW()
        WHERE id = $7
        RETURNING id, nome, email, curso, telefone, foto_url, dia_ead, perfil_tipo`,
-      [nome?.trim() || null, telefone?.trim() || null, curso?.trim() || null, foto_url || null, diaEadVal, perfil_tipo || null, id]
+      [
+        nome?.trim() || null, 
+        telefone?.trim() || null, 
+        curso?.trim() || null, 
+        foto_url || null, 
+        diaEadVal !== undefined ? diaEadVal : null,
+        perfil_tipo || null, 
+        id
+      ]
     );
 
     if (rows.length === 0) {

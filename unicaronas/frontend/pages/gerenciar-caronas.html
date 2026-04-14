@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniCaronas — Gerenciar Caronas</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .section-label {
+      font-size: .72rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: 1rem;
+    }
+    .accent-bar {
+      width: 32px; height: 3px; background: var(--accent);
+      border-radius: 99px; margin-bottom: .6rem;
+    }
+    .btn-chat-iniciar {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: var(--green-dim); color: var(--green);
+      border: 1px solid rgba(34,211,160,.25);
+      padding: .38rem .85rem; border-radius: var(--radius-sm);
+      font-family: var(--font); font-size: .8rem; font-weight: 600;
+      cursor: pointer; transition: all .18s; white-space: nowrap;
+    }
+    .btn-chat-iniciar:hover {
+      background: rgba(34,211,160,.2);
+      border-color: rgba(34,211,160,.45);
+    }
+    @keyframes aceito-flash {
+      0%   { background: rgba(34,211,160,.12); }
+      100% { background: transparent; }
+    }
+    .sol-aceita-flash { animation: aceito-flash 1.2s ease; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" aria-label="Navegação principal">
+  <div class="container" style="position: relative;">
+    <button class="navbar-toggle" onclick="document.querySelector('.navbar-links').classList.toggle('active')">
+      <span></span><span></span><span></span>
+    </button>
+    <a href="../pages/dashboard.html" class="navbar-brand">Uni<span>Caronas</span></a>
+    
+    <ul class="navbar-links" role="list" style="list-style:none;">
+      <li><a href="../pages/dashboard.html" data-i18n="nav-dashboard">Painel <span id="nav-painel-badge" class="nav-badge" style="display: none;">0</span></a></li>
+      <li id="nav-buscar-wrap"><a href="../pages/buscar.html" data-i18n="nav-buscar">Buscar carona</a></li>
+      <li id="nav-oferecer-wrap"><a href="../pages/criar-carona.html" data-i18n="nav-oferecer">Oferecer carona</a></li>
+      <li id="nav-gerenciar-wrap"><a href="../pages/gerenciar-caronas.html" aria-current="page" data-i18n="nav-gerenciar">Gerenciar caronas</a></li>
+      <li><a href="../pages/perfil.html" data-i18n="nav-perfil">Perfil</a></li>
+    </ul>
+    <button class="btn btn-ghost btn-sm" id="btn-logout" type="button" data-i18n="nav-sair">Sair</button>
+  </div>
+</nav>
+
+  <main class="container">
+    <div class="page-header fade-up">
+      <div class="accent-bar"></div>
+      <h2 data-i18n="nav-gerenciar">Gerenciar caronas</h2>
+      <p data-i18n="sub-welcome">Administre as caronas que você está oferecendo e as solicitações recebidas.</p>
+    </div>
+
+    <!-- Alerta de Conflito EAD -->
+    <div id="alerta-conflito-ead" style="display:none; margin-bottom: 2rem;">
+      <div class="alert alert-error" style="display: flex; align-items: center; gap: 1rem;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div>
+          <strong style="display:block">Atenção: Conflito de EAD detectado!</strong>
+          <span style="font-size: .85rem">Você tem caronas ativas marcadas para o seu novo dia EAD. Recomendamos cancelar ou avisar os passageiros.</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="section-minhas-oferecidas">
+      <div class="section-label">Minhas Caronas Oferecidas (Administrar)</div>
+      <div id="lista-minhas-caronas">
+        <p class="text-muted" data-i18n="welcome-loading">Carregando...</p>
+      </div>
+    </div>
+
+    <div id="section-solicitacoes">
+      <div class="section-label" style="margin-top:2.5rem" data-i18n="label-my-requests">Solicitações nas suas caronas</div>
+      <div id="lista-solicitacoes">
+        <p class="text-muted" data-i18n="welcome-loading">Carregando...</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-logo">Uni<span>Caronas</span></div>
+      <div class="footer-dev">Desenvolvido por <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
+      <div class="footer-copyright">© 2026 UniCaronas — Todos os direitos reservados.</div>
+    </div>
+  </footer>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/chat-global.js"></script>
+  <script>
+    protegerRota();
+    const usuario = getUser();
+    const caronasMap = {};
+
+    window.addEventListener('languageChanged', () => {
+      carregarSolicitacoes();
+      carregarMinhasCaronas();
+    });
+
+    async function carregarSolicitacoes() {
+      const container = document.getElementById('lista-solicitacoes');
+      try {
+        const res = await api.listarCaronas({ motorista_id: usuario?.id });
+      
+        if (res.data.length === 0) {
+          container.innerHTML = `<div class="empty-state"><p>${currentLang === 'pt' ? 'Você não tem caronas ativas.' : 'You have no active rides.'}</p></div>`;
+          return;
+        }
+
+        res.data.forEach(c => { caronasMap[c.id] = c; });
+      
+        const resultados = await Promise.all(
+          res.data.map(c =>
+            api.solicitacoesCarona(c.id).then(r => ({ carona: c, solicitacoes: r.data }))
+          )
+        );
+      
+        const comSolicitacoes = resultados.filter(r => r.solicitacoes.length > 0);
+      
+        if (comSolicitacoes.length === 0) {
+          container.innerHTML = `<div class="empty-state"><p>${currentLang === 'pt' ? 'Nenhuma solicitação no momento.' : 'No requests at the moment.'}</p></div>`;
+          return;
+        }
+      
+        container.innerHTML = comSolicitacoes.map(({ carona, solicitacoes }) => `
+          <div class="card mb-2">
+            <div class="card-title">
+              ${carona.origem} → ${carona.destino}
+              <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3)">
+                — ${formatarData(carona.horario_partida)}
+              </span>
+            </div>
+            ${solicitacoes.map(s => `
+              <div class="info-row sol-row-${s.id}" style="flex-wrap:wrap;gap:.75rem">
+                <div class="user-row">
+                  <div class="avatar">${iniciais(s.passageiro_nome)}</div>
+                  <div>
+                    <div class="user-name">${s.passageiro_nome}</div>
+                    <div class="user-rating">
+                      ${s.passageiro_curso || (currentLang === 'pt' ? 'Curso não informado' : 'Course not informed')} · ${parseFloat(s.passageiro_avaliacao || 0).toFixed(1)} ${currentLang === 'pt' ? 'de avaliação' : 'rating'}
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-left:auto">
+                  ${s.status === 'pendente' ? `
+                    <span class="badge badge-accent">${currentLang === 'pt' ? 'Pendente' : 'Pending'}</span>
+                    <button class="btn btn-success btn-sm" onclick="aceitarSolicitacao(${s.id}, '${escJs(s.passageiro_nome)}', ${carona.id}, this)">${currentLang === 'pt' ? 'Aceitar' : 'Accept'}</button>
+                    <button class="btn btn-danger btn-sm"  onclick="recusarSolicitacao(${s.id}, this)">${currentLang === 'pt' ? 'Recusar' : 'Reject'}</button>
+                  ` : `
+                    <span class="badge ${s.status === 'aceita' ? 'badge-green' : 'badge-red'}">${s.status}</span>
+                    ${s.status === 'aceita' ? `
+                      <button class="btn-chat-iniciar" onclick="abrirChatDashboard(${s.id}, '${escJs(s.passageiro_nome)}', ${carona.id})">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Chat
+                      </button>` : ''}
+                  `}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `).join('');
+        
+      } catch (err) {
+        container.innerHTML = `<div class="empty-state"><p>${err.message}</p></div>`;
+      }
+    }
+
+    async function aceitarSolicitacao(solicitacaoId, passageiroNome, caronaId, btn) {
+      btn.disabled = true;
+      try {
+        await api.responderSolicitacao(solicitacaoId, 'aceita');
+        const row = document.querySelector(`.sol-row-${solicitacaoId}`);
+        if (row) row.classList.add('sol-aceita-flash');
+        showAlert(`✓ Solicitação de ${passageiroNome} aceita!`, 'success');
+        carregarSolicitacoes();
+        carregarMinhasCaronas();
+      } catch (err) {
+        showAlert(err.message, 'error');
+        btn.disabled = false;
+      }
+    }
+
+    async function recusarSolicitacao(solicitacaoId, btn) {
+      btn.disabled = true;
+      try {
+        await api.responderSolicitacao(solicitacaoId, 'recusada');
+        carregarSolicitacoes();
+      } catch (err) {
+        showAlert(err.message, 'error');
+        btn.disabled = false;
+      }
+    }
+
+    function abrirChatDashboard(solicitacaoId, passageiroNome, caronaId) {
+      const carona = caronasMap[caronaId];
+      const titulo = carona ? `${carona.origem.split(',')[0]} → ${carona.destino.split(',')[0]}` : 'Carona';
+      UCChat.iniciarChat(solicitacaoId, {
+        titulo,
+        outraPessoa: passageiroNome,
+        subtitulo: `Passageiro: ${passageiroNome}`,
+      });
+    }
+
+    function escJs(str) {
+      return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+
+    async function carregarMinhasCaronas() {
+      const container = document.getElementById('lista-minhas-caronas');
+      const alertaEad = document.getElementById('alerta-conflito-ead');
+      try {
+        const res = await api.listarCaronas({ motorista_id: usuario?.id });
+        const minhas = res.data;
+        
+        if (minhas.length === 0) {
+          container.innerHTML = `<div class="empty-state"><p>${currentLang === 'pt' ? 'Você não está oferecendo nenhuma carona.' : 'You are not offering any rides.'}</p></div>`;
+          alertaEad.style.display = 'none';
+          return;
+        }
+
+        let conflitoEad = false;
+        if (usuario.dia_ead !== null && usuario.dia_ead !== undefined && usuario.dia_ead !== '') {
+          conflitoEad = minhas.some(c => new Date(c.horario_partida).getDay() === parseInt(usuario.dia_ead));
+        }
+        alertaEad.style.display = conflitoEad ? 'block' : 'none';
+
+        container.innerHTML = minhas.map(c => `
+          <div class="card mb-1" style="padding: 1rem;">
+            <div style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <div style="font-weight:700; color:var(--text)">${c.origem} → ${c.destino}</div>
+                <div style="font-size: .85rem; color:var(--text-3); font-family:var(--font-mono)">
+                  ${formatarData(c.horario_partida)} ${c.recorrente ? '· <span class="badge-semanal">Semanal</span>' : ''}
+                </div>
+              </div>
+              <div style="display:flex; gap: .5rem;">
+                <button class="btn btn-danger btn-sm" onclick="cancelarMinhaCarona(${c.id})">${currentLang === 'pt' ? 'Cancelar Carona' : 'Cancel Ride'}</button>
+                <a href="carona.html?id=${c.id}" class="btn btn-ghost btn-sm">${currentLang === 'pt' ? 'Ver Detalhes' : 'View Details'}</a>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        container.innerHTML = `<div class="empty-state"><p>${err.message}</p></div>`;
+      }
+    }
+
+    async function cancelarMinhaCarona(id) {
+      const justificativa = prompt(currentLang === 'pt' ? 'Por favor, informe o motivo do cancelamento:' : 'Please provide a reason for cancellation:');
+      if (justificativa === null) return;
+      if (justificativa.trim() === '') {
+        showAlert(currentLang === 'pt' ? 'A justificativa é obrigatória.' : 'Justification is required.', 'error');
+        return;
+      }
+      try {
+        await api.cancelarCarona(id, justificativa);
+        showAlert(currentLang === 'pt' ? 'Carona cancelada com sucesso.' : 'Ride cancelled successfully.', 'success');
+        carregarMinhasCaronas();
+        carregarSolicitacoes();
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+
+    carregarSolicitacoes();
+    carregarMinhasCaronas();
+    document.getElementById('btn-logout')?.addEventListener('click', () => logout());
+  </script>
+</body>
+</html>

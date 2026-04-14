@@ -495,8 +495,8 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 /* ── Badge Semanal nos cards ─────────────────────────────── */
 .badge-semanal {
-  background: var(--amber);
-  color: #000;
+  background: #6a0dad;
+  color: #fff;
   padding: .15rem .5rem;
   border-radius: 4px;
   font-size: .65rem;

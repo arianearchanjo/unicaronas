@@ -32,21 +32,20 @@
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; display: none; }
     .modal-box { background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); width: 100%; max-width: 400px; }
 
-    /* Botão de chat com pulso */
+    /* Botão de chat inline */
     .btn-chat-iniciar {
-      display: inline-flex; align-items: center; gap: .5rem;
+      display: inline-flex; align-items: center; gap: .4rem;
       background: var(--green-dim); color: var(--green);
       border: 1px solid rgba(34,211,160,.25);
-      padding: .55rem 1.1rem; border-radius: var(--radius-sm);
-      font-family: var(--font); font-size: .85rem; font-weight: 600;
+      padding: .38rem .85rem; border-radius: var(--radius-sm);
+      font-family: var(--font); font-size: .8rem; font-weight: 600;
       cursor: pointer; transition: all .18s; white-space: nowrap;
     }
     .btn-chat-iniciar:hover {
-      background: rgba(34,211,160,.18);
+      background: rgba(34,211,160,.2);
       border-color: rgba(34,211,160,.45);
-      transform: translateY(-1px);
     }
-    .btn-chat-iniciar:active { transform: scale(.97); }
+    .btn-chat-iniciar:active { transform: scale(.96); }
     .btn-chat-iniciar svg { flex-shrink: 0; }
 
     @media(max-width:992px){ 
@@ -64,8 +63,9 @@
     
     <ul class="navbar-links" role="list" style="list-style:none;">
       <li><a href="../pages/dashboard.html" data-i18n="nav-dashboard">Painel <span id="nav-painel-badge" class="nav-badge" style="display: none;">0</span></a></li>
-      <li><a href="../pages/buscar.html" data-i18n="nav-buscar">Buscar carona</a></li>
-      <li><a href="../pages/criar-carona.html" data-i18n="nav-oferecer">Oferecer carona</a></li>
+      <li id="nav-buscar-wrap"><a href="../pages/buscar.html" data-i18n="nav-buscar">Buscar carona</a></li>
+      <li id="nav-oferecer-wrap"><a href="../pages/criar-carona.html" data-i18n="nav-oferecer">Oferecer carona</a></li>
+      <li id="nav-gerenciar-wrap"><a href="../pages/gerenciar-caronas.html" data-i18n="nav-gerenciar">Gerenciar caronas</a></li>
       <li><a href="../pages/perfil.html" data-i18n="nav-perfil">Perfil</a></li>
     </ul>
     <button class="btn btn-ghost btn-sm" id="btn-logout" type="button" data-i18n="nav-sair">Sair</button>
@@ -86,9 +86,9 @@
 
         <div id="area-motorista" style="display:none">
           <div class="section-label" style="margin-top:2.5rem" data-i18n="label-my-requests">Solicitações na sua carona</div>
-          <div id="lista-solicitacoes-pendentes"></div>
-          <div class="section-label" style="margin-top:1.5rem">Passageiros confirmados</div>
-          <div id="lista-solicitacoes-aceitas"></div>
+          <div id="lista-solicitacoes">
+            <p class="text-muted">Carregando...</p>
+          </div>
         </div>
       </div>
 
@@ -108,29 +108,25 @@
 
   <!-- Modal de Avaliação -->
   <div id="modal-avaliacao" class="modal-overlay">
-    <div class="modal">
-      <h3 class="modal-title" data-i18n="ride-modal-rate-title">Avaliar Participante</h3>
-      <p class="modal-desc">Sua avaliação ajuda a manter a comunidade UniCaronas segura e confiável.</p>
-      
+    <div class="modal-box">
+      <h3 style="margin-bottom:1rem">Avaliar Usuário</h3>
       <div class="form-group">
-        <label class="form-label" data-i18n="ride-label-rating">Sua nota</label>
-        <div class="star-rating">
-          <input type="radio" id="star5" name="nota" value="5"><label for="star5"></label>
-          <input type="radio" id="star4" name="nota" value="4"><label for="star4"></label>
-          <input type="radio" id="star3" name="nota" value="3"><label for="star3"></label>
-          <input type="radio" id="star2" name="nota" value="2"><label for="star2"></label>
-          <input type="radio" id="star1" name="nota" value="1"><label for="star1"></label>
+        <label class="form-label">Sua nota</label>
+        <div class="rating-input" id="stars">
+          <input type="radio" name="nota" value="5" id="s5"><label for="s5"></label>
+          <input type="radio" name="nota" value="4" id="s4"><label for="s4"></label>
+          <input type="radio" name="nota" value="3" id="s3"><label for="s3"></label>
+          <input type="radio" name="nota" value="2" id="s2"><label for="s2"></label>
+          <input type="radio" name="nota" value="1" id="s1"><label for="s1"></label>
         </div>
       </div>
-
       <div class="form-group">
-        <label class="form-label" data-i18n="ride-label-comment">Comentário (opcional)</label>
-        <textarea id="comentario-nota" class="form-control" rows="3" data-i18n="ride-placeholder-comment" placeholder="Deixe um comentário opcional..."></textarea>
+        <label class="form-label">Comentário (opcional)</label>
+        <textarea id="comentario-nota" class="form-control" rows="3" placeholder="Como foi a experiência?"></textarea>
       </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="fecharModal()" data-i18n="btn-cancel">Cancelar</button>
-        <button class="btn btn-primary" id="btn-confirmar-avaliacao" onclick="enviarAvaliacao()" data-i18n="ride-btn-send-rating">Enviar Avaliação</button>
+      <div style="display:flex;gap:1rem;margin-top:1.5rem">
+        <button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>
+        <button class="btn btn-primary btn-full" onclick="enviarAvaliacao()">Enviar Avaliação</button>
       </div>
     </div>
   </div>
@@ -142,7 +138,243 @@
     protegerRota();
     const usuario      = getUser();
     const id           = new URLSearchParams(location.search).get('id');
-...
+    let   solicitacaoId = null;
+    let   avaliandoId   = null;
+    let   avaliandoSolId = null;
+
+    if (!id) location.href = 'buscar.html';
+
+    window.addEventListener('languageChanged', () => carregarDados());
+
+    async function carregarDados() {
+      try {
+        const res  = await api.buscarCarona(id);
+        const c    = res.data;
+        const sou_motorista = c.motorista_id === usuario?.id;
+
+        let minhaSol = null;
+        if (!sou_motorista) {
+          const resSol = await api.minhaSolicitacao(id);
+          minhaSol = resSol.data;
+          solicitacaoId = minhaSol?.id;
+        }
+
+        const pagamentoHtml = (!sou_motorista && minhaSol?.status === 'aceita') ? `
+          <div class="card mb-2 fade-up" style="background: var(--green-dim); border: 1px solid rgba(34,211,160,.3)">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem">
+              <div>
+                <div style="font-weight:700; color:var(--green)">Vaga confirmada!</div>
+                <div style="font-size:0.85rem; color:var(--text-2)">Realize o pagamento para garantir sua vaga.</div>
+              </div>
+              <a href="pagamento.html?solicitacao_id=${minhaSol.id}&carona_id=${id}&valor=${c.valor_cobrado}" class="btn btn-success btn-sm">Pagar ${formatarMoeda(c.valor_cobrado)}</a>
+            </div>
+          </div>` : '';
+
+        // Injeção de conteúdo principal
+        document.getElementById('conteudo').innerHTML = `
+          <div class="page-header" style="padding-top:1.5rem">
+            <div class="detalhe-rota fade-up">
+              <span>${c.origem}</span>
+              <span class="rota-arrow">→</span>
+              <span>${c.destino}</span>
+              ${c.recorrente ? `<span class="badge-semanal">Semanal</span>` : ''}
+            </div>
+          </div>
+          <div class="card mb-2 fade-up fade-up-1">
+            <div class="card-title">Detalhes da viagem</div>
+            <div class="info-row"><span class="label">Data e hora</span><span class="value">${formatarData(c.horario_partida)}</span></div>
+            <div class="info-row"><span class="label">Vagas disponíveis</span><span class="value">${c.vagas_disponiveis} de ${c.vagas_totais}</span></div>
+            <div class="info-row"><span class="label">Status</span><span class="value"><span class="badge ${c.status === 'concluida' ? 'badge-green' : (c.status === 'cancelada' ? 'badge-red' : 'badge-accent')}">${c.status}</span></span></div>
+            ${c.justificativa_cancelamento ? `<div class="info-row"><span class="label">Motivo cancelamento</span><span class="value" style="color:var(--red)">${c.justificativa_cancelamento}</span></div>` : ''}
+            ${c.distancia_km ? `<div class="info-row"><span class="label">Distância estimada</span><span class="value">${c.distancia_km} km</span></div>` : ''}
+            ${c.observacoes ? `<div class="info-row"><span class="label">Observações</span><span class="value">${c.observacoes}</span></div>` : ''}
+          </div>
+          <div class="card fade-up fade-up-2">
+            <div class="card-title">Motorista</div>
+            <div class="user-row">
+              <div class="avatar avatar-lg">${iniciais(c.motorista_nome)}</div>
+              <div>
+                <div style="font-size:1.05rem;font-weight:700">${c.motorista_nome}</div>
+                <div class="user-rating" style="margin-top:.2rem">${parseFloat(c.motorista_avaliacao||0).toFixed(1)} ★ de avaliação média</div>
+                ${c.motorista_telefone ? `<div style="font-size:.82rem;color:var(--text-3);margin-top:.2rem">${c.motorista_telefone}</div>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Injeção de Sidebar
+        document.getElementById('sidebar-conteudo').innerHTML = `
+          ${pagamentoHtml}
+          <div class="card mb-2 fade-up" style="text-align:center;padding:2.5rem 2rem">
+            <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:.5rem">Valor por passageiro</div>
+            <div class="preco-destaque">${formatarMoeda(c.valor_cobrado)}</div>
+
+            ${!sou_motorista && !minhaSol && c.status === 'ativa' && c.vagas_disponiveis > 0 ? `
+            <div style="margin-top:2rem">
+              <button class="btn btn-success btn-full btn-lg" onclick="solicitar()">Solicitar vaga</button>
+            </div>` : ''}
+
+            ${!sou_motorista && minhaSol?.status === 'aceita' ? `
+            <div style="margin-top:2rem">
+              <span class="badge badge-green" style="display:block;margin-bottom:1rem">Vaga confirmada</span>
+              ${c.status === 'concluida' ? `
+                <button class="btn btn-primary btn-full mt-1" onclick="abrirModal(${c.motorista_id}, ${minhaSol.id})">Avaliar Motorista</button>
+              ` : ''}
+              <button class="btn-chat-iniciar btn-full mt-1" onclick="abrirChatRide(${minhaSol.id}, '${escJs(c.motorista_nome)}', '${escJs(c.origem)}', '${escJs(c.destino)}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Chat com motorista
+              </button>
+            </div>` : ''}
+
+            ${!sou_motorista && minhaSol?.status === 'pendente' ? `
+            <div style="margin-top:2rem"><span class="badge badge-accent">Aguardando resposta</span></div>` : ''}
+
+            ${sou_motorista && c.status === 'ativa' ? `
+            <div style="margin-top:2rem">
+              <button class="btn btn-success btn-full btn-lg mb-1" onclick="concluirCarona()">Concluir carona</button>
+              <button class="btn btn-danger btn-full" onclick="cancelarCarona()">Cancelar carona</button>
+            </div>` : ''}
+
+            ${sou_motorista && c.status === 'concluida' ? `
+            <div style="margin-top:2rem"><span class="badge badge-green">Viagem finalizada</span></div>` : ''}
+            
+            ${c.status === 'cancelada' ? `
+            <div style="margin-top:2rem"><span class="badge badge-red">Viagem cancelada</span></div>` : ''}
+          </div>
+        `;
+
+        if (sou_motorista) {
+          document.getElementById('area-motorista').style.display = 'block';
+          carregarSolicitacoes();
+        }
+
+      } catch(err) {
+        document.getElementById('conteudo').innerHTML = `<div class="alert alert-error">${err.message}</div>`; 
+      }
+    }
+
+    async function solicitar() {
+      try {
+        await api.solicitarVaga(id);
+        showAlert('Solicitação enviada!', 'success');
+        carregarDados();
+      } catch(err) { showAlert(err.message, 'error'); }
+    }
+
+    async function concluirCarona() {
+      if (!confirm('Deseja marcar esta carona como concluída?')) return;
+      try {
+        await api.concluirCarona(id);
+        showAlert('Carona concluída!', 'success');
+        carregarDados();
+      } catch(err) { showAlert(err.message, 'error'); }
+    }
+
+    async function cancelarCarona() {
+      const justificativa = prompt('Por favor, informe o motivo do cancelamento (mínimo 5 caracteres):');
+      if (justificativa === null) return;
+      if (justificativa.length < 5) return showAlert('Justificativa muito curta', 'error');
+
+      try {
+        await api.cancelarCarona(id, justificativa);
+        showAlert('Carona cancelada', 'success');
+        carregarDados();
+      } catch(err) { showAlert(err.message, 'error'); }
+    }
+
+    function abrirModal(avaliadoId, solId) {
+      avaliandoId = avaliadoId;
+      avaliandoSolId = solId;
+      document.getElementById('modal-avaliacao').style.display = 'flex';
+    }
+
+    function fecharModal() {
+      document.getElementById('modal-avaliacao').style.display = 'none';
+    }
+
+    async function enviarAvaliacao() {
+      const notaEl = document.querySelector('input[name="nota"]:checked');
+      if (!notaEl) return showAlert('Selecione uma nota', 'error');
+      
+      const dados = {
+        solicitacao_id: avaliandoSolId,
+        avaliado_id: avaliandoId,
+        nota: parseInt(notaEl.value),
+        comentario: document.getElementById('comentario-nota').value.trim()
+      };
+
+      try {
+        await api.avaliar(dados);
+        showAlert('Avaliação enviada!', 'success');
+        fecharModal();
+      } catch(err) {
+        showAlert(err.message, 'error');
+      }
+    }
+
+    async function carregarSolicitacoes() {
+      const container = document.getElementById('lista-solicitacoes');
+      try {
+        const res = await api.solicitacoesCarona(id);
+        const solicitacoes = res.data;
+      
+        if (solicitacoes.length === 0) {
+          container.innerHTML = '<div class="empty-state"><p>Nenhuma solicitação até agora.</p></div>';        
+          return;
+        }
+      
+        container.innerHTML = solicitacoes.map(s => `
+          <div class="card mb-2">
+            <div class="info-row" style="flex-wrap:wrap;gap:.75rem">
+              <div class="user-row">
+                <div class="avatar">${iniciais(s.passageiro_nome)}</div>
+                <div>
+                  <div class="user-name">${s.passageiro_nome}</div>
+                  <div class="user-rating">${s.passageiro_curso || 'Curso não informado'} · ${parseFloat(s.passageiro_avaliacao || 0).toFixed(1)} ★</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:.5rem;align-items:center;margin-left:auto">
+                ${s.status === 'pendente' ? `
+                  <button class="btn btn-success btn-sm" onclick="responder(${s.id}, 'aceita')">Aceitar</button>
+                  <button class="btn btn-danger btn-sm"  onclick="responder(${s.id}, 'recusada')">Recusar</button>
+                ` : `
+                  <span class="badge ${s.status === 'aceita' ? 'badge-green' : 'badge-red'}">${s.status}</span>
+                  ${s.status === 'aceita' ? `
+                    <button class="btn-chat-iniciar" onclick="abrirChatRide(${s.id}, '${escJs(s.passageiro_nome)}', 'Sua Carona', 'Passageiro: ${escJs(s.passageiro_nome)}')">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                      Chat
+                    </button>
+                    <button class="btn btn-primary btn-sm" onclick="abrirModal(${s.passageiro_id}, ${s.id})">Avaliar</button>
+                  ` : ''}
+                `}
+              </div>
+            </div>
+          </div>`).join('');
+      } catch (err) {
+        container.innerHTML = `<div class="empty-state"><p>${err.message}</p></div>`;
+      }
+    }
+
+    async function responder(sid, status) {
+      try {
+        await api.responderSolicitacao(sid, status);
+        carregarSolicitacoes();
+        carregarDados();
+      } catch (err) { showAlert(err.message, 'error'); }
+    }
+
+    function abrirChatRide(sid, nome, origem, destino) {
+      UCChat.iniciarChat(sid, {
+        titulo: `${origem.split(',')[0]} → ${destino.split(',')[0]}`,
+        outraPessoa: nome,
+        subtitulo: `Conversa com ${nome}`
+      });
+    }
+
+    function escJs(str) {
+      return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+
     carregarDados();
     document.getElementById('btn-logout')?.addEventListener('click', () => logout());
   </script>

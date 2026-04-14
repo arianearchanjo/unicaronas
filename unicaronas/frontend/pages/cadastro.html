@@ -267,26 +267,3 @@
   </script>
 </body>
 </html>
-
-      if (!dados.nome || !dados.email || !dados.matricula || !dados.senha) {
-        return showAlert(currentLang === 'pt' ? 'Preencha nome, e-mail, matrícula e senha' : 'Fill in name, email, student ID and password', 'error');
-      }
-      if (dados.senha.length < 8) {
-        return showAlert(currentLang === 'pt' ? 'A senha deve ter ao menos 8 caracteres' : 'The password must have at least 8 characters', 'error');
-      }
-
-      const btn = document.getElementById('btn-cadastrar');
-      btn.disabled = true; btn.textContent = currentLang === 'pt' ? 'Criando conta...' : 'Creating account...';
-
-      try {
-        await api.cadastrar(dados);
-        showAlert(currentLang === 'pt' ? 'Conta criada com sucesso! Redirecionando...' : 'Account created successfully! Redirecting...', 'success');
-        setTimeout(() => window.location.href = 'login.html', 2000);
-      } catch (err) {
-        showAlert(err.message, 'error');
-        btn.disabled = false; btn.textContent = t('btn-register');
-      }
-    }
-  </script>
-</body>
-</html>
