@@ -150,6 +150,7 @@ function initEdicao(u) {
   document.getElementById('edit-nome').value     = u.nome     || '';
   document.getElementById('edit-telefone').value = u.telefone || '';
   document.getElementById('edit-curso').value    = u.curso    || '';
+  document.getElementById('edit-dia-ead').value  = u.dia_ead !== null && u.dia_ead !== undefined ? u.dia_ead : '';
 
   // Preview inicial
   atualizarPreviewFoto(u.foto_url, u.nome);
@@ -215,6 +216,7 @@ async function salvarPerfil() {
     formData.append('nome', nome);
     formData.append('telefone', document.getElementById('edit-telefone').value.trim());
     formData.append('curso', document.getElementById('edit-curso').value.trim());
+    formData.append('dia_ead', document.getElementById('edit-dia-ead').value);
     
     const inputFoto = document.getElementById('edit-foto');
     if (inputFoto.files && inputFoto.files[0]) {
@@ -223,7 +225,9 @@ async function salvarPerfil() {
 
     const res = await api.atualizarPerfil(formData);
 
-    setUser({ ...getUser(), nome: res.data.nome, foto_url: res.data.foto_url });
+    const updatedUser = { ...getUser(), ...res.data };
+    setUser(updatedUser);
+    
     setText('perfil-nome',  res.data.nome);
     setText('perfil-curso', res.data.curso || 'Curso nao informado');
     atualizarAvatar('perfil-avatar', res.data.foto_url, res.data.nome);

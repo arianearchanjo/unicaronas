@@ -14,12 +14,24 @@ const criar = async (req, res, next) => {
     } = req.body;
     const motorista_id = req.usuario.id;
 
+    // Busca dia_ead do usuário
+    const { rows: userRows } = await db.query('SELECT dia_ead FROM usuarios WHERE id = $1', [motorista_id]);
+    const dia_ead = userRows[0]?.dia_ead;
+
     const horario = new Date(horario_partida);
     if (isNaN(horario.getTime())) {
       return res.status(400).json({ success: false, error: 'horario_partida inválido' });
     }
     if (horario <= new Date()) {
       return res.status(400).json({ success: false, error: 'O horário de partida deve ser no futuro' });
+    }
+
+    // Validação de dia EAD para a carona principal
+    if (dia_ead !== null && horario.getDay() === dia_ead) {
+      return res.status(422).json({ 
+        success: false, 
+        error: "Você não pode criar uma carona neste dia pois é o seu dia EAD." 
+      });
     }
 
     const vagas = parseInt(vagas_totais, 10);
@@ -47,20 +59,37 @@ const criar = async (req, res, next) => {
       ]
     );
 
+    const avisos = [];
     if (recorrente) {
-      for (let i = 1; i <= 3; i++) {
+      let criadas = 0;
+      let semanasAvancadas = 1;
+      
+      while (criadas < 3) {
         const novaData = new Date(horario);
-        novaData.setDate(novaData.getDate() + (i * 7));
+        novaData.setDate(novaData.getDate() + (semanasAvancadas * 7));
+        
+        // Verifica se a nova data cai no dia EAD
+        if (dia_ead !== null && novaData.getDay() === dia_ead) {
+          const dataFormatada = novaData.toLocaleDateString('pt-BR');
+          const diasSemana = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+          avisos.push(`Carona de ${dataFormatada} (${diasSemana[novaData.getDay()]}) ignorada: dia EAD da sua turma.`);
+          semanasAvancadas++;
+          continue; // Pula esta semana e tenta a próxima
+        }
+
         await db.query(
           `INSERT INTO caronas (motorista_id, origem, destino, horario_partida, vagas_totais, 
            vagas_disponiveis, valor_sugerido, valor_cobrado, distancia_km, observacoes, recorrente)
            VALUES ($1, $2, $3, $4, $5, $5, $6, $7, $8, $9, true)`,
           [motorista_id, origem.trim(), destino.trim(), novaData.toISOString(), vagas, valor_sugerido, valor, distancia, observacoes?.trim() || null]
         );
+        
+        criadas++;
+        semanasAvancadas++;
       }
     }
 
-    res.status(201).json({ success: true, data: rows[0] });
+    res.status(201).json({ success: true, data: rows[0], avisos });
   } catch (err) {
     next(err);
   }

@@ -56,7 +56,10 @@
         <div class="grid-2">
           <div class="form-group">
             <label class="form-label" data-i18n="label-datetime">Data e horário</label>
-            <input class="form-control" id="horario" type="datetime-local">
+            <input class="form-control" id="horario" type="datetime-local" onchange="verificarDiaEad()">
+            <div id="aviso-ead" class="alert alert-warning" style="display:none; margin-top:0.5rem; padding: 0.5rem; font-size: 0.8rem;">
+              Atenção: Este é o seu dia EAD. Você tem certeza que deseja oferecer carona?
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label" data-i18n="label-vagas">Vagas disponíveis</label>
@@ -135,6 +138,24 @@
       }
     }
 
+    function verificarDiaEad() {
+      const input = document.getElementById('horario');
+      const aviso = document.getElementById('aviso-ead');
+      const user = getUser();
+      
+      if (!input.value || user.dia_ead === null || user.dia_ead === undefined) {
+        aviso.style.display = 'none';
+        return;
+      }
+
+      const data = new Date(input.value);
+      if (data.getDay() === parseInt(user.dia_ead)) {
+        aviso.style.display = 'block';
+      } else {
+        aviso.style.display = 'none';
+      }
+    }
+
     async function publicarCarona() {
       const dados = {
         origem:          document.getElementById('origem').value.trim(),
@@ -156,11 +177,19 @@
 
       try {
         const res = await api.criarCarona(dados);
-        showAlert(currentLang === 'pt' ? 'Carona publicada com sucesso!' : 'Ride published successfully!', 'success');
-        setTimeout(() => window.location.href = `carona.html?id=${res.data.id}`, 1500);
+        
+        let msg = currentLang === 'pt' ? 'Carona publicada com sucesso!' : 'Ride published successfully!';
+        if (res.avisos && res.avisos.length > 0) {
+          msg += '\n\nNotas:\n' + res.avisos.join('\n');
+          alert(msg); // Usando alert para garantir que o usuário veja os avisos de datas puladas
+        } else {
+          showAlert(msg, 'success');
+        }
+
+        setTimeout(() => window.location.href = `carona.html?id=${res.data.id}`, 2000);
       } catch(err) {
         showAlert(err.message, 'error');
-        btn.disabled = false; btn.textContent = t('btn-publish');
+        btn.disabled = false; btn.textContent = t('btn-publish') || (currentLang === 'pt' ? 'Publicar carona' : 'Publish ride');
       }
     }
     

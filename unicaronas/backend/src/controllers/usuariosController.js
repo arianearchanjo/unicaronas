@@ -92,6 +92,7 @@ const login = async (req, res, next) => {
           curso:            usuario.curso,
           avaliacao_media:  usuario.avaliacao_media,
           foto_url:         usuario.foto_url,
+          dia_ead:          usuario.dia_ead,
         },
       },
     });
@@ -112,7 +113,7 @@ const buscarPorId = async (req, res, next) => {
     }
 
     const { rows } = await db.query(
-      `SELECT id, nome, email, curso, telefone, foto_url,
+      `SELECT id, nome, email, curso, telefone, foto_url, dia_ead,
               avaliacao_media, total_avaliacoes, criado_em
        FROM usuarios
        WHERE id = $1 AND ativo = true`,
@@ -160,25 +161,21 @@ const buscarPorId = async (req, res, next) => {
 const atualizarPerfil = async (req, res, next) => {
   try {
     const id = req.usuario.id;
-    const { nome, telefone, curso } = req.body;
+    const { nome, telefone, curso, dia_ead } = req.body;
     let { foto_url } = req.body;
 
     // Se houver arquivo enviado, gera a URL local
     if (req.file) {
-      // O host deve vir de uma variável de ambiente ou ser inferido
       const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
       foto_url = `${baseUrl}/uploads/profiles/${req.file.filename}`;
     }
 
-    // Valida URL da foto se fornecida via texto (fallback ou se mantido o campo)
-    if (foto_url && !req.file) {
-      try {
-        const url = new URL(foto_url);
-        if (!['http:', 'https:'].includes(url.protocol)) {
-          return res.status(400).json({ success: false, error: 'URL da foto inválida' });
-        }
-      } catch {
-        return res.status(400).json({ success: false, error: 'URL da foto inválida' });
+    // Validação do dia_ead se fornecido
+    let diaEadVal = undefined;
+    if (dia_ead !== undefined && dia_ead !== '') {
+      diaEadVal = parseInt(dia_ead, 10);
+      if (isNaN(diaEadVal) || diaEadVal < 0 || diaEadVal > 6) {
+        return res.status(400).json({ success: false, error: 'dia_ead deve ser entre 0 e 6' });
       }
     }
 
@@ -189,10 +186,11 @@ const atualizarPerfil = async (req, res, next) => {
          telefone      = COALESCE($2, telefone),
          curso         = COALESCE($3, curso),
          foto_url      = COALESCE($4, foto_url),
+         dia_ead       = COALESCE($5, dia_ead),
          atualizado_em = NOW()
-       WHERE id = $5
-       RETURNING id, nome, email, curso, telefone, foto_url`,
-      [nome?.trim() || null, telefone?.trim() || null, curso?.trim() || null, foto_url || null, id]
+       WHERE id = $6
+       RETURNING id, nome, email, curso, telefone, foto_url, dia_ead`,
+      [nome?.trim() || null, telefone?.trim() || null, curso?.trim() || null, foto_url || null, diaEadVal, id]
     );
 
     if (rows.length === 0) {
