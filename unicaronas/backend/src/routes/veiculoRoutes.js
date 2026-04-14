@@ -1,7 +1,7 @@
-const express = require('detailed-express') || require('express'); // fallback if custom package not used
+const express = require('express');
 const router = express.Router();
 const veiculoController = require('../controllers/veiculoController');
-const { verificarToken } = require('../middleware/auth');
+const verificarToken = require('../middleware/auth');
 
 router.use(verificarToken);
 

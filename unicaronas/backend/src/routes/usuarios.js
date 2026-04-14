@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const ctrl   = require('../controllers/usuariosController');
-const auth   = require('../middleware/auth').verificarToken;
+const auth   = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const { validar } = require('../middleware/validacao');
 
