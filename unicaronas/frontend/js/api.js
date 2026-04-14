@@ -202,9 +202,17 @@ const formatarMoeda = (v) =>
   Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 const calcularValorSugerido = (distancia_km) => {
-  const custoPorKm = 0.30;
-  const valor = distancia_km * custoPorKm;
-  return Math.round(valor * 100) / 100;
+  const precoGasolina = 5.50; // valor médio
+  const kmPorLitro    = 10;   // consumo médio
+  const taxaPercent   = 0.10; // 10%
+  
+  if (!distancia_km || distancia_km <= 0) return 0;
+
+  const custoCombustivelTotal = (distancia_km / kmPorLitro) * precoGasolina;
+  const valorBasePorPassageiro = custoCombustivelTotal / 4;
+  const valorComTaxa = valorBasePorPassageiro * (1 + taxaPercent);
+
+  return Math.round(valorComTaxa * 100) / 100;
 };
 
 const iniciais = (nome) =>
