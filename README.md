@@ -132,7 +132,9 @@ unicaronas/
 ├── database/
 │   ├── schema.sql               # Estrutura das tabelas e triggers
 │   └── data.sql                 # Dados de semente para teste
-├── docs/                        # Documentação técnica e de requisitos
+├── docs/                        # Documentação técnica (sprints e resultados)
+│   ├── sprints/                 # Planejamento, requisitos e design
+│   └── resultados-sprint/       # Relatórios e entregáveis (pitch, etc)
 ├── frontend/
 │   ├── css/
 │   │   └── style.css            # Design System, Layout Desktop e Mobile
