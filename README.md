@@ -166,7 +166,7 @@ unicaronas/
 | PATCH | `/api/usuarios/perfil` | Sim | Atualizar dados e foto |
 | **Caronas** | | | |
 | GET | `/api/caronas` | Não | Listar caronas com filtros |
-| POST | `/api/caronas` | Sim | Criar carona (normal ou semanal) |
+| POST | `/api/caronas` | Sim | Criar carona (campo `recorrente: true` cria +3 semanas) |
 | GET | `/api/caronas/:id` | Não | Detalhes da carona |
 | GET | `/api/caronas/historico/:uid`| Sim | Histórico de caronas concluídas |
 | PATCH | `/api/caronas/:id/concluir` | Sim | Finalizar viagem |
@@ -180,8 +180,8 @@ unicaronas/
 | GET | `/api/mensagens/:sid` | Sim | Histórico da conversa |
 | GET | `/api/mensagens/nao-lidas` | Sim | Contagem de mensagens novas |
 | **Avaliações & Pagamento** | | | |
-| POST | `/api/avaliacoes` | Sim | Avaliar motorista ou passageiro |
-| GET | `/api/avaliacoes/:uid` | Não | Ver avaliações de um usuário |
+| POST | `/api/avaliacoes` | Sim | Avaliar participante de carona concluída |
+| GET | `/api/avaliacoes/:uid` | Não | Ver avaliações recebidas por um usuário |
 | POST | `/api/pagamentos` | Sim | Processar pagamento da vaga |
 
 ---
@@ -199,10 +199,10 @@ unicaronas/
 
 | Nome | Função |
 |------|--------|
-| **Ariane Archanjo** | Product Owner |
-| **Matheus Sizanoski** | Scrum Master |
-| **Pedro Kafka** | Dev Frontend |
-| **Rafael Machado** | Dev Backend |
+| **Ariane Archanjo** | Scrum Master |
+| **Matheus Sizanoski** | Dev |
+| **Pedro Kafka** | Dev |
+| **Rafael Machado** | Product Owner |
 
 ---
 

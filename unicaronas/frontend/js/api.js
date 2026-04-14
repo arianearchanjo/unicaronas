@@ -149,6 +149,12 @@ const formatarData = (iso) =>
 const formatarDataCurta = (iso) =>
   new Date(iso).toLocaleDateString('pt-BR', { dateStyle: 'long' });
 
+const formatarDataLonga = (iso) => 
+  new Date(iso).toLocaleString('pt-BR', { 
+    weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', 
+    hour: '2-digit', minute: '2-digit' 
+  }).replace(',', ' às');
+
 const formatarMoeda = (v) =>
   Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 

@@ -19,14 +19,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   setLoader(true);
 
   try {
-    const [resU, resAv] = await Promise.all([
+    const [resU, resAv, resHis] = await Promise.all([
       api.perfil(perfilId),
       api.avaliacoes(perfilId),
+      api.historicoCaronas(perfilId)
     ]);
 
     renderPerfil(resU.data, ehProprio);
     renderStats(resU.data);
     renderAvaliacoes(resAv.data);
+    renderHistorico(resHis.data);
     if (ehProprio) initEdicao(resU.data);
 
   } catch (err) {
@@ -121,20 +123,20 @@ function renderHistorico(lista) {
 
   if (vazio) vazio.style.display = 'none';
   container.innerHTML = lista.map(c => `
-    <div class="info-row" style="padding: 1rem 0; border-bottom: 1px solid var(--border);">
-      <div>
-        <strong style="color: var(--text); display: block; margin-bottom: 2px;">
+    <div class="info-row" style="padding: 1.25rem 0; border-bottom: 1px solid var(--border);">
+      <div style="flex: 1; min-width: 0; padding-right: 1rem;">
+        <strong style="color: var(--text); display: block; margin-bottom: 4px; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
           ${c.origem} <span style="color: var(--accent-2); margin: 0 4px;">→</span> ${c.destino}
         </strong>
-        <small style="color: var(--text-3); font-family: var(--font-mono);">
-          ${formatarData(c.horario_partida)}
+        <small style="color: var(--text-3); font-family: var(--font-mono); font-size: 0.75rem;">
+          ${formatarDataLonga(c.horario_partida)}
         </small>
       </div>
-      <div style="text-align: right;">
-        <span class="badge ${c.papel === 'motorista' ? 'badge-accent' : 'badge-green'}" style="margin-bottom: 4px;">
+      <div style="text-align: right; flex-shrink: 0;">
+        <span class="badge-role ${c.papel === 'motorista' ? 'badge-motorista' : 'badge-passageiro'}" style="display: inline-block; margin-bottom: 6px;">
           ${c.papel === 'motorista' ? (currentLang === 'pt' ? 'Motorista' : 'Driver') : (currentLang === 'pt' ? 'Passageiro' : 'Passenger')}
         </span>
-        <div style="font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums;">
+        <div style="font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; font-size: 1.1rem;">
           ${formatarMoeda(c.valor_cobrado)}
         </div>
       </div>

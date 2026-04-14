@@ -491,12 +491,66 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 /* ── Badge Semanal nos cards ─────────────────────────────── */
 .badge-semanal {
-  background: var(--accent);
-  color: #fff;
-  padding: 2px 6px;
+  background: var(--amber);
+  color: #000;
+  padding: .15rem .5rem;
   border-radius: 4px;
-  font-size: 10px;
-  margin-left: 5px;
+  font-size: .65rem;
+  margin-left: .5rem;
   text-transform: uppercase;
   font-weight: 700;
+  letter-spacing: .05em;
+  vertical-align: middle;
 }
+
+/* ── Modal ────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.85);
+  backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 1000; padding: 1.5rem;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 100%; max-width: 480px;
+  padding: 2rem; box-shadow: var(--shadow-md);
+  animation: modalIn .3s ease-out;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(.95) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-title { font-size: 1.25rem; font-weight: 700; margin-bottom: .5rem; }
+.modal-desc  { font-size: .9rem; color: var(--text-2); margin-bottom: 1.5rem; }
+.modal-footer {
+  display: flex; justify-content: flex-end; gap: .75rem; margin-top: 1.5rem;
+}
+
+/* ── Star Rating (CSS Only) ──────────────────────────────── */
+.star-rating {
+  display: flex; flex-direction: row-reverse; justify-content: flex-end;
+  gap: .4rem; margin-bottom: 1rem;
+}
+.star-rating input { display: none; }
+.star-rating label {
+  cursor: pointer; width: 28px; height: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2355556a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'%3E%3C/polygon%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: center; transition: .15s;
+}
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input:checked ~ label {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f5a623' stroke='%23f5a623' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'%3E%3C/polygon%3E%3C/svg%3E");
+}
+
+/* ── Badge Histórico ──────────────────────────────────────── */
+.badge-role {
+  padding: .25rem .6rem; border-radius: 4px; font-size: .7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.badge-motorista { background: var(--accent-glow); color: var(--accent-2); border: 1px solid rgba(108,99,255,.2); }
+.badge-passageiro { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,211,160,.2); }

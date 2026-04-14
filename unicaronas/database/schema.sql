@@ -48,6 +48,7 @@ CREATE TABLE caronas (
   valor_cobrado      DECIMAL(10,2) NOT NULL CHECK (valor_cobrado >= 0),
   distancia_km       DECIMAL(10,2),
   observacoes        TEXT,
+  recorrente         BOOLEAN       NOT NULL DEFAULT false,
   status             VARCHAR(20)   NOT NULL DEFAULT 'ativa'
                      CHECK (status IN ('ativa','em_andamento','concluida','cancelada')),
   criado_em          TIMESTAMP     NOT NULL DEFAULT NOW(),

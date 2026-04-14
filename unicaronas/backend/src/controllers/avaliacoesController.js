@@ -23,9 +23,9 @@ const avaliar = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Você não pode se auto-avaliar' });
     }
 
-    // Verifica se a solicitação existe e está aceita
+    // Verifica se a solicitação existe, está aceita e a carona está concluída
     const { rows: solicitacoes } = await db.query(
-      `SELECT s.passageiro_id, c.motorista_id
+      `SELECT s.passageiro_id, c.motorista_id, c.status AS carona_status
        FROM solicitacoes_carona s
        JOIN caronas c ON c.id = s.carona_id
        WHERE s.id = $1 AND s.status = 'aceita'`,
@@ -36,7 +36,11 @@ const avaliar = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Solicitação não encontrada ou ainda não aceita' });
     }
 
-    const { passageiro_id, motorista_id } = solicitacoes[0];
+    const { passageiro_id, motorista_id, carona_status } = solicitacoes[0];
+
+    if (carona_status !== 'concluida') {
+      return res.status(400).json({ success: false, error: 'A carona ainda não foi concluída' });
+    }
 
     // Verifica se o avaliador participa da carona
     if (avaliador_id !== passageiro_id && avaliador_id !== motorista_id) {
@@ -58,7 +62,7 @@ const avaliar = async (req, res, next) => {
     res.status(201).json({ success: true, data: rows[0] });
   } catch (err) {
     if (err.code === '23505') {
-      return res.status(409).json({ success: false, error: 'Você já avaliou esta carona' });
+      return res.status(409).json({ success: false, error: 'Você já avaliou este participante.' });
     }
     next(err);
   }
