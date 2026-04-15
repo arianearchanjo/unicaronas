@@ -171,6 +171,11 @@
         const c    = res.data;
         const sou_motorista = c.motorista_id === usuario?.id;
 
+        // Inicializar Mapa se houver origem e destino
+        if (c.origem && c.destino) {
+          setTimeout(() => inicializarMapa(c.origem, c.destino), 100);
+        }
+
         let minhaSol = null;
         if (!sou_motorista) {
           const resSol = await api.minhaSolicitacao(id);
@@ -432,6 +437,56 @@
 
     function escJs(str) {
       return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+
+    // --- Lógica do Mapa ---
+    let map = null;
+
+    async function geocode(address) {
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+        const data = await response.json();
+        if (data && data.length > 0) {
+          return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+        }
+      } catch (e) { console.error('Erro na geocodificação:', e); }
+      return null;
+    }
+
+    async function inicializarMapa(origem, destino) {
+      const coordsOrigem = await geocode(origem);
+      const coordsDestino = await geocode(destino);
+
+      if (!coordsOrigem || !coordsDestino) return;
+
+      const mapEl = document.getElementById('mapa-carona');
+      mapEl.style.display = 'block';
+
+      if (map) map.remove();
+
+      map = L.map('mapa-carona').setView(coordsOrigem, 13);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      const iconOrigem = L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+      });
+
+      const iconDestino = L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+      });
+
+      L.marker(coordsOrigem, { icon: iconOrigem }).addTo(map).bindPopup('Origem: ' + origem);
+      L.marker(coordsDestino, { icon: iconDestino }).addTo(map).bindPopup('Destino: ' + destino);
+
+      const polyline = L.polyline([coordsOrigem, coordsDestino], { color: 'var(--accent)', weight: 4, opacity: 0.6, dashArray: '10, 10' }).addTo(map);
+      map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
     }
 
     carregarDados();

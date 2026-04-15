@@ -2,23 +2,64 @@
 
 **Conectando estudantes para trajetos seguros, econômicos e sustentáveis.**
 
-O **UniCaronas** é uma plataforma web desenvolvida para facilitar a carona solidária entre membros da mesma instituição de ensino. O sistema otimiza o uso de veículos particulares, reduz custos de deslocamento e fortalece a comunidade acadêmica.
+---
+
+## 🆘 GUIA DE SOBREVIVÊNCIA (LEIA ISSO SE O PROJETO NÃO FUNCIONA)
+
+Se você acabou de puxar o projeto e nada funciona, a culpa provavelmente é sua (ou do seu ambiente). Siga estes passos **EXATAMENTE** na ordem:
+
+### 1. Banco de Dados (PostgreSQL)
+Muitos erros ocorrem porque o banco de dados não existe ou está vazio.
+1. Certifique-se de que o PostgreSQL está **RODANDO** no seu computador.
+2. Abra o seu terminal (ou pgAdmin) e execute:
+   ```sql
+   CREATE DATABASE unicaronas;
+   ```
+3. Navegue até a pasta `unicaronas/database` e execute os scripts na ordem:
+   ```bash
+   psql -U postgres -d unicaronas -f schema.sql
+   psql -U postgres -d unicaronas -f data.sql
+   ```
+   *Dica: Se você não sabe usar o terminal para isso, abra os arquivos .sql no seu editor de banco de dados e execute o conteúdo.*
+
+### 2. Configuração do Backend (A parte que todo mundo esquece)
+O backend não adivinha suas configurações.
+1. Entre na pasta `unicaronas/backend`.
+2. Execute o comando: `npm install` (Isso instala as dependências. Sem isso, nada feito).
+3. **CRIE UM ARQUIVO CHAMADO `.env`** dentro da pasta `backend`.
+4. Copie o conteúdo do arquivo `.env.example` para dentro do seu novo `.env`.
+5. No seu `.env`, coloque a **SUA SENHA** do PostgreSQL na linha `DB_PASSWORD=suasenha`.
+
+### 3. Rodando o Servidor (COM ATUALIZAÇÃO AUTOMÁTICA)
+Ainda na pasta `backend`, execute:
+```bash
+npm run dev
+```
+**O que acontece agora?**
+- O sistema vai rodar o script de migração (`npm run migrate`) **SOZINHO**.
+- Ele vai criar as colunas novas, tabelas de veículos e chats que estiverem nos arquivos `migration_*.sql`.
+- Se aparecer `🎉 Tudo pronto! O banco de dados está atualizado.`, você não precisa fazer mais nada no PostgreSQL.
+- Se o servidor rodar e aparecer `✅ UniCaronas API rodando em http://localhost:3000`, parabéns! Você conseguiu.
+
+### 4. Rodando o Frontend
+1. Não tente abrir os arquivos HTML direto no navegador clicando neles. **NÃO FUNCIONA.**
+2. Use a extensão **Live Server** do VSCode.
+3. Abra a pasta `unicaronas/frontend` no VSCode.
+4. Clique com o botão direito em `pages/login.html` e selecione **"Open with Live Server"**.
+5. O frontend deve abrir em `http://127.0.0.1:5500` (ou porta similar).
 
 ---
 
 ## ✨ Funcionalidades Principais
 
 - **👤 Perfil Personalizado**: Escolha seu papel como **Passageiro**, **Motorista** ou **Misto**.
-- **📊 Dashboard Inteligente**: Mensagens dinâmicas e estatísticas em tempo real baseadas no seu perfil.
-- **🚗 Cadastro de Veículo Integrado**: Motoristas registram seus veículos diretamente no cadastro para maior agilidade.
+- **📊 Dashboard Inteligente**: Mensagens dinâmicas baseadas no seu perfil (Encontre caronas ou Ofereça caronas).
+- **🚗 Cadastro de Veículo Integrado**: Motoristas registram seus veículos para maior agilidade.
 - **🔍 Busca com Filtros**: Encontre caronas por origem, destino, data e preço.
-- **📅 Caronas Recorrentes**: Opção de criar caronas semanais automaticamente.
-- **💬 Chat em Tempo Real**: Combine detalhes diretamente com o motorista ou passageiros.
-- **📍 Mapas Interativos**: Visualização de rotas via Leaflet.js integrada à geocodificação.
-- **💳 Pagamento e Taxas**: Suporte a múltiplos métodos de pagamento com cálculo automático da taxa da plataforma (10%).
-- **⭐ Sistema de Avaliações**: Histórico de confiança com notas e comentários após cada viagem.
-- **🗑️ Gestão de Conta**: Liberdade para o usuário gerenciar seus dados ou excluir sua conta permanentemente.
-- **🌐 Internacionalização**: Interface multilíngue com suporte a **Português (PT)**, **Inglês (EN)** e **Espanhol (ES)**.
+- **💬 Chat em Tempo Real**: Combine detalhes diretamente com o motorista.
+- **📍 Mapas Interativos**: Visualização de rotas via Leaflet.js.
+- **💳 Pagamento e Taxas**: Suporte a múltiplos métodos com cálculo automático da taxa (10%).
+- **🌐 Internacionalização**: Interface em Português, Inglês e Espanhol.
 
 ---
 
@@ -26,42 +67,11 @@ O **UniCaronas** é uma plataforma web desenvolvida para facilitar a carona soli
 
 | Camada | Tecnologia |
 |--------|------------|
-| **Frontend** | HTML5, CSS3 Moderno, JavaScript Vanilla |
+| **Frontend** | HTML5, CSS3, JavaScript Vanilla |
 | **Backend** | Node.js (Express) |
 | **Banco de Dados** | PostgreSQL |
-| **Segurança** | JSON Web Token (JWT) e Bcrypt (Criptografia) |
-| **Mapas** | Leaflet.js & Nominatim |
-| **Uploads** | Multer (Processamento de imagens) |
-
----
-
-## 🚀 Como Executar o Projeto
-
-### Pré-requisitos
-- **Node.js** v18+
-- **PostgreSQL** v14+
-- Extensão **Live Server** no VSCode
-
-### 1. Preparação do Banco de Dados
-```bash
-# Crie o banco
-psql -U postgres -c "CREATE DATABASE unicaronas;"
-
-# Navegue até a pasta do banco e execute os scripts
-cd database
-psql -U postgres -d unicaronas -f schema.sql
-psql -U postgres -d unicaronas -f data.sql
-```
-
-### 2. Configuração do Backend
-1. Entre na pasta `backend`.
-2. Instale as dependências: `npm install`.
-3. Configure o arquivo `.env` (use o `.env.example` como base).
-4. Inicie o servidor: `npm run dev`.
-
-### 3. Execução do Frontend
-1. Abra a pasta `frontend` no VSCode.
-2. Clique com o botão direito em `pages/login.html` e selecione **"Open with Live Server"**.
+| **Segurança** | JWT e Bcrypt |
+| **Mapas** | Leaflet.js |
 
 ---
 
@@ -70,29 +80,16 @@ psql -U postgres -d unicaronas -f data.sql
 ```
 unicaronas/
 ├── backend/             # API REST (Node/Express)
-│   ├── src/controllers/ # Regras de negócio
-│   ├── src/routes/      # Endpoints da API
-│   └── uploads/         # Armazenamento de fotos de perfil
-├── database/            # Scripts SQL (Schema e Dados)
-├── frontend/            # Interface Web (SPA-like)
-│   ├── js/              # Lógica, API Client e i18n
-│   ├── css/             # Estilização Global e Responsiva
-│   └── pages/           # Telas (HTML)
-└── docs/                # Documentação Acadêmica (Sprints)
+│   ├── src/controllers/ # Lógica do sistema
+│   ├── src/routes/      # Caminhos da API
+│   └── uploads/         # Fotos de perfil
+├── database/            # Scripts do Banco (Schema e Dados)
+├── frontend/            # Interface Visual
+│   ├── js/              # Inteligência do Frontend e Tradução
+│   ├── css/             # Estilos Visuais
+│   └── pages/           # As telas do sistema (HTML)
+└── docs/                # Documentação do projeto
 ```
-
----
-
-## 📝 Rotas Principais (API)
-
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| `POST` | `/api/usuarios` | Registro com suporte a veículo |
-| `DELETE`| `/api/usuarios/conta` | Exclusão permanente de conta |
-| `POST` | `/api/caronas` | Criação de carona (Simples ou Recorrente) |
-| `GET`  | `/api/caronas` | Listagem com filtros de busca |
-| `POST` | `/api/mensagens` | Envio de mensagens no chat |
-| `POST` | `/api/pagamentos`| Processamento de reserva de vaga |
 
 ---
 

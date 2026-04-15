@@ -134,6 +134,7 @@
         document.getElementById('nav-oferecer-wrap').style.display = 'none';
         document.getElementById('nav-gerenciar-wrap').style.display = 'none';
         document.getElementById('btn-oferecer-carona').style.display = 'none';
+        subWelcome.setAttribute('data-i18n', 'sub-welcome-passenger');
         subWelcome.textContent = t('sub-welcome-passenger');
         document.getElementById('stat-minhas-label').textContent = 'Solicitações aceitas';
       } else if (tipo === 'motorista') {
@@ -141,9 +142,11 @@
         document.getElementById('btn-buscar-carona').style.display = 'none';
         document.getElementById('section-disponiveis').style.display = 'none';
         document.getElementById('stat-caronas-wrap').style.display = 'none';
+        subWelcome.setAttribute('data-i18n', 'sub-welcome-driver');
         subWelcome.textContent = t('sub-welcome-driver');
         document.getElementById('stat-minhas-label').textContent = 'Minhas caronas';
       } else {
+        subWelcome.setAttribute('data-i18n', 'sub-welcome');
         subWelcome.textContent = t('sub-welcome');
       }
     }
