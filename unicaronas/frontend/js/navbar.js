@@ -44,7 +44,7 @@ const Navbar = {
 
   getUserDropdown(usuario) {
     const nome = usuario?.nome || 'Usuário';
-    const email = usuario?.email || 'usuario@unicaronas.com.br';
+    const email = usuario?.email || 'usuario@unibrasil.com.br';
     const inicial = nome.charAt(0).toUpperCase();
     const lang = typeof currentLang !== 'undefined' ? currentLang : 'pt';
 

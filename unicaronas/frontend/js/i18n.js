@@ -116,6 +116,8 @@ const translations = {
     'register-has-account': 'Já tem uma conta?',
     'register-login-now': 'Fazer login',
     'register-email-hint': 'Apenas e-mails da sua universidade são aceitos',
+    'footer-dev-by': 'Desenvolvido por',
+    'footer-rights': '© 2026 UniCaronas — Todos os direitos reservados.',
   },
   en: {
     // Navbar
@@ -225,6 +227,8 @@ const translations = {
     'btn-register': 'Register',
     'register-has-account': 'Already have an account?',
     'register-login-now': 'Login now',
+    'footer-dev-by': 'Developed by',
+    'footer-rights': '© 2026 UniCaronas — All rights reserved.',
   },
   es: {
     // Navbar
@@ -335,6 +339,8 @@ const translations = {
     'register-has-account': '¿Ya tienes una cuenta?',
     'register-login-now': 'Iniciar sesión',
     'register-email-hint': 'Sólo se aceptan correos electrónicos de tu universidad',
+    'footer-dev-by': 'Desarrollado por',
+    'footer-rights': '© 2026 UniCaronas — Todos los derechos reservados.',
     }
     };
 

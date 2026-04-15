@@ -109,7 +109,7 @@
 <body>
   <div id="navbar-placeholder"></div>
 
-  <div class="cadastro-wrap fade-up" style="margin: 0 auto;">
+  <div class="cadastro-wrap fade-up" style="margin: 1.5rem auto 0 auto;">
     <div class="cadastro-header">
       <h1 class="cadastro-title" data-i18n="register-title">Criar sua conta</h1>
       <p class="cadastro-subtitle" data-i18n="register-sub">Use o e-mail da sua universidade para se cadastrar</p>
@@ -247,13 +247,14 @@
   <footer class="footer" style="width: 100%; margin-top: 4rem;">
     <div class="container footer-content">
       <div class="navbar-brand-img" style="margin-bottom: 1rem;"></div>
-      <div class="footer-dev">Desenvolvido por <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
-      <div class="footer-copyright">© 2026 UniCaronas — Todos os direitos reservados.</div>
+      <div class="footer-dev"><span data-i18n="footer-dev-by">Desenvolvido por</span> <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
+      <div class="footer-copyright" data-i18n="footer-rights">© 2026 UniCaronas — Todos os direitos reservados.</div>
     </div>
   </footer>
 
   <script src="../js/api.js"></script>
   <script src="../js/i18n.js"></script>
+  <script src="../js/navbar.js"></script>
   <script>
     function selectProfile(el) {
       document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('active'));
@@ -310,16 +311,6 @@
 
       try {
         await api.cadastrar(dados);
-        showAlert(currentLang === 'pt' ? 'Conta criada com sucesso! Redirecionando...' : 'Account created successfully! Redirecting...', 'success');
-        setTimeout(() => window.location.href = 'login.html', 2000);
-      } catch (err) {
-        showAlert(err.message, 'error');
-        btn.disabled = false; btn.textContent = currentLang === 'pt' ? 'Criar conta' : 'Create account';
-      }
-    }
-  </script>
-</body>
-</html>pi.cadastrar(dados);
         showAlert(currentLang === 'pt' ? 'Conta criada com sucesso! Redirecionando...' : 'Account created successfully! Redirecting...', 'success');
         setTimeout(() => window.location.href = 'login.html', 2000);
       } catch (err) {

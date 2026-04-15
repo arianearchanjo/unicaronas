@@ -13,7 +13,7 @@ const cadastrar = async (req, res, next) => {
     const { nome, email, matricula, senha, telefone, curso, dia_ead, perfil_tipo, veiculo } = req.body;
 
     // Valida domínio de e-mail institucional
-    const dominiosPermitidos = (process.env.EMAIL_DOMINIOS || '@uni.edu.br')
+    const dominiosPermitidos = (process.env.EMAIL_DOMINIOS || '@unibrasil.com.br')
       .split(',')
       .map((d) => d.trim().toLowerCase());
     const emailNorm = email.toLowerCase();
