@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UniCaronas — Acesso ao Sistema</title>
+  <link rel="icon" type="image/png" href="../img/icon.png">
   <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/theme.js"></script>
   <style>
     .login-wrap { 
       min-height: calc(100vh - 180px); 
@@ -24,17 +26,7 @@
   </style>
 </head>
 <body>
-
-  <nav class="navbar">
-    <div class="container">
-      <a href="#" class="navbar-brand">Uni<span>Caronas</span></a>
-      <div class="flex gap-1">
-        <button class="btn btn-ghost btn-sm" onclick="setLanguage('pt')">PT</button>
-        <button class="btn btn-ghost btn-sm" onclick="setLanguage('en')">EN</button>
-        <button class="btn btn-ghost btn-sm" onclick="setLanguage('es')">ES</button>
-      </div>
-    </div>
-  </nav>
+  <div id="navbar-placeholder"></div>
 
   <main class="container">
     <div class="login-wrap">
@@ -69,13 +61,14 @@
 
   <footer class="footer">
     <div class="container footer-content">
-      <div class="footer-logo">Uni<span>Caronas</span></div>
+      <div class="navbar-brand-img" style="margin-bottom: 1rem;"></div>
       <div class="footer-copyright">© 2026 UniCaronas — Todos os direitos reservados.</div>
     </div>
   </footer>
 
   <script src="../js/api.js"></script>
   <script src="../js/i18n.js"></script>
+  <script src="../js/navbar.js"></script>
   <script>
     if (isLogado()) window.location.href = 'dashboard.html';
 

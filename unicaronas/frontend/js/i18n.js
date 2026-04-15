@@ -115,6 +115,7 @@ const translations = {
     'btn-register': 'Cadastrar',
     'register-has-account': 'Já tem uma conta?',
     'register-login-now': 'Fazer login',
+    'register-email-hint': 'Apenas e-mails da sua universidade são aceitos',
   },
   en: {
     // Navbar
@@ -333,8 +334,9 @@ const translations = {
     'btn-register': 'Registrarse',
     'register-has-account': '¿Ya tienes una cuenta?',
     'register-login-now': 'Iniciar sesión',
-  }
-};
+    'register-email-hint': 'Sólo se aceptan correos electrónicos de tu universidad',
+    }
+    };
 
 let currentLang = localStorage.getItem('unicaronas_lang') || 'pt';
 
@@ -445,6 +447,6 @@ function injectLangSelector() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  injectLangSelector();
+  // injectLangSelector(); // Desativado para usar botões manuais na navbar
   applyTranslations();
 });

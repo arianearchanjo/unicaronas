@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UniCaronas — Gerenciar Caronas</title>
+  <link rel="icon" type="image/png" href="../img/icon.png">
   <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/theme.js"></script>
   <style>
     .section-label {
       font-size: .72rem; font-weight: 700; letter-spacing: .1em;
@@ -38,23 +40,7 @@
 </head>
 <body>
 
-<nav class="navbar" aria-label="Navegação principal">
-  <div class="container" style="position: relative;">
-    <button class="navbar-toggle" onclick="document.querySelector('.navbar-links').classList.toggle('active')">
-      <span></span><span></span><span></span>
-    </button>
-    <a href="../pages/dashboard.html" class="navbar-brand">Uni<span>Caronas</span></a>
-    
-    <ul class="navbar-links" role="list" style="list-style:none;">
-      <li><a href="../pages/dashboard.html" data-i18n="nav-dashboard">Painel <span id="nav-painel-badge" class="nav-badge" style="display: none;">0</span></a></li>
-      <li id="nav-buscar-wrap"><a href="../pages/buscar.html" data-i18n="nav-buscar">Buscar carona</a></li>
-      <li id="nav-oferecer-wrap"><a href="../pages/criar-carona.html" data-i18n="nav-oferecer">Oferecer carona</a></li>
-      <li id="nav-gerenciar-wrap"><a href="../pages/gerenciar-caronas.html" aria-current="page" data-i18n="nav-gerenciar">Gerenciar caronas</a></li>
-      <li><a href="../pages/perfil.html" data-i18n="nav-perfil">Perfil</a></li>
-    </ul>
-    <button class="btn btn-ghost btn-sm" id="btn-logout" type="button" data-i18n="nav-sair">Sair</button>
-  </div>
-</nav>
+  <div id="navbar-placeholder"></div>
 
   <main class="container">
     <div class="page-header fade-up">
@@ -109,7 +95,7 @@
 
   <footer class="footer">
     <div class="container footer-content">
-      <div class="footer-logo">Uni<span>Caronas</span></div>
+      <div class="navbar-brand-img" style="margin-bottom: 1rem;"></div>
       <div class="footer-dev">Desenvolvido por <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
       <div class="footer-copyright">© 2026 UniCaronas — Todos os direitos reservados.</div>
     </div>
@@ -117,6 +103,7 @@
 
   <script src="../js/api.js"></script>
   <script src="../js/i18n.js"></script>
+  <script src="../js/navbar.js"></script>
   <script src="../js/chat-global.js"></script>
   <script>
     protegerRota();

@@ -38,6 +38,35 @@
   --shadow:       0 1px 4px rgba(0,0,0,.5);
   --shadow-md:    0 8px 32px rgba(0,0,0,.6);
   --shadow-accent:0 0 40px var(--accent-glow);
+  --nav-bg:       rgba(10,10,15,.9);
+/* Logos Dinâmicas */
+--logo-url: url('../img/logo_escuro.png');
+}
+
+/* ── Modo Claro ───────────────────────────────────────────── */
+[data-theme="light"] {
+--bg:           #f4f4f9;
+--bg-2:         #ffffff;
+--bg-3:         #ebebf5;
+--surface:      #ffffff;
+--surface-2:    #f8f9fd;
+--border:       #e2e2ee;
+--border-2:     #d1d1e0;
+--nav-bg:       rgba(255,255,255,.85);
+
+--text:         #1a1a2e;
+--text-2:       #4a4a68;
+--text-3:       #8e8eaf;
+
+--accent:       #5a52d5;
+--accent-2:     #4840c0;
+--accent-glow:  rgba(90,82,213,.12);
+
+--shadow:       0 2px 8px rgba(0,0,0,.04);
+--shadow-md:    0 12px 32px rgba(0,0,0,.06);
+--shadow-accent:0 0 30px rgba(90,82,213,.15);
+
+--logo-url: url('../img/logo_claro.png');
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -64,6 +93,11 @@ a:hover { color: var(--text); }
 
 /* ── Layout ───────────────────────────────────────────────── */
 .container { max-width: 1100px; width: 100%; margin: 0 auto; padding: 0 2rem; }
+main.container {
+  flex: 1;
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+}
 
 @media (max-width: 768px) {
   .container { padding: 0 1rem; }
@@ -71,30 +105,318 @@ a:hover { color: var(--text); }
 
 /* ── Navbar ───────────────────────────────────────────────── */
 .navbar {
-  background: rgba(10,10,15,.9);
+  background: var(--nav-bg);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  padding: .9rem 0;
+  padding: 1.1rem 0;
   position: sticky; top: 0; z-index: 200;
+  transition: background 0.3s, padding 0.3s;
 }
 .navbar .container { 
   display: flex; 
   align-items: center; 
-  justify-content: space-between; 
+  justify-content: space-between;
+  gap: 1.5rem;
 }
-.navbar-brand { font-size: 1.15rem; font-weight: 700; letter-spacing: -.4px; color: var(--text); }
-.navbar-brand span { color: var(--accent-2); }
+
+.navbar-brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  transition: opacity .2s;
+  flex-shrink: 0;
+}
+.navbar-brand-wrap:hover { opacity: 0.85; }
+
+.navbar-brand-img {
+  width: 44px;
+  height: 44px;
+  background-image: var(--logo-url);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.navbar-brand-text {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -.6px;
+  color: var(--text);
+  line-height: 1;
+  margin-top: 2px;
+}
+.navbar-brand-text span { color: var(--accent-2); }
 
 .navbar-links { 
   display: flex; 
-  gap: 2rem; 
+  gap: 2.2rem; 
   align-items: center; 
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  margin-left: auto;
 }
 .navbar-links a {
-  color: var(--text-3); font-size: .82rem; font-weight: 600;
+  color: var(--text-3); font-size: .85rem; font-weight: 600;
   letter-spacing: .06em; text-transform: uppercase; transition: color .2s;
+  white-space: nowrap;
 }
 .navbar-links a:hover, .navbar-links a.active { color: var(--text); }
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-left: 0;
+}
+
+/* ── Lang Dropdown ────────────────────────────────────────── */
+.lang-dropdown {
+  position: relative;
+}
+.lang-toggle {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  height: 40px;
+  padding: 0 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+.lang-toggle:hover {
+  background: var(--surface);
+  border-color: var(--accent);
+  color: var(--text);
+}
+.lang-toggle::after {
+  content: '';
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid currentColor;
+  margin-top: 1px;
+}
+
+.lang-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  min-width: 130px;
+  padding: 0.4rem;
+  box-shadow: var(--shadow-md);
+  display: none;
+  flex-direction: column;
+  gap: 0.2rem;
+  z-index: 300;
+  animation: fadeUp 0.2s ease-out;
+}
+.lang-dropdown:hover .lang-menu {
+  display: flex;
+}
+.lang-item {
+  background: transparent;
+  border: none;
+  color: var(--text-2);
+  padding: 0.6rem 0.85rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+.lang-item:hover {
+  background: var(--bg-3);
+  color: var(--text);
+}
+.lang-item.active {
+  color: var(--accent-2);
+}
+
+/* ── Avatar Dropdown ───────────────────────────────────────── */
+.user-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.avatar-trigger {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #534AB7;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.user-dropdown.active .avatar-trigger {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  right: 0;
+  width: 240px;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  display: none;
+  flex-direction: column;
+  z-index: 400;
+  overflow: hidden;
+  animation: fadeUp 0.2s ease-out;
+}
+
+.user-dropdown.active .dropdown-menu {
+  display: flex;
+}
+
+.menu-header {
+  padding: 1.25rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.header-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #534AB7;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.header-info {
+  min-width: 0;
+}
+
+.header-name {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-email {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.menu-list {
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  color: var(--text-2);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: var(--bg-3);
+  color: var(--text);
+}
+
+.menu-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0.4rem 0;
+}
+
+.menu-item.logout {
+  color: var(--red);
+}
+
+.menu-item.logout:hover {
+  background: var(--red-dim);
+}
+
+.theme-toggle {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .2s;
+}
+.theme-toggle:hover {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--accent);
+}
+.theme-toggle svg { width: 20px; height: 20px; }
+
+/* Padronização de botões na navbar-actions */
+.navbar-actions .btn-sm {
+  height: 40px;
+  padding: 0 1rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 992px) {
+  .navbar-links { gap: 1rem; }
+}
 
 /* ── Botões ───────────────────────────────────────────────── */
 .btn {
