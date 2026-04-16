@@ -6,6 +6,7 @@
   <link rel="icon" type="image/png" href="../img/icon.png?v=2">
   <link rel="stylesheet" href="../css/style.css">
   <script src="../js/theme.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     .msg-layout {
       display: grid;
@@ -181,9 +182,7 @@
       <!-- Chat Aberto -->
       <div class="msg-chat">
         <div id="chat-vazio" class="empty-chat-state">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" style="margin-bottom: 1rem; opacity: 0.5;">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
+          <i data-lucide="message-square" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.5;"></i>
           <div style="font-size: 1.1rem; font-weight: 600; color: var(--text-2); margin-bottom: 0.5rem;">Suas mensagens</div>
           <div>Selecione uma conversa ao lado para começar.</div>
         </div>
@@ -191,9 +190,7 @@
         <div id="chat-ativo" style="display: none; flex-direction: column; height: 100%;">
           <div class="chat-header">
             <button class="btn-back-mobile" onclick="fecharChatMobile()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
-                <polyline points="15 18 9 12 15 6"/>
-              </svg>
+              <i data-lucide="chevron-left" style="width: 24px; height: 24px;"></i>
             </button>
             <div class="msg-avatar" id="chat-avatar">?</div>
             <div class="chat-header-info">
@@ -208,7 +205,10 @@
           
           <form class="chat-input-area" id="form-msg">
             <input type="text" class="chat-input" id="input-msg" placeholder="Digite uma mensagem..." autocomplete="off">
-            <button type="submit" class="chat-btn-send" id="btn-enviar" data-i18n="msg-send">Enviar</button>
+            <button type="submit" class="chat-btn-send" id="btn-enviar">
+              <i data-lucide="send" style="width: 18px; height: 18px; margin-right: 0.5rem;"></i>
+              <span data-i18n="msg-send">Enviar</span>
+            </button>
           </form>
         </div>
       </div>
@@ -268,6 +268,7 @@
           </div>
         `;
       }).join('');
+      lucide.createIcons();
     }
 
     async function abrirConversa(outro_usuario_id) {
@@ -294,6 +295,7 @@
       mensagensInterval = setInterval(carregarMensagens, 3000);
       
       document.getElementById('input-msg').focus();
+      lucide.createIcons();
     }
     
     function fecharChatMobile() {
@@ -380,6 +382,7 @@
     conversasInterval = setInterval(carregarConversas, 10000);
     
     document.getElementById('btn-logout')?.addEventListener('click', () => logout());
+    lucide.createIcons();
   </script>
 </body>
 </html>

@@ -7,6 +7,7 @@
   <link rel="icon" type="image/png" href="../img/icon.png?v=2">
   <link rel="stylesheet" href="../css/style.css">
   <script src="../js/theme.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
@@ -209,14 +210,14 @@
               <div class="avatar avatar-lg">${iniciais(c.motorista_nome)}</div>
               <div>
                 <div style="font-size:1.05rem;font-weight:700">${c.motorista_nome}</div>
-                <div class="user-rating" style="margin-top:.2rem">${parseFloat(c.motorista_avaliacao||0).toFixed(1)} ★ de avaliação média</div>
+                <div class="user-rating" style="margin-top:.2rem; display: flex; align-items: center; gap: 0.25rem;">${parseFloat(c.motorista_avaliacao||0).toFixed(1)} <i data-lucide="star" style="width: 14px; height: 14px; fill: var(--amber); color: var(--amber);"></i> de avaliação média</div>
                 ${c.motorista_telefone ? `<div style="font-size:.82rem;color:var(--text-3);margin-top:.2rem">${c.motorista_telefone}</div>` : ''}
               </div>
             </div>
             
             <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-2); border-left: 3px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;">
               <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem;">
-                <span style="font-size: 1.2rem;">📍</span> Ponto de Encontro
+                <i data-lucide="map-pin" style="width: 18px; height: 18px; color: var(--accent);"></i> Ponto de Encontro
               </div>
               <div style="font-weight: 600; color: var(--text); margin-bottom: 0.25rem;">${c.ponto_encontro}</div>
               ${c.ponto_encontro_detalhes ? `<div style="font-size: 0.85rem; color: var(--text-2);">${c.ponto_encontro_detalhes}</div>` : ''}
@@ -286,7 +287,8 @@
           document.getElementById('area-motorista').style.display = 'block';
           carregarSolicitacoes();
         }
-
+        
+        lucide.createIcons();
       } catch(err) {
         document.getElementById('conteudo').innerHTML = `<div class="alert alert-error">${err.message}</div>`; 
       }
@@ -368,9 +370,8 @@
               <div class="user-row">
                 <div class="avatar">${iniciais(s.passageiro_nome)}</div>
                 <div>
-                  <div class="user-name">${s.passageiro_nome}</div>
-                  <div class="user-rating">
-                    ${s.passageiro_curso || 'Curso não informado'} · ${parseFloat(s.passageiro_avaliacao || 0).toFixed(1)} ★
+                  <div class="user-rating" style="display: flex; align-items: center; gap: 0.25rem;">
+                    ${s.passageiro_curso || 'Curso não informado'} · ${parseFloat(s.passageiro_avaliacao || 0).toFixed(1)} <i data-lucide="star" style="width: 12px; height: 12px; fill: var(--amber); color: var(--amber);"></i>
                     ${s.pagamento_status === 'pago' ? ' · <span style="color:var(--green)">Pago</span>' : ''}
                   </div>
                 </div>
@@ -383,7 +384,7 @@
                   <span class="badge ${s.status === 'aceita' ? 'badge-green' : 'badge-red'}">${s.status}</span>
                   ${s.status === 'aceita' ? `
                     <button class="btn-chat-iniciar" onclick="abrirChatRide(${s.id}, '${escJs(s.passageiro_nome)}', 'Sua Carona', 'Passageiro: ${escJs(s.passageiro_nome)}')">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                      <i data-lucide="message-square" style="width: 14px; height: 14px;"></i>
                       Chat
                     </button>
                     <button class="btn btn-primary btn-sm" onclick="abrirModal('modal-avaliacao', ${s.passageiro_id}, ${s.id})">Avaliar</button>
@@ -392,6 +393,7 @@
               </div>
             </div>
           </div>`).join('');
+        lucide.createIcons();
       } catch (err) {
         container.innerHTML = `<div class="empty-state"><p>${err.message}</p></div>`;
       }

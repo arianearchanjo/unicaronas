@@ -39,6 +39,8 @@ const Navbar = {
       
       // Atualiza o ícone do tema se o botão existir
       if (typeof updateThemeIcon === 'function') updateThemeIcon();
+
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
   },
 
@@ -64,9 +66,11 @@ const Navbar = {
           
           <div class="menu-list">
             <a href="perfil.html" class="menu-item">
+              <i data-lucide="user" style="width: 16px; height: 16px; margin-right: 0.5rem; opacity: 0.8;"></i>
               <span data-i18n="nav-meu-perfil">Meu perfil</span>
             </a>
             <a href="gerenciar-caronas.html" class="menu-item">
+              <i data-lucide="settings" style="width: 16px; height: 16px; margin-right: 0.5rem; opacity: 0.8;"></i>
               <span data-i18n="nav-minhas-caronas">Minhas caronas</span>
             </a>
             <div class="menu-divider"></div>
@@ -90,6 +94,7 @@ const Navbar = {
 
             <div class="menu-divider"></div>
             <button class="menu-item logout" onclick="logout()">
+              <i data-lucide="log-out" style="width: 16px; height: 16px; margin-right: 0.5rem; opacity: 0.8;"></i>
               <span data-i18n="nav-sair">Sair</span>
             </button>
           </div>

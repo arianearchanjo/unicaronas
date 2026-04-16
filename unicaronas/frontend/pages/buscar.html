@@ -6,7 +6,9 @@
   <title>UniCaronas — Buscar caronas</title>
   <link rel="icon" type="image/png" href="../img/icon.png?v=2">
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/autocomplete.css">
   <script src="../js/theme.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     #resultado-lista { 
       display: grid; 
@@ -21,8 +23,21 @@
       gap: 1.25rem !important;
       align-items: end !important;
     }
-    @media (max-width: 768px) { 
-      .filtros-grid { grid-template-columns: 1fr !important; } 
+    @media (max-width: 992px) {
+      .filtros-grid { 
+        grid-template-columns: 1fr 1fr !important; 
+      }
+      .filtros-grid .btn-primary {
+        grid-column: span 2;
+      }
+    }
+    @media (max-width: 600px) { 
+      .filtros-grid { 
+        grid-template-columns: 1fr !important; 
+      } 
+      .filtros-grid .btn-primary {
+        grid-column: span 1;
+      }
     }
   </style>
 </head>
@@ -36,6 +51,12 @@
     </div>
 
     <div class="filtros fade-up">
+      <!-- Dica consolidada para busca -->
+      <div style="margin-bottom: 1.25rem; font-size: 0.8rem; color: var(--text-3); display: flex; align-items: center; gap: 0.5rem; background: var(--bg-2); padding: 0.75rem 1rem; border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
+        <i data-lucide="info" style="width: 16px; height: 16px; color: var(--accent); flex-shrink: 0;"></i>
+        <span>Dica: Busque por Bairro, Rua ou nome da Universidade (ex: UniBrasil).</span>
+      </div>
+
       <div class="filtros-grid">
         <div class="form-group" style="margin:0">
           <label class="form-label" data-i18n="filter-origin">Origem</label>
@@ -53,7 +74,7 @@
           <label class="form-label">Preço Máximo</label>
           <input class="form-control" id="f-preco" type="number" placeholder="R$">
         </div>
-        <button class="btn btn-primary" onclick="buscar()" data-i18n="btn-filter">Buscar</button>
+        <button class="btn btn-primary" onclick="buscar()" data-i18n="btn-filter" style="height: 42px;">Buscar</button>
       </div>
     </div>
 
@@ -73,8 +94,13 @@
   <script src="../js/api.js"></script>
   <script src="../js/i18n.js"></script>
   <script src="../js/navbar.js"></script>
+  <script src="../js/autocomplete.js"></script>
   <script>
     protegerRota();
+
+    // Inicialização do Autocomplete
+    new AddressAutocomplete(document.getElementById('f-origem'));
+    new AddressAutocomplete(document.getElementById('f-destino'));
 
     window.addEventListener('languageChanged', () => {
       buscar();
@@ -90,8 +116,8 @@
             <span class="local">${c.destino}</span>
             ${c.recorrente ? `<span class="badge-semanal">Semanal</span>` : ''}
           </div>
-          <div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-2); font-weight: 500;">
-            <span style="color: var(--accent);">📍 Ponto de encontro:</span> ${c.ponto_encontro}
+          <div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-2); font-weight: 500; display: flex; align-items: center; gap: 0.4rem;">
+            <span style="color: var(--accent); display: flex; align-items: center; gap: 0.25rem;"><i data-lucide="map-pin" style="width: 14px; height: 14px;"></i> Ponto de encontro:</span> ${c.ponto_encontro}
           </div>
           <div class="carona-meta" style="margin-top: 0.75rem;">
             <div class="meta-item">
@@ -145,6 +171,7 @@
           return;
         }
         lista.innerHTML = res.data.map(renderCarona).join('');
+        lucide.createIcons();
       } catch(err) {
         lista.innerHTML = `<div class="empty-state"><p>${err.message}</p></div>`;
       }

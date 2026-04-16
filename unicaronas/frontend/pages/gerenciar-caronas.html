@@ -7,6 +7,7 @@
   <link rel="icon" type="image/png" href="../img/icon.png?v=2">
   <link rel="stylesheet" href="../css/style.css">
   <script src="../js/theme.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     .section-label {
       font-size: .72rem; font-weight: 700; letter-spacing: .1em;
@@ -52,7 +53,7 @@
     <!-- Alerta de Conflito EAD -->
     <div id="alerta-conflito-ead" style="display:none; margin-bottom: 2rem;">
       <div class="alert alert-error" style="display: flex; align-items: center; gap: 1rem;">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <i data-lucide="alert-triangle" style="width: 24px; height: 24px;"></i>
         <div>
           <strong style="display:block">Atenção: Conflito de EAD detectado!</strong>
           <span style="font-size: .85rem">Você tem caronas ativas marcadas para o seu novo dia EAD. Recomendamos cancelar ou avisar os passageiros.</span>
@@ -169,9 +170,7 @@
                     <span class="badge ${s.status === 'aceita' ? 'badge-green' : 'badge-red'}">${s.status}</span>
                     ${s.status === 'aceita' ? `
                       <button class="btn-chat-iniciar" onclick="abrirChatDashboard(${s.id}, '${escJs(s.passageiro_nome)}', ${carona.id})">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
-                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                        </svg>
+                        <i data-lucide="message-square" style="width: 14px; height: 14px;"></i>
                         Chat
                       </button>` : ''}
                   `}
@@ -180,7 +179,7 @@
             `).join('')}
           </div>
         `).join('');
-        
+        lucide.createIcons();
       } catch (err) {
         container.innerHTML = `<div class="empty-state"><p>${err.message}</p></div>`;
       }

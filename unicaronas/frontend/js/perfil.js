@@ -33,11 +33,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (ehProprio) {
       initEdicao(resU.data);
       if (resU.data.perfil_tipo !== 'estudante') {
-        document.getElementById('secao-veiculos').style.display = 'block';
+        const secaoVeiculos = document.getElementById('secao-veiculos');
+        if (secaoVeiculos) secaoVeiculos.style.display = 'block';
         carregarVeiculos();
         initFormVeiculo();
       }
     }
+    
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 
   } catch (err) {
     console.error('Erro ao carregar perfil:', err);
@@ -73,11 +76,13 @@ function renderPerfil(u, ehProprio) {
   const btn = document.getElementById('btn-editar-perfil');
   const btnDel = document.getElementById('btn-deletar-conta');
   if (ehProprio) { 
-    btn.removeAttribute('hidden'); 
-    btn.onclick = abrirModal; 
+    if (btn) {
+        btn.removeAttribute('hidden'); 
+        btn.onclick = abrirModal; 
+    }
     if (btnDel) btnDel.removeAttribute('hidden');
   } else {
-    btn.setAttribute('hidden', '');
+    if (btn) btn.setAttribute('hidden', '');
     if (btnDel) btnDel.setAttribute('hidden', '');
   }
 }
@@ -105,7 +110,11 @@ function renderStats(u) {
   setText('stat-passageiro', u.total_caronas_passageiro ?? '0');
   const media = Number(u.avaliacao_media || 0).toFixed(1);
   setText('stat-nota', media);
-  document.getElementById('stat-estrelas').innerHTML = renderEstrelas(media, u.total_avaliacoes);
+  const estrelasEl = document.getElementById('stat-estrelas');
+  if (estrelasEl) {
+      estrelasEl.innerHTML = renderEstrelasLucide(media, u.total_avaliacoes);
+  }
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 // ── Avaliações ────────────────────────────────────────────────────────────────
@@ -114,14 +123,17 @@ function renderAvaliacoes(lista) {
   const container = document.getElementById('lista-avaliacoes');
   const vazio     = document.getElementById('avaliacoes-vazio');
 
+  if (!container) return;
+
   if (!lista || lista.length === 0) {
-    vazio.style.display     = 'block';
+    if (vazio) vazio.style.display = 'block';
     container.style.display = 'none';
     return;
   }
-  vazio.style.display     = 'none';
+  if (vazio) vazio.style.display = 'none';
   container.style.display = 'block';
   container.innerHTML = lista.map(cardAvaliacao).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function cardAvaliacao(av) {
@@ -141,15 +153,34 @@ function cardAvaliacao(av) {
           <strong class="avaliacao-nome">${nome}</strong>
           <span class="avaliacao-data">${formatarData(av.criado_em)}</span>
         </div>
-        <div class="avaliacao-nota">${renderEstrelas(av.nota)}</div>
+        <div class="avaliacao-nota">${renderEstrelasLucide(av.nota)}</div>
       </div>
       ${comentario}
       <div class="avaliacao-rota">
         <span class="badge badge-accent">Carona</span>
-        <span class="avaliacao-rota-texto">${av.origem} para ${av.destino}</span>
+        <span class="avaliacao-rota-texto">${av.origem} <i data-lucide="arrow-right" style="width: 12px; height: 12px; vertical-align: middle;"></i> ${av.destino}</span>
         <span class="avaliacao-rota-data">${formatarData(av.horario_partida)}</span>
       </div>
     </div>`;
+}
+
+function renderEstrelasLucide(nota, total = null) {
+  const n = parseFloat(nota);
+  let html = '<div class="estrelas" style="display: flex; gap: 2px; align-items: center;">';
+  for (let i = 1; i <= 5; i++) {
+    if (n >= i) {
+      html += '<i data-lucide="star" style="width: 14px; height: 14px; fill: var(--amber); color: var(--amber);"></i>';
+    } else if (n >= i - 0.5) {
+      html += '<i data-lucide="star-half" style="width: 14px; height: 14px; fill: var(--amber); color: var(--amber);"></i>';
+    } else {
+      html += '<i data-lucide="star" style="width: 14px; height: 14px; color: var(--border-2);"></i>';
+    }
+  }
+  if (total !== null) {
+    html += `<span class="estrelas-total">(${total})</span>`;
+  }
+  html += '</div>';
+  return html;
 }
 
 // ── Histórico ────────────────────────────────────────────────────────────────
@@ -160,17 +191,17 @@ function renderHistorico(lista) {
   if (!container) return;
 
   if (!lista || lista.length === 0) {
-    vazio.style.display = 'block';
+    if (vazio) vazio.style.display = 'block';
     container.innerHTML = '';
     return;
   }
 
-  vazio.style.display = 'none';
+  if (vazio) vazio.style.display = 'none';
   container.innerHTML = lista.map(c => `
     <div class="info-row" style="padding: 1.25rem 0; border-bottom: 1px solid var(--border);">
       <div style="flex: 1; min-width: 0; padding-right: 1rem;">
         <strong style="color: var(--text); display: block; margin-bottom: 4px; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-          ${c.origem} <span style="color: var(--accent-2); margin: 0 4px;">→</span> ${c.destino}
+          ${c.origem} <i data-lucide="arrow-right" style="width: 14px; height: 14px; color: var(--accent-2); vertical-align: middle; margin: 0 4px;"></i> ${c.destino}
         </strong>
         <small style="color: var(--text-3); font-family: var(--font-mono); font-size: 0.75rem;">
           ${formatarDataLonga(c.horario_partida)}
@@ -186,50 +217,70 @@ function renderHistorico(lista) {
       </div>
     </div>
   `).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 // ── Modal Edição ──────────────────────────────────────────────────────────────
 
 function initEdicao(u) {
-  document.getElementById('edit-nome').value     = u.nome     || '';
-  document.getElementById('edit-telefone').value = u.telefone || '';
-  document.getElementById('edit-curso').value    = u.curso    || '';
-  document.getElementById('edit-dia-ead').value  = (u.dia_ead !== null && u.dia_ead !== undefined) ? u.dia_ead : '';
+  const inputNome = document.getElementById('edit-nome');
+  const inputTelefone = document.getElementById('edit-telefone');
+  const inputCurso = document.getElementById('edit-curso');
+  const inputDiaEad = document.getElementById('edit-dia-ead');
+  const inputFoto = document.getElementById('edit-foto');
+
+  if (inputNome) inputNome.value = u.nome || '';
+  if (inputTelefone) inputTelefone.value = u.telefone || '';
+  if (inputCurso) inputCurso.value = u.curso || '';
+  if (inputDiaEad) inputDiaEad.value = (u.dia_ead !== null && u.dia_ead !== undefined) ? u.dia_ead : '';
   
   const radio = document.querySelector(`input[name="edit-perfil-tipo"][value="${u.perfil_tipo}"]`);
   if (radio) radio.checked = true;
 
   atualizarPreviewFoto(u.foto_url, u.nome);
 
-  document.getElementById('edit-foto').onchange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => atualizarPreviewFoto(event.target.result, u.nome);
-      reader.readAsDataURL(file);
-    }
-  };
+  if (inputFoto) {
+    inputFoto.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => atualizarPreviewFoto(event.target.result, u.nome);
+          reader.readAsDataURL(file);
+        }
+      };
+  }
 
-  document.getElementById('modal-fechar').onclick = fecharModal;
-  document.getElementById('form-editar-perfil').onsubmit = async (e) => {
-    e.preventDefault();
-    await salvarPerfil();
-  };
+  const btnFechar = document.getElementById('modal-fechar');
+  if (btnFechar) btnFechar.onclick = fecharModal;
+
+  const formEditar = document.getElementById('form-editar-perfil');
+  if (formEditar) {
+    formEditar.onsubmit = async (e) => {
+        e.preventDefault();
+        await salvarPerfil();
+      };
+  }
 }
 
 function abrirModal() {
-  document.getElementById('modal-editar').removeAttribute('hidden');
-  document.body.style.overflow = 'hidden';
+  const modal = document.getElementById('modal-editar');
+  if (modal) {
+      modal.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+  }
 }
 
 function fecharModal() {
-  document.getElementById('modal-editar').setAttribute('hidden', '');
-  document.body.style.overflow = '';
+  const modal = document.getElementById('modal-editar');
+  if (modal) {
+      modal.setAttribute('hidden', '');
+      document.body.style.overflow = '';
+  }
 }
 
 async function salvarPerfil() {
   const btn  = document.querySelector('#form-editar-perfil [type="submit"]');
-  const nome = document.getElementById('edit-nome').value.trim();
+  const nome = document.getElementById('edit-nome')?.value.trim();
   const perfilTipo = document.querySelector('input[name="edit-perfil-tipo"]:checked')?.value;
 
   if (!nome || nome.length < 2) {
@@ -237,19 +288,21 @@ async function salvarPerfil() {
     return;
   }
 
-  btn.disabled = true;
-  btn.textContent = 'Salvando...';
+  if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
+  }
 
   try {
     const formData = new FormData();
     formData.append('nome', nome);
-    formData.append('telefone', document.getElementById('edit-telefone').value.trim());
-    formData.append('curso', document.getElementById('edit-curso').value.trim());
-    formData.append('dia_ead', document.getElementById('edit-dia-ead').value);
-    formData.append('perfil_tipo', perfilTipo);
+    formData.append('telefone', document.getElementById('edit-telefone')?.value.trim() || '');
+    formData.append('curso', document.getElementById('edit-curso')?.value.trim() || '');
+    formData.append('dia_ead', document.getElementById('edit-dia-ead')?.value || '');
+    formData.append('perfil_tipo', perfilTipo || 'misto');
     
     const inputFoto = document.getElementById('edit-foto');
-    if (inputFoto.files && inputFoto.files[0]) {
+    if (inputFoto && inputFoto.files && inputFoto.files[0]) {
       formData.append('foto', inputFoto.files[0]);
     }
 
@@ -262,20 +315,24 @@ async function salvarPerfil() {
     // Atualiza interface
     renderPerfil(res.data, true);
     fecharModal();
-    showAlert('Perfil atualizado com sucesso', 'success');
+    showAlert('Perfil updated successfully', 'success');
   } catch (err) {
-    showAlert(err.message || 'Erro ao salvar', 'error', 'alert-modal');
+    showAlert(err.message || 'Error saving', 'error', 'alert-modal');
   } finally {
-    btn.disabled = false;
-    btn.textContent = 'Salvar alterações';
+    if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Salvar alterações';
+    }
   }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function setLoader(ativo) {
-  document.getElementById('perfil-loader').style.display  = ativo ? 'flex'  : 'none';
-  document.getElementById('perfil-conteudo').style.display = ativo ? 'none' : 'block';
+  const loader = document.getElementById('perfil-loader');
+  const conteudo = document.getElementById('perfil-conteudo');
+  if (loader) loader.style.display  = ativo ? 'flex'  : 'none';
+  if (conteudo) conteudo.style.display = ativo ? 'none' : 'block';
 }
 
 function setText(id, val) {
@@ -307,6 +364,7 @@ function atualizarPreviewFoto(url, nome) {
 
 async function carregarVeiculos() {
   const container = document.getElementById('lista-veiculos');
+  if (!container) return;
   try {
     const res = await api.listarVeiculos();
     if (res.data.length === 0) {
@@ -333,7 +391,7 @@ function initFormVeiculo() {
   form.onsubmit = async (e) => {
     e.preventDefault();
     const btn = form.querySelector('button[type="submit"]');
-    btn.disabled = true;
+    if (btn) btn.disabled = true;
     try {
       const payload = {
         marca: document.getElementById('veiculo-marca').value,
@@ -349,7 +407,7 @@ function initFormVeiculo() {
     } catch (err) {
       showAlert(err.message, 'error');
     } finally {
-      btn.disabled = false;
+      if (btn) btn.disabled = false;
     }
   };
 }
