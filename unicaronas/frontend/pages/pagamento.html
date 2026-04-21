@@ -3,90 +3,435 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UniCaronas — Pagamento</title>
+  <title>UniCaronas — Pagamento Pix</title>
   <link rel="icon" type="image/png" href="../img/icon.png?v=2">
   <link rel="stylesheet" href="../css/style.css">
   <script src="../js/theme.js"></script>
+  <!-- QR Code gerado no browser via qrcode.js (sem backend) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
-    .metodo-card {
-      display: flex; align-items: center; gap: 1rem;
-      padding: 1.25rem; border: 1px solid var(--border);
-      border-radius: var(--radius); cursor: pointer; transition: .2s;
-      background: var(--bg-3);
+    /* ── Layout central ────────────────────────────────────── */
+    .pay-wrap {
+      max-width: 520px;
+      margin: 0 auto;
+      padding-bottom: 4rem;
     }
-    .metodo-card:hover { border-color: var(--accent); background: var(--surface); }
-    .metodo-card.active { border-color: var(--accent); background: var(--accent-glow); }
-    .metodo-card input { display: none; }
-    .metodo-icon {
-      width: 40px; height: 40px; border-radius: 8px;
-      background: var(--surface-2); display: flex; align-items: center; justify-content: center;
+
+    /* ── Card de seleção de método ─────────────────────────── */
+    .metodo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .metodo-card {
+      position: relative;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .metodo-card input[type="radio"] {
+      position: absolute; opacity: 0; width: 0; height: 0;
+    }
+    .metodo-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .metodo-card.active {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+    .metodo-card.active .metodo-nome { color: var(--accent-2); }
+    .metodo-icon-wrap {
+      width: 44px; height: 44px; border-radius: var(--radius-sm);
+      background: var(--bg-2); display: flex; align-items: center;
+      justify-content: center; font-size: 1.5rem;
+      transition: background 0.2s;
+    }
+    .metodo-card.active .metodo-icon-wrap { background: rgba(108,99,255,.15); }
+    .metodo-nome {
+      font-size: 0.82rem; font-weight: 700; color: var(--text);
+      transition: color 0.2s;
+    }
+    .metodo-desc { font-size: 0.7rem; color: var(--text-3); line-height: 1.3; }
+
+    /* ── Resumo ─────────────────────────────────────────────── */
+    .resumo-rota {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-weight: 700; font-size: 1rem; color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+    .resumo-rota .seta { color: var(--accent); }
+    .valor-grande {
+      font-size: 2.4rem; font-weight: 800; color: var(--text);
+      font-variant-numeric: tabular-nums; letter-spacing: -1px;
+      line-height: 1;
+    }
+    .valor-grande span { font-size: 1.3rem; font-weight: 600; color: var(--text-3); }
+
+    /* ── Painel Pix ─────────────────────────────────────────── */
+    #painel-pix { display: none; }
+
+    .pix-container {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .pix-header {
+      background: linear-gradient(135deg, #32BCAD, #1A9E8F);
+      padding: 1.25rem 1.5rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .pix-logo {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pix-header-text { color: #fff; }
+    .pix-header-title { font-size: 1rem; font-weight: 700; line-height: 1; }
+    .pix-header-sub { font-size: 0.78rem; opacity: 0.85; margin-top: 2px; }
+
+    .pix-body { padding: 1.5rem; }
+
+    /* QR Code centralizado */
+    .qr-wrap {
+      display: flex; justify-content: center; align-items: center;
+      padding: 1.25rem;
+      background: #fff;
+      border-radius: var(--radius);
+      margin-bottom: 1.25rem;
+      border: 1px solid #e2e8f0;
+      min-height: 180px;
+      position: relative;
+    }
+    #qrcode canvas, #qrcode img {
+      display: block !important;
+    }
+    .qr-loading {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: #fff; border-radius: var(--radius);
+    }
+    .qr-spinner {
+      width: 28px; height: 28px;
+      border: 3px solid #e2e8f0;
+      border-top-color: #32BCAD;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Copia e Cola */
+    .pix-copia-area {
+      background: var(--bg-3);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+    }
+    .pix-copia-label {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: 0.4rem;
+    }
+    .pix-copia-row {
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .pix-copia-code {
+      flex: 1; font-family: var(--font-mono); font-size: 0.72rem;
+      color: var(--text-2); word-break: break-all; line-height: 1.4;
+      max-height: 52px; overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+    .btn-copiar {
+      flex-shrink: 0;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.85rem;
+      font-size: 0.78rem; font-weight: 700;
+      cursor: pointer; transition: all 0.18s;
+      display: flex; align-items: center; gap: 0.35rem;
+      white-space: nowrap;
+    }
+    .btn-copiar:hover { background: var(--accent-2); }
+    .btn-copiar.copiado {
+      background: var(--green); color: #0a0a0f;
+    }
+
+    /* Chave Pix manual */
+    .pix-chave-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 0;
+      border-top: 1px solid var(--border);
+    }
+    .pix-chave-info { }
+    .pix-chave-tipo { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-3); }
+    .pix-chave-valor { font-size: 0.9rem; font-weight: 600; color: var(--text); font-family: var(--font-mono); margin-top: 2px; }
+
+    /* Timer */
+    .pix-timer {
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      background: rgba(245,166,35,.08);
+      border: 1px solid rgba(245,166,35,.2);
+      border-radius: var(--radius-sm);
+      margin-top: 1rem;
+      font-size: 0.82rem; color: var(--amber); font-weight: 600;
+    }
+    .pix-timer.urgente {
+      background: rgba(255,92,92,.1);
+      border-color: rgba(255,92,92,.25);
+      color: var(--red);
+    }
+    #timer-display {
+      font-family: var(--font-mono); font-size: 1rem; font-weight: 800;
+      min-width: 38px; text-align: center;
+    }
+
+    /* Steps de instrução */
+    .pix-steps {
+      display: flex; flex-direction: column; gap: 0.6rem;
+      margin-bottom: 1.25rem;
+    }
+    .pix-step {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      font-size: 0.85rem; color: var(--text-2); line-height: 1.45;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 22px; height: 22px;
+      background: var(--accent-glow);
+      border: 1px solid rgba(108,99,255,.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.68rem; font-weight: 800; color: var(--accent-2);
+      margin-top: 1px;
+    }
+
+    /* Botão de confirmação ─────────────────────────────────── */
+    .btn-confirmar-pix {
+      width: 100%; padding: 0.9rem;
+      background: #32BCAD;
+      color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      font-family: var(--font); font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      margin-top: 1.25rem;
+    }
+    .btn-confirmar-pix:hover { background: #2aa898; box-shadow: 0 4px 16px rgba(50,188,173,.35); }
+    .btn-confirmar-pix:active { transform: scale(0.98); }
+    .btn-confirmar-pix:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Painel outros métodos ────────────────────────────────── */
+    #painel-outros { display: none; }
+
+    /* Alerta de sucesso ─────────────────────────────────────── */
+    .pix-sucesso {
+      text-align: center; padding: 2.5rem 1.5rem;
+      animation: fadeUp 0.4s ease;
+    }
+    .sucesso-icone {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--green-dim);
+      border: 2px solid rgba(34,211,160,.3);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.25rem;
+      font-size: 2rem;
+    }
+    .sucesso-titulo { font-size: 1.4rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem; }
+    .sucesso-sub { font-size: 0.9rem; color: var(--text-3); }
+
+    @media (max-width: 480px) {
+      .metodo-grid { grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
+      .metodo-nome { font-size: 0.75rem; }
+      .metodo-desc { display: none; }
     }
   </style>
 </head>
 <body>
   <div id="navbar-placeholder"></div>
 
-  <main class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
-    <div class="page-header fade-up" style="padding-top:0">
-      <h2 data-i18n="pay-title">Confirmar reserva</h2>
-      <p data-i18n="pay-sub">Escolha a forma de pagamento para sua vaga</p>
-    </div>
+  <main class="container">
+    <div class="pay-wrap">
 
-    <div class="card mb-2 fade-up">
-      <div class="card-title" data-i18n="pay-summary">Resumo da carona</div>
-      <div id="resumo-carona">
-        <p class="text-muted" data-i18n="welcome-loading">Carregando...</p>
+      <div class="page-header fade-up" style="padding-top: 1.5rem;">
+        <h2>Confirmar pagamento</h2>
+        <p>Escolha como deseja pagar sua vaga na carona</p>
       </div>
-    </div>
 
-    <div class="card fade-up">
-      <div class="card-title" data-i18n="pay-method">Forma de pagamento</div>
       <div id="alert-container"></div>
 
-      <form id="form-pagamento">
-        <div style="display:flex; flex-direction:column; gap:1rem">
-          <label class="metodo-card active">
+      <!-- Resumo da carona ──────────────────────────────────── -->
+      <div class="card mb-2 fade-up" id="card-resumo">
+        <div class="card-title">Resumo</div>
+        <div id="resumo-carona">
+          <p class="text-muted">Carregando...</p>
+        </div>
+      </div>
+
+      <!-- Seleção de método ─────────────────────────────────── -->
+      <div class="card mb-2 fade-up fade-up-1" id="card-metodo">
+        <div class="card-title">Forma de pagamento</div>
+
+        <div class="metodo-grid">
+          <label class="metodo-card active" id="card-pix" onclick="selecionarMetodo('pix', this)">
             <input type="radio" name="metodo" value="pix" checked>
-            <div class="metodo-icon">💎</div>
-            <div>
-              <div style="font-weight:600; font-size:.9rem">Pix</div>
-              <div style="font-size:.75rem; color:var(--text-3)">Aprovação imediata</div>
+            <div class="metodo-icon-wrap">
+              <svg width="26" height="26" viewBox="0 0 512 512" fill="none">
+                <path d="M340.7 60.4c-18.9 0-36.7 7.4-50 20.7l-87.4 87.4c-7.4 7.4-17.2 11.4-27.6 11.4s-20.3-4.1-27.6-11.4l-87.4-87.4C47.4 67.8 29.6 60.4 10.7 60.4" stroke="#32BCAD" stroke-width="32" stroke-linecap="round"/>
+                <path d="M10.7 451.6c18.9 0 36.7-7.4 50-20.7l87.4-87.4c7.4-7.4 17.2-11.4 27.6-11.4s20.3 4.1 27.6 11.4l87.4 87.4c13.3 13.3 31.1 20.7 50 20.7" stroke="#32BCAD" stroke-width="32" stroke-linecap="round"/>
+                <path d="M340.7 451.6c18.9 0 36.7-7.4 50-20.7l87.4-87.4c13.3-13.3 20.7-31.1 20.7-50V151.5c0-18.9-7.4-36.7-20.7-50L391.7 14.1C378.4.8 360.6-6.6 341.7 0" stroke="#32BCAD" stroke-width="32" stroke-linecap="round"/>
+                <circle cx="256" cy="256" r="40" fill="#32BCAD"/>
+              </svg>
             </div>
+            <div class="metodo-nome">Pix</div>
+            <div class="metodo-desc">Instantâneo</div>
           </label>
-          <label class="metodo-card">
+
+          <label class="metodo-card" id="card-cartao" onclick="selecionarMetodo('cartao_credito', this)">
             <input type="radio" name="metodo" value="cartao_credito">
-            <div class="metodo-icon">💳</div>
-            <div>
-              <div style="font-weight:600; font-size:.9rem">Cartão de Crédito</div>
-              <div style="font-size:.75rem; color:var(--text-3)">Até 12x com juros</div>
-            </div>
+            <div class="metodo-icon-wrap">💳</div>
+            <div class="metodo-nome">Cartão</div>
+            <div class="metodo-desc">Crédito/Débito</div>
           </label>
-          <label class="metodo-card">
+
+          <label class="metodo-card" id="card-dinheiro" onclick="selecionarMetodo('dinheiro', this)">
             <input type="radio" name="metodo" value="dinheiro">
-            <div class="metodo-icon">💵</div>
-            <div>
-              <div style="font-weight:600; font-size:.9rem">Dinheiro</div>
-              <div style="font-size:.75rem; color:var(--text-3)">Pague diretamente ao motorista</div>
-            </div>
+            <div class="metodo-icon-wrap">💵</div>
+            <div class="metodo-nome">Dinheiro</div>
+            <div class="metodo-desc">Ao motorista</div>
           </label>
         </div>
 
-        <div class="divider"></div>
+        <!-- ══ PAINEL PIX ══════════════════════════════════════ -->
+        <div id="painel-pix">
+          <div class="pix-container">
+            <!-- Header verde Pix -->
+            <div class="pix-header">
+              <div class="pix-logo">
+                <svg width="22" height="22" viewBox="0 0 512 512" fill="none">
+                  <path d="M340.7 60.4c-18.9 0-36.7 7.4-50 20.7l-87.4 87.4c-7.4 7.4-17.2 11.4-27.6 11.4s-20.3-4.1-27.6-11.4l-87.4-87.4C47.4 67.8 29.6 60.4 10.7 60.4" stroke="#fff" stroke-width="36" stroke-linecap="round"/>
+                  <path d="M10.7 451.6c18.9 0 36.7-7.4 50-20.7l87.4-87.4c7.4-7.4 17.2-11.4 27.6-11.4s20.3 4.1 27.6 11.4l87.4 87.4c13.3 13.3 31.1 20.7 50 20.7" stroke="#fff" stroke-width="36" stroke-linecap="round"/>
+                  <path d="M340.7 451.6c18.9 0 36.7-7.4 50-20.7l87.4-87.4c13.3-13.3 20.7-31.1 20.7-50V151.5c0-18.9-7.4-36.7-20.7-50L391.7 14.1" stroke="#fff" stroke-width="36" stroke-linecap="round"/>
+                  <circle cx="256" cy="256" r="44" fill="#fff"/>
+                </svg>
+              </div>
+              <div class="pix-header-text">
+                <div class="pix-header-title">Pague com Pix</div>
+                <div class="pix-header-sub">Escaneie o QR Code ou use o Copia e Cola</div>
+              </div>
+            </div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem">
-          <span style="font-weight:600; color:var(--text-2)" data-i18n="pay-total">Total a pagar</span>
-          <span id="valor-total" style="font-size:1.5rem; font-weight:700; color:var(--text)">R$ 0,00</span>
+            <div class="pix-body">
+              <!-- Instruções -->
+              <div class="pix-steps">
+                <div class="pix-step">
+                  <div class="step-num">1</div>
+                  <span>Abra o app do seu banco e acesse a área <strong>Pix</strong></span>
+                </div>
+                <div class="pix-step">
+                  <div class="step-num">2</div>
+                  <span>Escaneie o QR Code abaixo <strong>ou</strong> use "Pix Copia e Cola"</span>
+                </div>
+                <div class="pix-step">
+                  <div class="step-num">3</div>
+                  <span>Confirme o valor e o nome <strong id="nome-recebedor-step">UniCaronas</strong> como recebedor</span>
+                </div>
+                <div class="pix-step">
+                  <div class="step-num">4</div>
+                  <span>Volte aqui e clique em <strong>"Já paguei"</strong></span>
+                </div>
+              </div>
+
+              <!-- QR Code -->
+              <div class="qr-wrap">
+                <div id="qr-loading" class="qr-loading">
+                  <div class="qr-spinner"></div>
+                </div>
+                <div id="qrcode"></div>
+              </div>
+
+              <!-- Copia e Cola -->
+              <div class="pix-copia-area">
+                <div class="pix-copia-label">Pix Copia e Cola</div>
+                <div class="pix-copia-row">
+                  <div class="pix-copia-code" id="pix-payload-display">Gerando...</div>
+                  <button class="btn-copiar" id="btn-copiar" onclick="copiarPix()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    Copiar
+                  </button>
+                </div>
+              </div>
+
+              <!-- Chave Pix manual -->
+              <div class="pix-chave-row">
+                <div class="pix-chave-info">
+                  <div class="pix-chave-tipo">Chave Pix do recebedor</div>
+                  <div class="pix-chave-valor" id="pix-chave-display">—</div>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="copiarChave()">Copiar chave</button>
+              </div>
+
+              <!-- Timer -->
+              <div class="pix-timer" id="pix-timer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Expira em</span>
+                <span id="timer-display">15:00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botão principal ───────────────────────────────── -->
+          <button class="btn-confirmar-pix" id="btn-confirmar-pix" onclick="confirmarPagamentoPix()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Já paguei — Confirmar pagamento
+          </button>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-full" id="btn-confirmar" data-i18n="pay-btn-confirm">Confirmar e Pagar</button>
-      </form>
+        <!-- ══ PAINEL OUTROS MÉTODOS ═══════════════════════════ -->
+        <div id="painel-outros">
+          <div style="padding: 1.5rem; background: var(--bg-2); border-radius: var(--radius-sm); text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 0.75rem;" id="outros-icone">💳</div>
+            <div style="font-weight: 700; color: var(--text); margin-bottom: 0.25rem;" id="outros-titulo">Cartão de Crédito</div>
+            <div style="font-size: 0.85rem; color: var(--text-3); margin-bottom: 1.25rem;" id="outros-desc">O pagamento será registrado manualmente.</div>
+            <button class="btn btn-primary btn-full" id="btn-confirmar-outro" onclick="confirmarPagamentoOutro()">
+              Confirmar pagamento
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tela de sucesso ──────────────────────────────────── -->
+      <div id="card-sucesso" class="card" style="display: none;">
+        <div class="pix-sucesso">
+          <div class="sucesso-icone">✓</div>
+          <div class="sucesso-titulo">Pagamento confirmado!</div>
+          <div class="sucesso-sub" style="margin-bottom: 1.5rem;">
+            Sua reserva está garantida. Obrigado por usar o UniCaronas!
+          </div>
+          <a id="btn-voltar-carona" href="#" class="btn btn-primary">Ver detalhes da carona</a>
+        </div>
+      </div>
+
     </div>
   </main>
 
   <footer class="footer">
     <div class="container footer-content">
       <div class="navbar-brand-img" style="margin-bottom: 1rem;"></div>
-      <div class="footer-dev">Desenvolvido pelas divas: <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
       <div class="footer-copyright">© 2026 UniCaronas — Todos os direitos reservados.</div>
     </div>
   </footer>
@@ -96,53 +441,274 @@
   <script src="../js/navbar.js"></script>
   <script>
     protegerRota();
-    const params = new URLSearchParams(location.search);
-    const solId = params.get('solicitacao_id');
-    const carId = params.get('carona_id');
-    const valor = params.get('valor');
+
+    const params       = new URLSearchParams(location.search);
+    const solId        = params.get('solicitacao_id');
+    const carId        = params.get('carona_id');
+    const valorParam   = params.get('valor');
 
     if (!solId || !carId) location.href = 'dashboard.html';
+
+    // Estado global
+    let pixPayload   = '';
+    let pixChave     = '';
+    let metodoAtivo  = 'pix';
+    let timerInterval = null;
+    let timerSegundos = 15 * 60; // 15 minutos
+
+    // ── Inicialização ───────────────────────────────────────
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await carregarResumo();
+      await inicializarPix();
+      document.getElementById('btn-voltar-carona').href = `carona.html?id=${carId}`;
+    });
+
+    // ── Resumo da carona ────────────────────────────────────
 
     async function carregarResumo() {
       try {
         const res = await api.buscarCarona(carId);
         const c = res.data;
+        const valor = valorParam || c.valor_cobrado;
+
         document.getElementById('resumo-carona').innerHTML = `
-          <div style="font-weight:600; font-size:1rem; margin-bottom:.5rem">${c.origem} → ${c.destino}</div>
-          <div class="text-muted" style="font-size:.85rem">${formatarData(c.horario_partida)}</div>
-          <div class="text-muted" style="font-size:.85rem">${t('profile-stats-driver')}: ${c.motorista_nome}</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div class="resumo-rota">
+                <span>${c.origem.split(',')[0]}</span>
+                <span class="seta">→</span>
+                <span>${c.destino.split(',')[0]}</span>
+              </div>
+              <div style="font-size: 0.83rem; color: var(--text-3); font-family: var(--font-mono); margin-top: 3px;">
+                ${formatarData(c.horario_partida)} · ${c.motorista_nome}
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-3); margin-bottom: 3px;">Valor</div>
+              <div class="valor-grande"><span>R$</span> ${parseFloat(valor).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+            </div>
+          </div>
         `;
-        document.getElementById('valor-total').textContent = formatarMoeda(valor);
-      } catch(e) {}
+      } catch (e) {
+        document.getElementById('resumo-carona').innerHTML =
+          `<p class="text-muted">Não foi possível carregar o resumo da carona.</p>`;
+      }
     }
 
-    document.querySelectorAll('.metodo-card').forEach(card => {
-      card.addEventListener('click', () => {
-        document.querySelectorAll('.metodo-card').forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
-      });
-    });
+    // ── Pix: busca payload e gera QR Code ──────────────────
 
-    document.getElementById('form-pagamento').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const metodo = document.querySelector('input[name="metodo"]:checked').value;
-      const btn = document.getElementById('btn-confirmar');
-      
-      btn.disabled = true;
-      btn.textContent = currentLang === 'pt' ? 'Processando...' : 'Processing...';
+    async function inicializarPix() {
+      try {
+        const res = await api.gerarPix(solId);
+        const d   = res.data;
+
+        pixPayload = d.payload;
+        pixChave   = d.chave_pix;
+
+        // Atualiza UI com dados retornados
+        document.getElementById('pix-payload-display').textContent = pixPayload;
+        document.getElementById('pix-chave-display').textContent   = pixChave;
+        document.getElementById('nome-recebedor-step').textContent  = d.nome_recebedor || 'UniCaronas';
+
+        // Gera QR Code no browser
+        gerarQRCode(pixPayload);
+
+        // Inicia timer
+        iniciarTimer();
+
+      } catch (err) {
+        // Se já foi pago ou carona não concluída, mostra mensagem amigável
+        if (err.message && err.message.includes('já foi paga')) {
+          mostrarSucesso();
+          return;
+        }
+        // Pix indisponível: exibe aviso mas permite outros métodos
+        document.getElementById('painel-pix').innerHTML = `
+          <div class="alert alert-error" style="text-align:center;">
+            <strong>Pix temporariamente indisponível.</strong><br>
+            Use outro método de pagamento ou tente novamente.
+          </div>`;
+        document.getElementById('painel-pix').style.display = 'block';
+      }
+    }
+
+    function gerarQRCode(payload) {
+      const loading = document.getElementById('qr-loading');
+      const container = document.getElementById('qrcode');
+      container.innerHTML = '';
 
       try {
-        await api.pagar({ solicitacao_id: parseInt(solId), metodo });
-        showAlert(currentLang === 'pt' ? 'Pagamento realizado com sucesso!' : 'Payment successful!', 'success');
-        setTimeout(() => location.href = `carona.html?id=${carId}`, 1500);
-      } catch(err) {
-        showAlert(err.message, 'error');
-        btn.disabled = false;
-        btn.textContent = t('pay-btn-confirm');
+        new QRCode(container, {
+          text:          payload,
+          width:         200,
+          height:        200,
+          colorDark:     '#000000',
+          colorLight:    '#ffffff',
+          correctLevel:  QRCode.CorrectLevel.M,
+        });
+
+        // Aguarda o QRCode renderizar e esconde o loading
+        setTimeout(() => {
+          if (loading) loading.style.display = 'none';
+        }, 300);
+
+      } catch (e) {
+        if (loading) loading.style.display = 'none';
+        container.innerHTML = `<div style="padding:1rem;text-align:center;color:#888;font-size:0.8rem;">QR Code indisponível.<br>Use o Copia e Cola acima.</div>`;
       }
+    }
+
+    // ── Timer ────────────────────────────────────────────────
+
+    function iniciarTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerSegundos = 15 * 60;
+
+      timerInterval = setInterval(() => {
+        timerSegundos--;
+        const min = Math.floor(timerSegundos / 60).toString().padStart(2, '0');
+        const seg = (timerSegundos % 60).toString().padStart(2, '0');
+        const display = document.getElementById('timer-display');
+        const timer   = document.getElementById('pix-timer');
+
+        if (display) display.textContent = `${min}:${seg}`;
+
+        if (timerSegundos <= 60 && timer) {
+          timer.classList.add('urgente');
+        }
+        if (timerSegundos <= 0) {
+          clearInterval(timerInterval);
+          if (display) display.textContent = 'Expirado';
+          const btn = document.getElementById('btn-confirmar-pix');
+          if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'QR Code expirado — recarregue a página';
+          }
+        }
+      }, 1000);
+    }
+
+    // ── Seleção de método ───────────────────────────────────
+
+    function selecionarMetodo(metodo, el) {
+      metodoAtivo = metodo;
+
+      // Limpa seleção visual
+      document.querySelectorAll('.metodo-card').forEach(c => c.classList.remove('active'));
+      if (el) el.classList.add('active');
+
+      // Mostra painel correto
+      const painelPix    = document.getElementById('painel-pix');
+      const painelOutros = document.getElementById('painel-outros');
+
+      if (metodo === 'pix') {
+        painelPix.style.display    = 'block';
+        painelOutros.style.display = 'none';
+      } else {
+        painelPix.style.display    = 'none';
+        painelOutros.style.display = 'block';
+        clearInterval(timerInterval);
+
+        const configs = {
+          cartao_credito: { icone: '💳', titulo: 'Cartão de Crédito', desc: 'Pague com cartão de crédito ou débito. O pagamento será processado pela plataforma.' },
+          dinheiro:       { icone: '💵', titulo: 'Dinheiro',           desc: 'Combine diretamente com o motorista e pague em espécie na hora da carona.' },
+        };
+        const cfg = configs[metodo] || configs.dinheiro;
+        document.getElementById('outros-icone').textContent  = cfg.icone;
+        document.getElementById('outros-titulo').textContent = cfg.titulo;
+        document.getElementById('outros-desc').textContent   = cfg.desc;
+      }
+    }
+
+    // Inicializa exibindo o painel Pix (selecionado por padrão)
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('painel-pix').style.display = 'block';
     });
 
-    carregarResumo();
+    // ── Copiar payload Pix ──────────────────────────────────
+
+    async function copiarPix() {
+      if (!pixPayload) return;
+      try {
+        await navigator.clipboard.writeText(pixPayload);
+      } catch (e) {
+        // Fallback para browsers sem clipboard API
+        const ta = document.createElement('textarea');
+        ta.value = pixPayload;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      const btn = document.getElementById('btn-copiar');
+      btn.classList.add('copiado');
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copiado!`;
+      setTimeout(() => {
+        btn.classList.remove('copiado');
+        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copiar`;
+      }, 2500);
+    }
+
+    async function copiarChave() {
+      if (!pixChave) return;
+      try { await navigator.clipboard.writeText(pixChave); } catch (e) {}
+      showAlert('Chave Pix copiada!', 'success');
+    }
+
+    // ── Confirmação de pagamento Pix ────────────────────────
+
+    async function confirmarPagamentoPix() {
+      const btn = document.getElementById('btn-confirmar-pix');
+      btn.disabled = true;
+      btn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .7s linear infinite"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+        Confirmando...`;
+
+      try {
+        await api.pagar({ solicitacao_id: parseInt(solId), metodo: 'pix' });
+        clearInterval(timerInterval);
+        mostrarSucesso();
+      } catch (err) {
+        showAlert(err.message || 'Erro ao confirmar pagamento. Tente novamente.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Já paguei — Confirmar pagamento`;
+      }
+    }
+
+    // ── Confirmação de outros métodos ───────────────────────
+
+    async function confirmarPagamentoOutro() {
+      const btn = document.getElementById('btn-confirmar-outro');
+      btn.disabled = true;
+      btn.textContent = 'Processando...';
+
+      try {
+        await api.pagar({ solicitacao_id: parseInt(solId), metodo: metodoAtivo });
+        mostrarSucesso();
+      } catch (err) {
+        showAlert(err.message || 'Erro ao registrar pagamento.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Confirmar pagamento';
+      }
+    }
+
+    // ── Tela de sucesso ─────────────────────────────────────
+
+    function mostrarSucesso() {
+      document.getElementById('card-metodo').style.display  = 'none';
+      document.getElementById('card-resumo').style.display  = 'none';
+      document.getElementById('card-sucesso').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Extend api.js com gerarPix ──────────────────────────
+    // (adiciona o método que não estava no api.js original)
+    api.gerarPix = (solicitacao_id) =>
+      request(`/pagamentos/pix/${solicitacao_id}`);
   </script>
 </body>
 </html>
