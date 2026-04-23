@@ -24,20 +24,51 @@
       align-items: end !important;
     }
     @media (max-width: 992px) {
-      .filtros-grid { 
-        grid-template-columns: 1fr 1fr !important; 
-      }
-      .filtros-grid .btn-primary {
-        grid-column: span 2;
-      }
+      .filtros-grid { grid-template-columns: 1fr 1fr !important; }
+      .filtros-grid .btn-primary { grid-column: span 2; }
     }
     @media (max-width: 600px) { 
-      .filtros-grid { 
-        grid-template-columns: 1fr !important; 
-      } 
-      .filtros-grid .btn-primary {
-        grid-column: span 1;
-      }
+      .filtros-grid { grid-template-columns: 1fr !important; } 
+      .filtros-grid .btn-primary { grid-column: span 1; }
+    }
+
+    /* Estilos Sprint 5 */
+    .badge-mulheres {
+      background: #fdf2ff;
+      color: #9c27b0;
+      border: 1px solid #e1bee7;
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-transform: uppercase;
+    }
+    .carona-mulheres {
+      border-top: 4px solid #9c27b0 !important;
+      background: linear-gradient(to bottom, #fffafd, #ffffff);
+    }
+    .badge-lotada {
+      background: #fff5f5;
+      color: #e53e3e;
+      border: 1px solid #fed7d7;
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .btn-espera {
+      background: #ebf8ff;
+      color: #2b6cb0;
+      border: 1px solid #bee3f8;
+      font-weight: 600;
+    }
+    .btn-espera:hover {
+      background: #bee3f8;
+      color: #2c5282;
     }
   </style>
 </head>
@@ -51,35 +82,41 @@
     </div>
 
     <div class="filtros fade-up">
-      <!-- Dica consolidada para busca -->
       <div style="margin-bottom: 1.25rem; font-size: 0.8rem; color: var(--text-3); display: flex; align-items: center; gap: 0.5rem; background: var(--bg-2); padding: 0.75rem 1rem; border-radius: var(--radius-sm); border-left: 3px solid var(--accent);">
         <i data-lucide="info" style="width: 16px; height: 16px; color: var(--accent); flex-shrink: 0;"></i>
-        <span>Dica: Busque por Bairro, Rua ou nome da Universidade (ex: UniBrasil).</span>
+        <span>Dica: Busque por Bairro, Rua ou nome da Universidade.</span>
       </div>
 
       <div class="filtros-grid">
         <div class="form-group" style="margin:0">
-          <label class="form-label" data-i18n="filter-origin">Origem</label>
-          <input class="form-control" id="f-origem" type="text" placeholder="Bairro ou endereço" data-i18n="filter-origin">
+          <label class="form-label">Origem</label>
+          <input class="form-control" id="f-origem" type="text" placeholder="Bairro ou endereço">
         </div>
         <div class="form-group" style="margin:0">
-          <label class="form-label" data-i18n="filter-destination">Destino</label>
-          <input class="form-control" id="f-destino" type="text" placeholder="Campus ou endereço" data-i18n="filter-destination">
+          <label class="form-label">Destino</label>
+          <input class="form-control" id="f-destino" type="text" placeholder="Campus ou endereço">
         </div>
         <div class="form-group" style="margin:0">
-          <label class="form-label" data-i18n="filter-date">Data</label>
+          <label class="form-label">Data</label>
           <input class="form-control" id="f-data" type="date">
         </div>
         <div class="form-group" style="margin:0">
           <label class="form-label">Preço Máximo</label>
           <input class="form-control" id="f-preco" type="number" placeholder="R$">
         </div>
-        <button class="btn btn-primary" onclick="buscar()" data-i18n="btn-filter" style="height: 42px;">Buscar</button>
+        <button class="btn btn-primary" onclick="buscar()" style="height: 42px;">Buscar</button>
+      </div>
+
+      <div style="margin-top: 1.25rem; display: flex; align-items: center; gap: 0.6rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+        <input type="checkbox" id="f-lotadas" style="width: 18px; height: 18px; cursor: pointer;" onchange="buscar()">
+        <label for="f-lotadas" style="font-size: 0.9rem; color: var(--text-2); cursor: pointer; font-weight: 500;">
+          Mostrar caronas sem vaga (Lista de Espera)
+        </label>
       </div>
     </div>
 
     <div id="resultado-lista">
-      <p class="text-muted" data-i18n="welcome-loading">Carregando...</p>
+      <p class="text-muted">Carregando...</p>
     </div>
   </main>
 
@@ -97,63 +134,68 @@
   <script src="../js/autocomplete.js"></script>
   <script>
     protegerRota();
-
-    // Inicialização do Autocomplete
     new AddressAutocomplete(document.getElementById('f-origem'));
     new AddressAutocomplete(document.getElementById('f-destino'));
 
-    window.addEventListener('languageChanged', () => {
-      buscar();
-    });
-
     function renderCarona(c) {
+      const isLotada = parseInt(c.vagas_disponiveis) <= 0;
+      const isMulheres = c.genero_preferencia === 'somente_mulheres';
+      
       return `
-        <div class="carona-card fade-up">
+        <div class="carona-card fade-up ${isMulheres ? 'carona-mulheres' : ''}">
           <div class="carona-rota">
             <span class="local">${c.origem}</span>
             <div class="route-line"></div>
             <div class="route-dot"></div>
             <span class="local">${c.destino}</span>
-            ${c.recorrente ? `<span class="badge-semanal">Semanal</span>` : ''}
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-left: auto; align-items: center;">
+              ${c.recorrente ? `<span class="badge-semanal">Semanal</span>` : ''}
+              ${isMulheres ? `<span class="badge-mulheres"><i data-lucide="venus" style="width: 12px; height: 12px;"></i> Só Mulheres</span>` : ''}
+              ${isLotada ? `<span class="badge-lotada">Lotada</span>` : ''}
+            </div>
           </div>
           <div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-2); font-weight: 500; display: flex; align-items: center; gap: 0.4rem;">
             <span style="color: var(--accent); display: flex; align-items: center; gap: 0.25rem;"><i data-lucide="map-pin" style="width: 14px; height: 14px;"></i> Ponto de encontro:</span> ${c.ponto_encontro}
           </div>
-          ${c.itinerario ? `
-            <div style="margin-top: 0.25rem; font-size: 0.8rem; color: var(--text-3); background: var(--surface-2); padding: 0.4rem 0.6rem; border-radius: var(--radius-sm); border-left: 2px solid var(--accent);">
-              <span style="font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 2px;">Itinerário</span>
-              ${c.itinerario}
-            </div>
-          ` : ''}
           <div class="carona-meta" style="margin-top: 0.75rem;">
             <div class="meta-item">
-              <span class="meta-label">${t('card-time')}</span>
+              <span class="meta-label">Horário</span>
               <span class="meta-value">${formatarData(c.horario_partida)}</span>
             </div>
             <div class="meta-item">
-              <span class="meta-label">${t('card-vagas')}</span>
-              <span class="meta-value">${c.vagas_disponiveis} ${t('card-vagas-avail')}</span>
+              <span class="meta-label">Vagas</span>
+              <span class="meta-value" style="${isLotada ? 'color: var(--red); font-weight: 700;' : ''}">${c.vagas_disponiveis} disponíveis</span>
             </div>
-            ${c.distancia_km ? `<div class="meta-item"><span class="meta-label">${t('card-dist')}</span><span class="meta-value">${c.distancia_km} km</span></div>` : ''}
           </div>
-          ${c.observacoes ? `<p style="font-size:.85rem;color:var(--text-3);margin-bottom:1rem">${c.observacoes}</p>` : ''}
           <div class="carona-footer">
             <div class="user-row">
               <div class="avatar">${iniciais(c.motorista_nome)}</div>
               <div>
                 <div class="user-name">${c.motorista_nome}</div>
-                <div class="user-rating">${parseFloat(c.motorista_avaliacao||0).toFixed(1)} — ${currentLang === 'pt' ? 'motorista' : 'driver'}</div>
+                <div class="user-rating">${parseFloat(c.motorista_avaliacao||0).toFixed(1)} ★</div>
               </div>
             </div>
-            <div style="display:flex;align-items:center;gap:1rem">
+            <div style="display:flex;align-items:center;gap:0.75rem">
               <div>
-                <div class="preco-label">${t('card-price-per-person')}</div>
                 <div class="preco-valor">${formatarMoeda(c.valor_cobrado)}</div>
               </div>
-              <a href="carona.html?id=${c.id}" class="btn btn-ghost btn-sm">${t('card-details')}</a>
+              <div style="display: flex; gap: 0.4rem;">
+                <a href="carona.html?id=${c.id}" class="btn btn-ghost btn-sm">Detalhes</a>
+                ${isLotada ? `<button onclick="entrarEspera(${c.id}, '${c.motorista_nome}')" class="btn btn-sm btn-espera">Lista de Espera</button>` : ''}
+              </div>
             </div>
           </div>
         </div>`;
+    }
+
+    async function entrarEspera(id, motorista) {
+      if (!confirm(`Deseja entrar na lista de espera para a carona de ${motorista}? Avisaremos se uma vaga for liberada.`)) return;
+      try {
+        const res = await api.entrarListaEspera(id);
+        showAlert(res.mensagem || 'Você entrou na lista de espera!', 'success');
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
     }
 
     async function buscar() {
@@ -168,24 +210,28 @@
       if (preco)   params.preco_max = preco;
 
       const lista = document.getElementById('resultado-lista');
-      lista.innerHTML = `<p class="text-muted">${currentLang === 'pt' ? 'Buscando...' : 'Searching...'}</p>`;
+      lista.innerHTML = `<p class="text-muted">Buscando...</p>`;
 
       try {
         const res = await api.listarCaronas(params);
-        if (res.data.length === 0) {
-          lista.innerHTML = `<div class="empty-state"><p>${t('empty-rides')}</p></div>`;
+        let dados = res.data;
+        const mostrarLotadas = document.getElementById('f-lotadas').checked;
+        if (!mostrarLotadas) {
+          dados = dados.filter(c => parseInt(c.vagas_disponiveis) > 0);
+        }
+
+        if (dados.length === 0) {
+          lista.innerHTML = `<div class="empty-state"><p>Nenhuma carona encontrada.</p></div>`;
           return;
         }
-        lista.innerHTML = res.data.map(renderCarona).join('');
-        lucide.createIcons();
+        lista.innerHTML = dados.map(renderCarona).join('');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
       } catch(err) {
         lista.innerHTML = `<div class="empty-state"><p>${err.message}</p></div>`;
       }
     }
 
     buscar();
-
-    document.getElementById('btn-logout')?.addEventListener('click', () => logout());
   </script>
   <script src="../js/chat-global.js"></script>
 </body>

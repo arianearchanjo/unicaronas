@@ -11,7 +11,8 @@ const criar = async (req, res, next) => {
     const {
       origem, destino, horario_partida, vagas_totais,
       valor_cobrado, distancia_km, observacoes, recorrente,
-      veiculo_id, ponto_encontro, ponto_encontro_detalhes, itinerario
+      veiculo_id, ponto_encontro, ponto_encontro_detalhes, itinerario,
+      genero_preferencia
     } = req.body;
     const motorista_id = req.usuario.id;
 
@@ -27,9 +28,16 @@ const criar = async (req, res, next) => {
       }
     }
 
-    // Busca dia_ead do usuário
-    const { rows: userRows } = await db.query('SELECT dia_ead FROM usuarios WHERE id = $1', [motorista_id]);
-    const dia_ead = userRows[0]?.dia_ead;
+    // Busca dia_ead e genero do usuário
+    const { rows: userRows } = await db.query('SELECT dia_ead, genero FROM usuarios WHERE id = $1', [motorista_id]);
+    const { dia_ead, genero: motorista_genero } = userRows[0] || {};
+
+    if (genero_preferencia === 'somente_mulheres' && motorista_genero !== 'F') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Apenas motoristas do gênero feminino podem criar caronas exclusivas para mulheres.' 
+      });
+    }
 
     const agora = new Date();
     const horario = new Date(horario_partida);
@@ -76,8 +84,8 @@ const criar = async (req, res, next) => {
     const { rows } = await db.query(
       `INSERT INTO caronas
          (motorista_id, veiculo_id, origem, destino, ponto_encontro, ponto_encontro_detalhes, horario_partida, vagas_totais, vagas_disponiveis,
-          valor_sugerido, valor_cobrado, distancia_km, observacoes, recorrente, itinerario)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8, $9, $10, $11, $12, $13, $14)
+          valor_sugerido, valor_cobrado, distancia_km, observacoes, recorrente, itinerario, genero_preferencia)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8, $9, $10, $11, $12, $13, $14, $15)
        RETURNING *`,
       [
         motorista_id,
@@ -86,14 +94,15 @@ const criar = async (req, res, next) => {
         destino.trim(),
         ponto_encontro.trim(),
         ponto_encontro_detalhes?.trim() || null,
-        horario_partida, // Usa a string original para preservar o tempo local se o banco for compatível
+        horario_partida, 
         vagas,
         valor_sugerido,
         valor,
         distancia,
         observacoes?.trim() || null,
         !!recorrente,
-        itinerario?.trim() || null
+        itinerario?.trim() || null,
+        genero_preferencia || 'todos'
       ]
     );
 
@@ -106,22 +115,18 @@ const criar = async (req, res, next) => {
         const novaData = new Date(horario);
         novaData.setDate(novaData.getDate() + (semanasAvancadas * 7));
         
-        // Corrige possível deslocamento de fuso ao adicionar dias (garante mesma hora/min)
         if (novaData.getHours() !== horario.getHours()) {
            novaData.setHours(horario.getHours());
         }
 
-        // Verifica se a nova data cai no dia EAD
         if (dia_ead !== null && novaData.getDay() === dia_ead) {
           const dataFormatada = novaData.toLocaleDateString('pt-BR');
           const diasSemana = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
           avisos.push(`Carona de ${dataFormatada} (${diasSemana[novaData.getDay()]}) ignorada: dia EAD da sua turma.`);
           semanasAvancadas++;
-          continue; // Pula esta semana e tenta a próxima
+          continue;
         }
 
-        // Formata manualmente para evitar problemas de ISO/UTC se necessário, 
-        // ou usa a data ajustada. Aqui usamos uma aproximação segura:
         const novaDataStr = novaData.getFullYear() + '-' + 
           String(novaData.getMonth() + 1).padStart(2, '0') + '-' + 
           String(novaData.getDate()).padStart(2, '0') + 'T' + 
@@ -130,9 +135,9 @@ const criar = async (req, res, next) => {
 
         await db.query(
           `INSERT INTO caronas (motorista_id, veiculo_id, origem, destino, ponto_encontro, ponto_encontro_detalhes, horario_partida, vagas_totais, 
-           vagas_disponiveis, valor_sugerido, valor_cobrado, distancia_km, observacoes, recorrente, itinerario)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8, $9, $10, $11, $12, true, $13)`,
-          [motorista_id, veiculo_id || null, origem.trim(), destino.trim(), ponto_encontro.trim(), ponto_encontro_detalhes?.trim() || null, novaDataStr, vagas, valor_sugerido, valor, distancia, observacoes?.trim() || null, itinerario?.trim() || null]
+           vagas_disponiveis, valor_sugerido, valor_cobrado, distancia_km, observacoes, recorrente, itinerario, genero_preferencia)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8, $9, $10, $11, $12, true, $13, $14)`,
+          [motorista_id, veiculo_id || null, origem.trim(), destino.trim(), ponto_encontro.trim(), ponto_encontro_detalhes?.trim() || null, novaDataStr, vagas, valor_sugerido, valor, distancia, observacoes?.trim() || null, itinerario?.trim() || null, genero_preferencia || 'todos']
         );
         
         criadas++;
@@ -148,15 +153,20 @@ const criar = async (req, res, next) => {
 
 /**
  * GET /api/caronas
- * Suporta filtros: origem, destino, data, motorista_id, preco_max
  */
 const listar = async (req, res, next) => {
   try {
     const { origem, destino, data, motorista_id, preco_max } = req.query;
+    const usuario_id = req.usuario?.id;
 
-    // motorista_id deve ser inteiro se fornecido
     if (motorista_id !== undefined && (isNaN(Number(motorista_id)) || Number(motorista_id) <= 0)) {
       return res.status(400).json({ success: false, error: 'motorista_id inválido' });
+    }
+
+    let usuario_genero = null;
+    if (usuario_id) {
+      const { rows: uRows } = await db.query('SELECT genero FROM usuarios WHERE id = $1', [usuario_id]);
+      usuario_genero = uRows[0]?.genero;
     }
 
     let query = `
@@ -165,11 +175,15 @@ const listar = async (req, res, next) => {
       FROM caronas c
       JOIN usuarios u ON u.id = c.motorista_id
       WHERE c.status = 'ativa'
-        AND c.vagas_disponiveis > 0
+        AND c.vagas_disponiveis >= 0
         AND c.horario_partida > NOW()
     `;
     const params = [];
     let idx = 1;
+
+    if (usuario_genero === 'M') {
+      query += " AND c.genero_preferencia != 'somente_mulheres'";
+    }
 
     if (origem) {
       query += ` AND (LOWER(c.origem) LIKE LOWER($${idx}) OR LOWER(c.itinerario) LIKE LOWER($${idx++}))`;
@@ -229,7 +243,6 @@ const buscarPorId = async (req, res, next) => {
 
     const data = rows[0];
 
-    // Formatar veiculo como objeto se existir
     if (data.veiculo_marca) {
       data.veiculo = {
         marca: data.veiculo_marca,
@@ -242,7 +255,6 @@ const buscarPorId = async (req, res, next) => {
       data.veiculo = null;
     }
     
-    // Remover chaves auxiliares
     delete data.veiculo_marca;
     delete data.veiculo_modelo;
     delete data.veiculo_ano;
@@ -267,7 +279,7 @@ const solicitar = async (req, res, next) => {
     const passageiro_id = req.usuario.id;
 
     const { rows: caronas } = await db.query(
-      `SELECT motorista_id, vagas_disponiveis, status
+      `SELECT motorista_id, vagas_disponiveis, status, genero_preferencia
        FROM caronas
        WHERE id = $1`,
       [carona_id]
@@ -289,6 +301,15 @@ const solicitar = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'Você não pode solicitar sua própria carona' });
     }
 
+    // Validar gênero se for "somente_mulheres"
+    if (carona.genero_preferencia === 'somente_mulheres') {
+      const { rows: uRows } = await db.query('SELECT genero FROM usuarios WHERE id = $1', [passageiro_id]);
+      const passageiro_genero = uRows[0]?.genero;
+      if (passageiro_genero === 'M') {
+        return res.status(403).json({ success: false, error: 'Esta carona é exclusiva para mulheres.' });
+      }
+    }
+
     const { rows } = await db.query(
       'INSERT INTO solicitacoes_carona (carona_id, passageiro_id) VALUES ($1, $2) RETURNING *',
       [carona_id, passageiro_id]
@@ -305,9 +326,7 @@ const solicitar = async (req, res, next) => {
 
 /**
  * GET /api/caronas/:id/solicitacoes
- * Lista solicitações de uma carona. Apenas o motorista pode ver
 */
-
 const listarSolicitacoes = async(req, res, next) => {
   try{
     const carona_id = parseInt(req.params.id, 10);
@@ -317,7 +336,6 @@ const listarSolicitacoes = async(req, res, next) => {
       return res.status(400).json({sucess: false, error: 'ID invalido'});
     }
 
-    // Confirma que a carona pertence ao motorista logado
     const { rows: caronas } = await db.query(
       'SELECT id FROM caronas WHERE id = $1 AND motorista_id = $2',
       [carona_id, motorista_id]
@@ -351,7 +369,6 @@ const listarSolicitacoes = async(req, res, next) => {
 
 /**
  * PATCH /api/caronas/solicitacoes/:id
- * Aceita ou recusa uma solicitação. Apenas o motorista da carona pode responder.
  */
 const responderSolicitacao = async (req, res, next) => {
   try {
@@ -450,7 +467,6 @@ const minhaSolicitacao = async (req, res, next) => {
 
 /**
  * GET /api/caronas/solicitacoes/pendentes
- * Retorna o COUNT de solicitações com status 'pendente' nas caronas do motorista logado.
  */
 const solicitacoesPendentes = async (req, res, next) => {
   try {
@@ -470,7 +486,6 @@ const solicitacoesPendentes = async (req, res, next) => {
 
 /**
  * GET /api/caronas/historico/:usuario_id
- * Retorna o histórico de caronas concluídas do usuário.
  */
 const historico = async (req, res, next) => {
   try {
@@ -493,7 +508,6 @@ const historico = async (req, res, next) => {
 
 /**
  * PATCH /api/caronas/:id/cancelar
- * Cancela uma carona ativa. Apenas o motorista pode cancelar.
  */
 const cancelar = async (req, res, next) => {
   try {
@@ -505,7 +519,6 @@ const cancelar = async (req, res, next) => {
       return res.status(400).json({ success: false, error: 'ID inválido' });
     }
 
-    // Só pode cancelar caronas 'ativa'
     const { rows: caronas } = await db.query(
       'SELECT status FROM caronas WHERE id = $1 AND motorista_id = $2',
       [id, motorista_id]

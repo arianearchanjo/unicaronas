@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const ctrl   = require('../controllers/caronasController');
+const waitCtrl = require('../controllers/listaEsperaController');
 const auth   = require('../middleware/auth');
 const { validar } = require('../middleware/validacao');
 
@@ -27,6 +28,7 @@ router.get('/:id',                    ctrl.buscarPorId);
 router.get('/:id/solicitacoes', auth,  ctrl.listarSolicitacoes);
 router.get('/:id/minha-solicitacao', auth, ctrl.minhaSolicitacao);
 router.post('/:id/solicitar', auth,   ctrl.solicitar);
+router.post('/:id/espera', auth, waitCtrl.entrarNaFila);
 router.patch('/:id/concluir', auth, ctrl.concluir);
 router.patch('/:id/cancelar', auth, validar(schemaCancelar), ctrl.cancelar);
 router.patch('/solicitacoes/:id', auth, validar(schemaResponder), ctrl.responderSolicitacao);

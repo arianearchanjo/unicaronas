@@ -6,13 +6,11 @@ const BCRYPT_ROUNDS = 12;
 
 /**
  * POST /api/usuarios
- * Cadastra novo usuário. Validação de campos é feita pelo middleware validar() na rota.
  */
 const cadastrar = async (req, res, next) => {
   try {
-    const { nome, email, matricula, senha, telefone, curso, dia_ead, perfil_tipo, veiculo } = req.body;
+    const { nome, email, matricula, senha, telefone, curso, dia_ead, perfil_tipo, veiculo, genero } = req.body;
 
-    // Valida domínio de e-mail institucional
     const dominiosPermitidos = (process.env.EMAIL_DOMINIOS || '@unibrasil.com.br')
       .split(',')
       .map((d) => d.trim().toLowerCase());
@@ -25,7 +23,6 @@ const cadastrar = async (req, res, next) => {
       });
     }
 
-    // Verifica duplicidade por e-mail ou matrícula
     const { rows: existentes } = await db.query(
       'SELECT id FROM usuarios WHERE email = $1 OR matricula = $2',
       [emailNorm, matricula]
@@ -34,7 +31,6 @@ const cadastrar = async (req, res, next) => {
       return res.status(409).json({ success: false, error: 'E-mail ou matrícula já cadastrados' });
     }
 
-    // Validação do dia_ead se fornecido
     let diaEadVal = null;
     if (dia_ead !== undefined && dia_ead !== null && dia_ead !== '') {
       diaEadVal = parseInt(dia_ead, 10);
@@ -45,21 +41,19 @@ const cadastrar = async (req, res, next) => {
 
     const senhaHash = await bcrypt.hash(senha, BCRYPT_ROUNDS);
 
-    // Usar transação para salvar usuário e veículo juntos
     const client = await db.connect();
     try {
       await client.query('BEGIN');
 
       const resUser = await client.query(
-        `INSERT INTO usuarios (nome, email, matricula, senha_hash, telefone, curso, dia_ead, perfil_tipo)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         RETURNING id, nome, email, matricula, curso, dia_ead, perfil_tipo, criado_em`,
-        [nome.trim(), emailNorm, matricula.trim(), senhaHash, telefone || null, curso || null, diaEadVal, perfil_tipo || 'misto']
+        `INSERT INTO usuarios (nome, email, matricula, senha_hash, telefone, curso, dia_ead, perfil_tipo, genero)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         RETURNING id, nome, email, matricula, curso, dia_ead, perfil_tipo, genero, criado_em`,
+        [nome.trim(), emailNorm, matricula.trim(), senhaHash, telefone || null, curso || null, diaEadVal, perfil_tipo || 'misto', genero || null]
       );
 
       const novoUsuario = resUser.rows[0];
 
-      // Se for motorista/misto e enviou dados do veículo, cadastra
       if ((perfil_tipo === 'motorista' || perfil_tipo === 'misto') && veiculo && veiculo.marca && veiculo.placa) {
         await client.query(
           `INSERT INTO veiculos (usuario_id, marca, modelo, ano, cor, placa)
@@ -70,7 +64,6 @@ const cadastrar = async (req, res, next) => {
 
       await client.query('COMMIT');
 
-      // Gerar token para auto-login
       const token = jwt.sign(
         { id: novoUsuario.id, email: novoUsuario.email, nome: novoUsuario.nome, perfil_tipo: novoUsuario.perfil_tipo },
         process.env.JWT_SECRET,
@@ -88,6 +81,7 @@ const cadastrar = async (req, res, next) => {
             curso:            novoUsuario.curso,
             dia_ead:          novoUsuario.dia_ead,
             perfil_tipo:      novoUsuario.perfil_tipo,
+            genero:           novoUsuario.genero
           }
         },
         message: 'Usuário cadastrado com sucesso',
@@ -105,7 +99,6 @@ const cadastrar = async (req, res, next) => {
 
 /**
  * POST /api/usuarios/recuperar-senha
- * Simulação de recuperação de senha para protótipo.
  */
 const recuperarSenha = async (req, res, next) => {
   try {
@@ -116,8 +109,6 @@ const recuperarSenha = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'E-mail não encontrado' });
     }
 
-    // Em um sistema real, enviaria um e-mail com token.
-    // Aqui apenas retornamos sucesso para o protótipo.
     res.json({ 
       success: true, 
       message: 'Instruções de recuperação enviadas para o seu e-mail institucional.' 
@@ -129,12 +120,10 @@ const recuperarSenha = async (req, res, next) => {
 
 /**
  * DELETE /api/usuarios/conta
- * Exclui a conta do usuário logado.
  */
 const deletarConta = async (req, res, next) => {
   try {
     const usuario_id = req.usuario.id;
-    // O banco está configurado com ON DELETE CASCADE, então deletará caronas, mensagens, etc.
     await db.query('DELETE FROM usuarios WHERE id = $1', [usuario_id]);
     res.json({ success: true, message: 'Conta excluída com sucesso.' });
   } catch (err) {
@@ -154,7 +143,6 @@ const login = async (req, res, next) => {
       [email.toLowerCase().trim()]
     );
 
-    // Resposta genérica para não revelar se o e-mail existe
     const credenciaisInvalidas = () =>
       res.status(401).json({ success: false, error: 'Credenciais inválidas' });
 
@@ -183,6 +171,7 @@ const login = async (req, res, next) => {
           foto_url:         usuario.foto_url,
           dia_ead:          usuario.dia_ead,
           perfil_tipo:      usuario.perfil_tipo,
+          genero:           usuario.genero
         },
       },
     });
@@ -193,7 +182,6 @@ const login = async (req, res, next) => {
 
 /**
  * GET /api/usuarios/:id
- * Requer autenticação. Retorna dados públicos + contagem de caronas.
  */
 const buscarPorId = async (req, res, next) => {
   try {
@@ -204,7 +192,7 @@ const buscarPorId = async (req, res, next) => {
 
     const { rows } = await db.query(
       `SELECT id, nome, email, curso, telefone, foto_url, dia_ead, perfil_tipo,
-              avaliacao_media, total_avaliacoes, criado_em
+              avaliacao_media, total_avaliacoes, criado_em, genero
        FROM usuarios
        WHERE id = $1 AND ativo = true`,
       [id]
@@ -214,7 +202,6 @@ const buscarPorId = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Usuário não encontrado' });
     }
 
-    // Contagem de caronas como motorista
     const { rows: rowsMotorista } = await db.query(
       `SELECT COUNT(*) AS total
        FROM caronas
@@ -222,7 +209,6 @@ const buscarPorId = async (req, res, next) => {
       [id]
     );
 
-    // Contagem de caronas como passageiro
     const { rows: rowsPassageiro } = await db.query(
       `SELECT COUNT(*) AS total
        FROM solicitacoes_carona
@@ -245,22 +231,18 @@ const buscarPorId = async (req, res, next) => {
 
 /**
  * PATCH /api/usuarios/perfil
- * Atualiza dados do próprio usuário autenticado.
- * Validação de campos feita pelo middleware validar() na rota.
  */
 const atualizarPerfil = async (req, res, next) => {
   try {
     const id = req.usuario.id;
-    const { nome, telefone, curso, dia_ead, perfil_tipo } = req.body;
+    const { nome, telefone, curso, dia_ead, perfil_tipo, genero } = req.body;
     let { foto_url } = req.body;
 
-    // Se houver arquivo enviado, gera a URL local
     if (req.file) {
       const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
       foto_url = `${baseUrl}/uploads/profiles/${req.file.filename}`;
     }
 
-    // Validação do dia_ead se fornecido
     let diaEadVal = undefined;
     if (dia_ead !== undefined && dia_ead !== '') {
       diaEadVal = parseInt(dia_ead, 10);
@@ -278,9 +260,10 @@ const atualizarPerfil = async (req, res, next) => {
          foto_url      = COALESCE($4, foto_url),
          dia_ead       = COALESCE($5, dia_ead),
          perfil_tipo   = COALESCE($6, perfil_tipo),
+         genero        = COALESCE($7, genero),
          atualizado_em = NOW()
-       WHERE id = $7
-       RETURNING id, nome, email, curso, telefone, foto_url, dia_ead, perfil_tipo`,
+       WHERE id = $8
+       RETURNING id, nome, email, curso, telefone, foto_url, dia_ead, perfil_tipo, genero`,
       [
         nome?.trim() || null, 
         telefone?.trim() || null, 
@@ -288,6 +271,7 @@ const atualizarPerfil = async (req, res, next) => {
         foto_url || null, 
         diaEadVal !== undefined ? diaEadVal : null,
         perfil_tipo || null, 
+        genero || null,
         id
       ]
     );

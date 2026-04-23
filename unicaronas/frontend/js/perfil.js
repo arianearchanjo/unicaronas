@@ -301,6 +301,7 @@ async function salvarPerfil() {
     formData.append('nome', nome);
     formData.append('telefone', document.getElementById('edit-telefone')?.value.trim() || '');
     formData.append('curso', document.getElementById('edit-curso')?.value.trim() || '');
+    formData.append('genero', document.getElementById('edit-genero')?.value || '');
     formData.append('dia_ead', document.getElementById('edit-dia-ead')?.value || '');
     formData.append('perfil_tipo', perfilTipo || 'misto');
     

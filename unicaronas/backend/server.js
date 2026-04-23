@@ -13,10 +13,15 @@ const mensagensRoutes  = require('./src/routes/mensagens');
 const pagamentosRoutes = require('./src/routes/pagamentos');
 const avaliacoesRoutes = require('./src/routes/avaliacoes');
 const veiculoRoutes    = require('./src/routes/veiculoRoutes');
+const notificacoesRoutes = require('./src/routes/notificacoes');
 const errorHandler     = require('./src/middleware/errorHandler');
+const { processarListaEspera } = require('./src/services/listaEsperaService');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
+
+// Job para processar lista de espera a cada 60 segundos
+setInterval(processarListaEspera, 60000);
 
 // ── CORS explícito (resolve problemas com Live Server / file://) ──
 const corsOptions = {
@@ -46,12 +51,13 @@ app.get('/health', (req, res) => {
 });
 
 // ── Rotas da API ────────────────────────────────────────────
-app.use('/api/usuarios',   usuariosRoutes);
-app.use('/api/caronas',    caronasRoutes);
-app.use('/api/mensagens',  mensagensRoutes);
-app.use('/api/pagamentos', pagamentosRoutes);
-app.use('/api/avaliacoes', avaliacoesRoutes);
-app.use('/api/veiculos',   veiculoRoutes);
+app.use('/api/usuarios',     usuariosRoutes);
+app.use('/api/caronas',      caronasRoutes);
+app.use('/api/mensagens',    mensagensRoutes);
+app.use('/api/pagamentos',   pagamentosRoutes);
+app.use('/api/avaliacoes',   avaliacoesRoutes);
+app.use('/api/veiculos',     veiculoRoutes);
+app.use('/api/notificacoes', notificacoesRoutes);
 
 // ── Rota 404 ────────────────────────────────────────────────
 app.use((req, res) => {

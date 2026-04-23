@@ -10,6 +10,7 @@ const schemasCadastro = {
   matricula:   { required: true, type: 'string', maxLength: 20 },
   senha:       { required: true, type: 'string', minLength: 6, maxLength: 100 },
   perfil_tipo: { required: true, type: 'string' },
+  genero:      { type: 'string' },
 };
 
 const schemasLogin = {
@@ -22,6 +23,7 @@ const schemaPerfil = {
   telefone:    { type: 'string', maxLength: 20 },
   curso:       { type: 'string', maxLength: 100 },
   perfil_tipo: { type: 'string' },
+  genero:      { type: 'string' },
 };
 
 router.post('/',        validar(schemasCadastro), ctrl.cadastrar);
