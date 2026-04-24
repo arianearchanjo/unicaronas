@@ -7,17 +7,13 @@
   <link rel="icon" type="image/png" href="../img/icon.png?v=2">
   <link rel="stylesheet" href="../css/style.css">
   <script src="../js/theme.js"></script>
-  <!-- QR Code gerado no browser via qrcode.js (sem backend) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
-    /* ── Layout central ────────────────────────────────────── */
     .pay-wrap {
       max-width: 520px;
       margin: 0 auto;
       padding-bottom: 4rem;
     }
-
-    /* ── Card de seleção de método ─────────────────────────── */
     .metodo-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -60,7 +56,6 @@
     }
     .metodo-desc { font-size: 0.7rem; color: var(--text-3); line-height: 1.3; }
 
-    /* ── Resumo ─────────────────────────────────────────────── */
     .resumo-rota {
       display: flex; align-items: center; gap: 0.5rem;
       font-weight: 700; font-size: 1rem; color: var(--text);
@@ -74,7 +69,6 @@
     }
     .valor-grande span { font-size: 1.3rem; font-weight: 600; color: var(--text-3); }
 
-    /* ── Painel Pix ─────────────────────────────────────────── */
     #painel-pix { display: none; }
 
     .pix-container {
@@ -83,7 +77,6 @@
       border-radius: var(--radius-lg);
       overflow: hidden;
     }
-
     .pix-header {
       background: linear-gradient(135deg, #32BCAD, #1A9E8F);
       padding: 1.25rem 1.5rem;
@@ -98,10 +91,9 @@
     .pix-header-text { color: #fff; }
     .pix-header-title { font-size: 1rem; font-weight: 700; line-height: 1; }
     .pix-header-sub { font-size: 0.78rem; opacity: 0.85; margin-top: 2px; }
-
     .pix-body { padding: 1.5rem; }
 
-    /* QR Code centralizado */
+    /* QR Code — garante que só um elemento aparece */
     .qr-wrap {
       display: flex; justify-content: center; align-items: center;
       padding: 1.25rem;
@@ -112,9 +104,15 @@
       min-height: 180px;
       position: relative;
     }
-    #qrcode canvas, #qrcode img {
-      display: block !important;
+    #qrcode {
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+    /* Esconde o canvas e mostra só a img (ou vice-versa) — evita duplicata */
+    #qrcode canvas { display: none !important; }
+    #qrcode img   { display: block !important; width: 180px !important; height: 180px !important; }
+
     .qr-loading {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
@@ -129,7 +127,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Copia e Cola */
     .pix-copia-area {
       background: var(--bg-3);
       border: 1px solid var(--border-2);
@@ -148,7 +145,6 @@
       flex: 1; font-family: var(--font-mono); font-size: 0.72rem;
       color: var(--text-2); word-break: break-all; line-height: 1.4;
       max-height: 52px; overflow: hidden;
-      text-overflow: ellipsis;
       display: -webkit-box;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
@@ -166,21 +162,16 @@
       white-space: nowrap;
     }
     .btn-copiar:hover { background: var(--accent-2); }
-    .btn-copiar.copiado {
-      background: var(--green); color: #0a0a0f;
-    }
+    .btn-copiar.copiado { background: var(--green); color: #0a0a0f; }
 
-    /* Chave Pix manual */
     .pix-chave-row {
       display: flex; align-items: center; justify-content: space-between;
       padding: 0.75rem 0;
       border-top: 1px solid var(--border);
     }
-    .pix-chave-info { }
     .pix-chave-tipo { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-3); }
     .pix-chave-valor { font-size: 0.9rem; font-weight: 600; color: var(--text); font-family: var(--font-mono); margin-top: 2px; }
 
-    /* Timer */
     .pix-timer {
       display: flex; align-items: center; justify-content: center; gap: 0.5rem;
       padding: 0.6rem 1rem;
@@ -200,7 +191,6 @@
       min-width: 38px; text-align: center;
     }
 
-    /* Steps de instrução */
     .pix-steps {
       display: flex; flex-direction: column; gap: 0.6rem;
       margin-bottom: 1.25rem;
@@ -220,7 +210,6 @@
       margin-top: 1px;
     }
 
-    /* Botão de confirmação ─────────────────────────────────── */
     .btn-confirmar-pix {
       width: 100%; padding: 0.9rem;
       background: #32BCAD;
@@ -235,10 +224,8 @@
     .btn-confirmar-pix:active { transform: scale(0.98); }
     .btn-confirmar-pix:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    /* Painel outros métodos ────────────────────────────────── */
     #painel-outros { display: none; }
 
-    /* Alerta de sucesso ─────────────────────────────────────── */
     .pix-sucesso {
       text-align: center; padding: 2.5rem 1.5rem;
       animation: fadeUp 0.4s ease;
@@ -274,7 +261,6 @@
 
       <div id="alert-container"></div>
 
-      <!-- Resumo da carona ──────────────────────────────────── -->
       <div class="card mb-2 fade-up" id="card-resumo">
         <div class="card-title">Resumo</div>
         <div id="resumo-carona">
@@ -282,7 +268,6 @@
         </div>
       </div>
 
-      <!-- Seleção de método ─────────────────────────────────── -->
       <div class="card mb-2 fade-up fade-up-1" id="card-metodo">
         <div class="card-title">Forma de pagamento</div>
 
@@ -316,10 +301,9 @@
           </label>
         </div>
 
-        <!-- ══ PAINEL PIX ══════════════════════════════════════ -->
+        <!-- PAINEL PIX -->
         <div id="painel-pix">
           <div class="pix-container">
-            <!-- Header verde Pix -->
             <div class="pix-header">
               <div class="pix-logo">
                 <svg width="22" height="22" viewBox="0 0 512 512" fill="none">
@@ -336,7 +320,6 @@
             </div>
 
             <div class="pix-body">
-              <!-- Instruções -->
               <div class="pix-steps">
                 <div class="pix-step">
                   <div class="step-num">1</div>
@@ -356,7 +339,6 @@
                 </div>
               </div>
 
-              <!-- QR Code -->
               <div class="qr-wrap">
                 <div id="qr-loading" class="qr-loading">
                   <div class="qr-spinner"></div>
@@ -364,7 +346,6 @@
                 <div id="qrcode"></div>
               </div>
 
-              <!-- Copia e Cola -->
               <div class="pix-copia-area">
                 <div class="pix-copia-label">Pix Copia e Cola</div>
                 <div class="pix-copia-row">
@@ -376,16 +357,14 @@
                 </div>
               </div>
 
-              <!-- Chave Pix manual -->
               <div class="pix-chave-row">
-                <div class="pix-chave-info">
+                <div>
                   <div class="pix-chave-tipo">Chave Pix do recebedor</div>
                   <div class="pix-chave-valor" id="pix-chave-display">—</div>
                 </div>
                 <button class="btn btn-ghost btn-sm" onclick="copiarChave()">Copiar chave</button>
               </div>
 
-              <!-- Timer -->
               <div class="pix-timer" id="pix-timer">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 <span>Expira em</span>
@@ -394,14 +373,13 @@
             </div>
           </div>
 
-          <!-- Botão principal ───────────────────────────────── -->
           <button class="btn-confirmar-pix" id="btn-confirmar-pix" onclick="confirmarPagamentoPix()">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             Já paguei — Confirmar pagamento
           </button>
         </div>
 
-        <!-- ══ PAINEL OUTROS MÉTODOS ═══════════════════════════ -->
+        <!-- PAINEL OUTROS MÉTODOS -->
         <div id="painel-outros">
           <div style="padding: 1.5rem; background: var(--bg-2); border-radius: var(--radius-sm); text-align: center;">
             <div style="font-size: 2rem; margin-bottom: 0.75rem;" id="outros-icone">💳</div>
@@ -414,7 +392,6 @@
         </div>
       </div>
 
-      <!-- Tela de sucesso ──────────────────────────────────── -->
       <div id="card-sucesso" class="card" style="display: none;">
         <div class="pix-sucesso">
           <div class="sucesso-icone">✓</div>
@@ -442,36 +419,41 @@
   <script>
     protegerRota();
 
-    const params       = new URLSearchParams(location.search);
-    const solId        = params.get('solicitacao_id');
-    const carId        = params.get('carona_id');
-    const valorParam   = params.get('valor');
+    const params     = new URLSearchParams(location.search);
+    const solId      = params.get('solicitacao_id');
+    const carId      = params.get('carona_id');
+    const valorParam = params.get('valor');
 
     if (!solId || !carId) location.href = 'dashboard.html';
 
-    // Estado global
     let pixPayload   = '';
     let pixChave     = '';
     let metodoAtivo  = 'pix';
     let timerInterval = null;
-    let timerSegundos = 15 * 60; // 15 minutos
+    let timerSegundos = 15 * 60;
+    let qrInstance   = null; // controla instância única do QRCode
 
-    // ── Inicialização ───────────────────────────────────────
+    // ── Extend api.js com gerarPix ──────────────────────────
+    api.gerarPix = (solicitacao_id) =>
+      request(`/pagamentos/pix/${solicitacao_id}`);
 
+    // ── Inicialização única via DOMContentLoaded ────────────
     document.addEventListener('DOMContentLoaded', async () => {
+      // Mostra painel pix por padrão (sem chamar selecionarMetodo para evitar dupla init)
+      document.getElementById('painel-pix').style.display = 'block';
+
+      document.getElementById('btn-voltar-carona').href = `carona.html?id=${carId}`;
+
       await carregarResumo();
       await inicializarPix();
-      document.getElementById('btn-voltar-carona').href = `carona.html?id=${carId}`;
     });
 
     // ── Resumo da carona ────────────────────────────────────
-
     async function carregarResumo() {
       try {
         const res = await api.buscarCarona(carId);
         const c = res.data;
         const valor = valorParam || c.valor_cobrado;
-
         document.getElementById('resumo-carona').innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
             <div>
@@ -497,7 +479,6 @@
     }
 
     // ── Pix: busca payload e gera QR Code ──────────────────
-
     async function inicializarPix() {
       try {
         const res = await api.gerarPix(solId);
@@ -506,24 +487,20 @@
         pixPayload = d.payload;
         pixChave   = d.chave_pix;
 
-        // Atualiza UI com dados retornados
         document.getElementById('pix-payload-display').textContent = pixPayload;
         document.getElementById('pix-chave-display').textContent   = pixChave;
         document.getElementById('nome-recebedor-step').textContent  = d.nome_recebedor || 'UniCaronas';
 
-        // Gera QR Code no browser
         gerarQRCode(pixPayload);
-
-        // Inicia timer
         iniciarTimer();
 
       } catch (err) {
-        // Se já foi pago ou carona não concluída, mostra mensagem amigável
         if (err.message && err.message.includes('já foi paga')) {
           mostrarSucesso();
           return;
         }
-        // Pix indisponível: exibe aviso mas permite outros métodos
+        const loading = document.getElementById('qr-loading');
+        if (loading) loading.style.display = 'none';
         document.getElementById('painel-pix').innerHTML = `
           <div class="alert alert-error" style="text-align:center;">
             <strong>Pix temporariamente indisponível.</strong><br>
@@ -534,24 +511,28 @@
     }
 
     function gerarQRCode(payload) {
-      const loading = document.getElementById('qr-loading');
+      const loading   = document.getElementById('qr-loading');
       const container = document.getElementById('qrcode');
+
+      // Limpa qualquer instância anterior
       container.innerHTML = '';
+      qrInstance = null;
 
       try {
-        new QRCode(container, {
-          text:          payload,
-          width:         200,
-          height:        200,
-          colorDark:     '#000000',
-          colorLight:    '#ffffff',
-          correctLevel:  QRCode.CorrectLevel.M,
+        qrInstance = new QRCode(container, {
+          text:         payload,
+          width:        180,
+          height:       180,
+          colorDark:    '#000000',
+          colorLight:   '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M,
         });
 
-        // Aguarda o QRCode renderizar e esconde o loading
+        // qrcode.js gera canvas + img; escondemos o canvas via CSS
+        // Aguarda render e esconde o loading
         setTimeout(() => {
           if (loading) loading.style.display = 'none';
-        }, 300);
+        }, 400);
 
       } catch (e) {
         if (loading) loading.style.display = 'none';
@@ -560,7 +541,6 @@
     }
 
     // ── Timer ────────────────────────────────────────────────
-
     function iniciarTimer() {
       if (timerInterval) clearInterval(timerInterval);
       timerSegundos = 15 * 60;
@@ -573,10 +553,8 @@
         const timer   = document.getElementById('pix-timer');
 
         if (display) display.textContent = `${min}:${seg}`;
+        if (timerSegundos <= 60 && timer) timer.classList.add('urgente');
 
-        if (timerSegundos <= 60 && timer) {
-          timer.classList.add('urgente');
-        }
         if (timerSegundos <= 0) {
           clearInterval(timerInterval);
           if (display) display.textContent = 'Expirado';
@@ -590,21 +568,20 @@
     }
 
     // ── Seleção de método ───────────────────────────────────
-
     function selecionarMetodo(metodo, el) {
       metodoAtivo = metodo;
 
-      // Limpa seleção visual
       document.querySelectorAll('.metodo-card').forEach(c => c.classList.remove('active'));
       if (el) el.classList.add('active');
 
-      // Mostra painel correto
       const painelPix    = document.getElementById('painel-pix');
       const painelOutros = document.getElementById('painel-outros');
 
       if (metodo === 'pix') {
         painelPix.style.display    = 'block';
         painelOutros.style.display = 'none';
+        // Reinicia timer se voltou ao Pix
+        if (timerSegundos > 0) iniciarTimer();
       } else {
         painelPix.style.display    = 'none';
         painelOutros.style.display = 'block';
@@ -621,22 +598,15 @@
       }
     }
 
-    // Inicializa exibindo o painel Pix (selecionado por padrão)
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('painel-pix').style.display = 'block';
-    });
-
-    // ── Copiar payload Pix ──────────────────────────────────
-
+    // ── Copiar ──────────────────────────────────────────────
     async function copiarPix() {
       if (!pixPayload) return;
       try {
         await navigator.clipboard.writeText(pixPayload);
       } catch (e) {
-        // Fallback para browsers sem clipboard API
         const ta = document.createElement('textarea');
         ta.value = pixPayload;
-        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        ta.style.cssText = 'position:fixed;opacity:0';
         document.body.appendChild(ta);
         ta.select();
         document.execCommand('copy');
@@ -657,15 +627,13 @@
       showAlert('Chave Pix copiada!', 'success');
     }
 
-    // ── Confirmação de pagamento Pix ────────────────────────
-
+    // ── Confirmação Pix ─────────────────────────────────────
     async function confirmarPagamentoPix() {
       const btn = document.getElementById('btn-confirmar-pix');
       btn.disabled = true;
       btn.innerHTML = `
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .7s linear infinite"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
         Confirmando...`;
-
       try {
         await api.pagar({ solicitacao_id: parseInt(solId), metodo: 'pix' });
         clearInterval(timerInterval);
@@ -679,13 +647,11 @@
       }
     }
 
-    // ── Confirmação de outros métodos ───────────────────────
-
+    // ── Confirmação outros ──────────────────────────────────
     async function confirmarPagamentoOutro() {
       const btn = document.getElementById('btn-confirmar-outro');
       btn.disabled = true;
       btn.textContent = 'Processando...';
-
       try {
         await api.pagar({ solicitacao_id: parseInt(solId), metodo: metodoAtivo });
         mostrarSucesso();
@@ -696,19 +662,12 @@
       }
     }
 
-    // ── Tela de sucesso ─────────────────────────────────────
-
     function mostrarSucesso() {
       document.getElementById('card-metodo').style.display  = 'none';
       document.getElementById('card-resumo').style.display  = 'none';
       document.getElementById('card-sucesso').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
-    // ── Extend api.js com gerarPix ──────────────────────────
-    // (adiciona o método que não estava no api.js original)
-    api.gerarPix = (solicitacao_id) =>
-      request(`/pagamentos/pix/${solicitacao_id}`);
   </script>
 </body>
 </html>
