@@ -17,5 +17,5 @@ CREATE TABLE IF NOT EXISTS lista_espera (
     UNIQUE(carona_id, passageiro_id)
 );
 
-CREATE INDEX idx_lista_espera_carona ON lista_espera (carona_id);
-CREATE INDEX idx_lista_espera_status ON lista_espera (status);
+CREATE INDEX IF NOT EXISTS idx_lista_espera_carona ON lista_espera (carona_id);
+CREATE INDEX IF NOT EXISTS idx_lista_espera_status ON lista_espera (status);

@@ -200,14 +200,35 @@
     }
 
     async function carregarCaronas() {
-      if (usuario.perfil_tipo === 'motorista') return;
       try {
-        const res     = await api.listarCaronas();
+        const isMotorista = usuario.perfil_tipo === 'motorista';
+        
+        // Se for motorista, buscamos apenas as caronas dele para atualizar o stat
+        const params = isMotorista ? { motorista_id: usuario.id } : {};
+        const res     = await api.listarCaronas(params);
         const caronas = res.data;
 
-        // Salva no mapa para usar depois no botão de chat
-        caronas.forEach(c => { caronasMap[c.id] = c; });
+        if (isMotorista) {
+          document.getElementById('stat-minhas').textContent = caronas.length;
+          
+          // Verificar solicitações pendentes para motorista
+          const resPend = await api.solicitacoesPendentes();
+          if (resPend.count > 0) {
+            const container = document.getElementById('lista-caronas');
+            document.getElementById('section-disponiveis').style.display = 'block';
+            document.querySelector('#section-disponiveis .section-label').textContent = 'Solicitações Pendentes';
+            container.innerHTML = `
+              <div class="alert alert-warning" style="display:flex; justify-content: space-between; align-items: center;">
+                <span>Você tem <strong>${resPend.count}</strong> solicitações aguardando resposta!</span>
+                <a href="gerenciar-caronas.html" class="btn btn-primary btn-sm">Ver todas</a>
+              </div>
+            `;
+          }
+          return;
+        }
 
+        // Fluxo normal para passageiro/misto...
+        caronas.forEach(c => { caronasMap[c.id] = c; });
         document.getElementById('stat-caronas').textContent = caronas.length;
         
         if (usuario.perfil_tipo === 'estudante') {

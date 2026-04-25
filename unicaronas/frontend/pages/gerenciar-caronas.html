@@ -236,6 +236,18 @@
       document.getElementById('modal-cancelamento').style.display = 'flex';
     }
 
+    async function concluirMinhaCarona(id) {
+      if (!confirm(currentLang === 'pt' ? 'Deseja realmente encerrar esta carona?' : 'Do you really want to finish this ride?')) return;
+      try {
+        await api.concluirCarona(id);
+        showAlert(currentLang === 'pt' ? 'Carona encerrada com sucesso!' : 'Ride finished successfully!', 'success');
+        carregarMinhasCaronas();
+        carregarSolicitacoes();
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+
     async function confirmarCancelamento() {
       const justificativa = document.getElementById('justificativa-texto').value.trim();
       if (justificativa.length < 5) {
@@ -282,7 +294,8 @@
                 </div>
               </div>
               <div style="display:flex; gap: .5rem;">
-                <button class="btn btn-danger btn-sm" onclick="cancelarMinhaCarona(${c.id})">${currentLang === 'pt' ? 'Cancelar Carona' : 'Cancel Ride'}</button>
+                <button class="btn btn-success btn-sm" onclick="concluirMinhaCarona(${c.id})">${currentLang === 'pt' ? 'Encerrar' : 'Finish'}</button>
+                <button class="btn btn-danger btn-sm" onclick="cancelarMinhaCarona(${c.id})">${currentLang === 'pt' ? 'Cancelar' : 'Cancel'}</button>
                 <a href="carona.html?id=${c.id}" class="btn btn-ghost btn-sm">${currentLang === 'pt' ? 'Ver Detalhes' : 'View Details'}</a>
               </div>
             </div>

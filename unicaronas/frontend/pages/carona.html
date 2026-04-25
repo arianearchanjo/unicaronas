@@ -54,6 +54,19 @@
       color: #2c5282;
     }
 
+    .btn-chat-iniciar {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: var(--green-dim); color: var(--green);
+      border: 1px solid rgba(34,211,160,.25);
+      padding: .4rem .9rem; border-radius: var(--radius-sm);
+      font-family: var(--font); font-size: .85rem; font-weight: 600;
+      cursor: pointer; transition: all .18s; white-space: nowrap;
+    }
+    .btn-chat-iniciar:hover {
+      background: rgba(34,211,160,.2);
+      border-color: rgba(34,211,160,.45);
+    }
+
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; display: none; }
     .modal-box { background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); width: 100%; max-width: 400px; }
 
@@ -115,6 +128,11 @@
         const isLotada = parseInt(c.vagas_disponiveis) <= 0;
         const isMulheres = c.genero_preferencia === 'somente_mulheres';
 
+        if (sou_motorista) {
+          document.getElementById('area-motorista').style.display = 'block';
+          carregarSolicitacoesMotorista(id);
+        }
+
         if (c.origem && c.destino) setTimeout(() => inicializarMapa(c.origem, c.destino), 100);
 
         let minhaSol = null;
@@ -158,6 +176,10 @@
             <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:var(--text-3);margin-bottom:.5rem">Valor por passageiro</div>
             <div class="preco-destaque">${formatarMoeda(c.valor_cobrado)}</div>
 
+            ${sou_motorista && c.status === 'ativa' ? `
+              <button class="btn btn-success btn-full btn-lg mt-2" onclick="concluirEstaCarona(${c.id})">Encerrar Carona</button>
+            ` : ''}
+
             ${!sou_motorista && !minhaSol && c.status === 'ativa' ? (
               isLotada 
                 ? `<button class="btn btn-espera btn-full btn-lg mt-2" onclick="entrarEspera()">Entrar na Lista de Espera</button>`
@@ -165,7 +187,21 @@
             ) : ''}
 
             ${!sou_motorista && minhaSol?.status === 'aceita' ? `
-              <div class="alert alert-success mt-2">Sua vaga está confirmada!</div>
+              <div class="alert alert-success mt-2" style="margin-bottom: 0.5rem;">Sua vaga está confirmada!</div>
+              
+              ${minhaSol.pagamento_status === 'pago' ? `
+                <div class="alert alert-info mt-1" style="font-size: 0.85rem; color: var(--green); background: rgba(34,211,160,0.1); border-color: rgba(34,211,160,0.2); display: flex; align-items: center; gap: 0.5rem;">
+                  <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i> Pagamento confirmado
+                </div>
+              ` : `
+                <div class="alert alert-warning mt-1" style="font-size: 0.85rem; margin-bottom: 1rem;">Pagamento pendente</div>
+                <a href="pagamento.html?solicitacao_id=${minhaSol.id}&carona_id=${id}" class="btn btn-primary btn-full mb-2">Efetuar Pagamento</a>
+              `}
+
+              <button class="btn-chat-iniciar btn-full mt-2" onclick="abrirChatCarona(${minhaSol.id}, '${c.motorista_nome}', '${c.origem}', '${c.destino}')">
+                <i data-lucide="message-square" style="width: 16px; height: 16px;"></i>
+                Conversar com o Motorista
+              </button>
             ` : ''}
 
             ${!sou_motorista && minhaSol?.status === 'pendente' ? `
@@ -197,6 +233,15 @@
       } catch(err) { showAlert(err.message, 'error'); }
     }
 
+    async function concluirEstaCarona(caronaId) {
+      if (!confirm('Deseja realmente encerrar esta carona?')) return;
+      try {
+        await api.concluirCarona(caronaId);
+        showAlert('Carona encerrada com sucesso!', 'success');
+        carregarDados();
+      } catch (err) { showAlert(err.message, 'error'); }
+    }
+
     // --- Lógica do Mapa Simplificada ---
     let map = null;
     async function geocode(address) {
@@ -219,6 +264,77 @@
       L.marker(cD).addTo(map).bindPopup('Destino');
       const poly = L.polyline([cO, cD], { color: 'var(--accent)' }).addTo(map);
       map.fitBounds(poly.getBounds(), { padding: [50, 50] });
+    }
+
+    async function carregarSolicitacoesMotorista(caronaId) {
+      const container = document.getElementById('lista-solicitacoes');
+      try {
+        const res = await api.solicitacoesCarona(caronaId);
+        const solicitacoes = res.data;
+
+        if (solicitacoes.length === 0) {
+          container.innerHTML = `<p class="text-muted">Nenhuma solicitação recebida ainda.</p>`;
+          return;
+        }
+
+        container.innerHTML = solicitacoes.map(s => `
+          <div class="info-row" style="flex-wrap:wrap; gap:.75rem; border-bottom: 1px solid var(--border); padding: 1rem 0;">
+            <div class="user-row">
+              <div class="avatar">${iniciais(s.passageiro_nome)}</div>
+              <div>
+                <div class="user-name">${s.passageiro_nome}</div>
+                <div class="user-rating">${s.passageiro_curso || 'Curso não informado'} · ${parseFloat(s.passageiro_avaliacao || 0).toFixed(1)} ★</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:.5rem; align-items:center; margin-left:auto">
+              ${s.status === 'pendente' ? `
+                <button class="btn btn-success btn-sm" onclick="aceitarSolicitacao(${s.id}, '${s.passageiro_nome}')">Aceitar</button>
+                <button class="btn btn-danger btn-sm" onclick="recusarSolicitacao(${s.id})">Recusar</button>
+              ` : `
+                <span class="badge ${s.status === 'aceita' ? 'badge-green' : 'badge-red'}">${s.status.toUpperCase()}</span>
+                ${s.status === 'aceita' ? `
+                  <button class="btn-chat-iniciar btn-sm" onclick="abrirChatCarona(${s.id}, '${s.passageiro_nome}')">
+                    <i data-lucide="message-square" style="width: 14px; height: 14px;"></i>
+                    Chat
+                  </button>
+                ` : ''}
+              `}
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<p class="text-error">${err.message}</p>`;
+      }
+    }
+
+    function abrirChatCarona(solicitacaoId, nomeOutraPessoa, origem = '', destino = '') {
+      let titulo = 'Chat';
+      if (origem && destino) {
+        titulo = `${origem.split(',')[0]} → ${destino.split(',')[0]}`;
+      }
+      
+      UCChat.iniciarChat(solicitacaoId, {
+        titulo,
+        outraPessoa: nomeOutraPessoa
+      });
+    }
+
+    async function aceitarSolicitacao(solId, nome) {
+      if (!confirm(`Deseja aceitar a solicitação de ${nome}?`)) return;
+      try {
+        await api.responderSolicitacao(solId, 'aceita');
+        showAlert('Solicitação aceita!', 'success');
+        carregarDados();
+      } catch (err) { showAlert(err.message, 'error'); }
+    }
+
+    async function recusarSolicitacao(solId) {
+      if (!confirm('Deseja recusar esta solicitação?')) return;
+      try {
+        await api.responderSolicitacao(solId, 'recusada');
+        showAlert('Solicitação recusada.', 'success');
+        carregarDados();
+      } catch (err) { showAlert(err.message, 'error'); }
     }
 
     carregarDados();

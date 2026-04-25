@@ -9,5 +9,5 @@ CREATE TABLE IF NOT EXISTS notificacoes (
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_notificacoes_usuario ON notificacoes (usuario_id);
-CREATE INDEX idx_notificacoes_lida ON notificacoes (lida);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_usuario ON notificacoes (usuario_id);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_lida ON notificacoes (lida);
