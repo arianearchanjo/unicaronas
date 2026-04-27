@@ -25,4 +25,14 @@ const auth = (req, res, next) => {
   }
 };
 
-module.exports = auth;
+const adminOnly = (req, res, next) => {
+  if (!req.usuario || !req.usuario.is_admin) {
+    return res.status(403).json({
+      success: false,
+      error: 'Acesso negado. Apenas administradores podem realizar esta ação.'
+    });
+  }
+  next();
+};
+
+module.exports = { auth, adminOnly };

@@ -29,6 +29,26 @@ const Navbar = {
           </div>
         </div>
       </nav>
+
+      <!-- Modal de Reportar Erro -->
+      <div id="modal-reportar-erro" class="modal" style="display: none; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 9999;">
+        <div class="modal-content" style="max-width: 450px; margin: 15vh auto;">
+          <div class="modal-header">
+            <h2 class="modal-title">🐞 Reportar um Erro</h2>
+            <button class="modal-close" onclick="fecharModalErro()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p style="font-size: 0.85rem; color: var(--text-2); margin-bottom: 1rem;">
+              Encontrou algo que não funciona? Descreva o problema abaixo para que nossa equipe possa corrigir.
+            </p>
+            <div class="form-group">
+              <label class="form-label">Descrição do Problema</label>
+              <textarea id="erro-descricao" class="form-control" rows="4" placeholder="O que aconteceu? Onde você clicou?"></textarea>
+            </div>
+            <button class="btn btn-primary btn-full mt-1" onclick="enviarRelatorioErro()" id="btn-enviar-erro">Enviar Relatório</button>
+          </div>
+        </div>
+      </div>
     `;
 
     const placeholder = document.getElementById('navbar-placeholder');
@@ -65,6 +85,13 @@ const Navbar = {
           </div>
           
           <div class="menu-list">
+            ${usuario?.is_admin ? `
+              <a href="admin.html" class="menu-item" style="color: var(--accent); font-weight: 600;">
+                <i data-lucide="shield-check" style="width: 16px; height: 16px; margin-right: 0.5rem; opacity: 1;"></i>
+                <span>Painel Admin</span>
+              </a>
+              <div class="menu-divider"></div>
+            ` : ''}
             <a href="perfil.html" class="menu-item">
               <i data-lucide="user" style="width: 16px; height: 16px; margin-right: 0.5rem; opacity: 0.8;"></i>
               <span data-i18n="nav-meu-perfil">Meu perfil</span>
@@ -73,6 +100,10 @@ const Navbar = {
               <i data-lucide="settings" style="width: 16px; height: 16px; margin-right: 0.5rem; opacity: 0.8;"></i>
               <span data-i18n="nav-minhas-caronas">Minhas caronas</span>
             </a>
+            <button class="menu-item" onclick="abrirModalErro()" style="width: 100%; border-top: 1px solid var(--border); margin-top: 0.5rem; color: var(--text-2);">
+              <i data-lucide="bug" style="width: 16px; height: 16px; margin-right: 0.5rem; opacity: 0.8;"></i>
+              <span>Reportar erro</span>
+            </button>
             <div class="menu-divider"></div>
             
             <div class="menu-settings-row" style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; gap: 0.5rem;">
@@ -123,6 +154,25 @@ const Navbar = {
 
   getLinks(usuario, currentPage) {
     const tipo = usuario?.perfil_tipo || 'misto';
+    const ehAdmin = usuario?.is_admin;
+
+    // Se for admin, mostra apenas os links de gestão
+    if (ehAdmin) {
+      const adminLinks = [
+        { id: 'admin.html', label: 'Verificações', show: true },
+        { id: 'admin-erros.html', label: 'Relatórios de Erro', show: true }
+      ];
+      return `
+        <ul class="navbar-links" role="list">
+          ${adminLinks.map(l => `
+            <li>
+              <a href="${l.id}" class="${currentPage === l.id ? 'active' : ''}">${l.label}</a>
+            </li>
+          `).join('')}
+        </ul>
+      `;
+    }
+
     const links = [
       { id: 'dashboard.html', label: 'nav-dashboard', show: true, badge: true },
       { id: 'buscar.html', label: 'nav-buscar', show: tipo !== 'motorista' },
@@ -168,6 +218,44 @@ const Navbar = {
   toggleMobileMenu() {
     const menu = document.querySelector('.navbar-links');
     if (menu) menu.classList.toggle('active');
+  }
+};
+
+// Funções Globais de Reportar Erro
+window.abrirModalErro = () => {
+  const modal = document.getElementById('modal-reportar-erro');
+  if (modal) {
+    modal.style.display = 'block';
+    document.getElementById('erro-descricao').value = '';
+    // Fecha o dropdown se estiver aberto
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) dropdown.classList.remove('active');
+  }
+};
+
+window.fecharModalErro = () => {
+  const modal = document.getElementById('modal-reportar-erro');
+  if (modal) modal.style.display = 'none';
+};
+
+window.enviarRelatorioErro = async () => {
+  const desc = document.getElementById('erro-descricao').value.trim();
+  const btn = document.getElementById('btn-enviar-erro');
+
+  if (!desc) return showAlert('Por favor, descreva o erro.', 'error');
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  try {
+    await api.reportarErro(desc);
+    showAlert('Obrigado! Seu relatório foi enviado à equipe administrativa.');
+    fecharModalErro();
+  } catch (err) {
+    showAlert(err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Enviar Relatório';
   }
 };
 

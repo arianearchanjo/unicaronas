@@ -96,7 +96,10 @@ const request = async (path, options = {}) => {
 // ─── Endpoints ─────────────────────────────────────────────────────────────────
 
 const api = {
-  cadastrar:       (body) => request('/usuarios', { method: 'POST', body: JSON.stringify(body) }),
+  cadastrar:       (body) => request('/usuarios', { 
+    method: 'POST', 
+    body: body instanceof FormData ? body : JSON.stringify(body) 
+  }),
   login:           (body) => request('/usuarios/login', { method: 'POST', body: JSON.stringify(body) }),
   recuperarSenha:  (body) => request('/usuarios/recuperar-senha', { method: 'POST', body: JSON.stringify(body) }),
   perfil:          (id)   => request(`/usuarios/${id}`),
@@ -105,6 +108,7 @@ const api = {
     body: body instanceof FormData ? body : JSON.stringify(body) 
   }),
   deletarConta:    ()     => request('/usuarios/conta', { method: 'DELETE' }),
+  atualizarSenha:  (body) => request('/usuarios/senha', { method: 'PATCH', body: JSON.stringify(body) }),
 
   listarCaronas: (params = {}) => {
     const qs = new URLSearchParams(
@@ -148,6 +152,22 @@ const api = {
   listarVeiculos:   ()     => request('/veiculos'),
   atualizarVeiculo: (id, body) => request(`/veiculos/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   deletarVeiculo:   (id)   => request(`/veiculos/${id}`, { method: 'DELETE' }),
+
+  // Admin
+  adminListarPendentes: () => request('/admin/usuarios/pendentes'),
+  adminVerificarUsuario: (id, status) => request(`/admin/usuarios/${id}/verificar`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status })
+  }),
+  reportarErro: (descricao) => request('/admin/erros', {
+    method: 'POST',
+    body: JSON.stringify({ descricao })
+  }),
+  adminListarErros: () => request('/admin/erros'),
+  adminAtualizarErro: (id, status) => request(`/admin/erros/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status })
+  }),
 };
 
 // Polling global para badges

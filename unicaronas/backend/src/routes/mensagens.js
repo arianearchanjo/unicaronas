@@ -1,7 +1,7 @@
 // backend/src/routes/mensagens.js
 const router = require('express').Router();
 const ctrl   = require('../controllers/mensagensController');
-const auth   = require('../middleware/auth');
+const { auth }   = require('../middleware/auth');
 
 router.post('/',          auth, ctrl.enviar);
 router.get('/conversas',  auth, ctrl.listarConversas); // new inbox route

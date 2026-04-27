@@ -14,6 +14,7 @@ const pagamentosRoutes = require('./src/routes/pagamentos');
 const avaliacoesRoutes = require('./src/routes/avaliacoes');
 const veiculoRoutes    = require('./src/routes/veiculoRoutes');
 const notificacoesRoutes = require('./src/routes/notificacoes');
+const adminRoutes      = require('./src/routes/admin');
 const errorHandler     = require('./src/middleware/errorHandler');
 const { processarListaEspera } = require('./src/services/listaEsperaService');
 
@@ -58,9 +59,11 @@ app.use('/api/pagamentos',   pagamentosRoutes);
 app.use('/api/avaliacoes',   avaliacoesRoutes);
 app.use('/api/veiculos',     veiculoRoutes);
 app.use('/api/notificacoes', notificacoesRoutes);
+app.use('/api/admin',        adminRoutes);
 
 // ── Rota 404 ────────────────────────────────────────────────
 app.use((req, res) => {
+  console.warn(`[404] Rota não encontrada: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ success: false, error: 'Rota não encontrada' });
 });
 
@@ -69,7 +72,7 @@ app.use(errorHandler);
 
 // ── Iniciar servidor ────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`✅ UniCaronas API rodando em http://localhost:${PORT}`);
+  console.log(`UniCaronas API rodando em http://localhost:${PORT}`);
 });
 
 module.exports = app;

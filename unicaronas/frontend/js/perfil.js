@@ -60,6 +60,11 @@ function renderPerfil(u, ehProprio) {
   setText('perfil-email',  u.email);
   setText('perfil-membro', t('profile-member-since') + ' ' + formatarDataCurta(u.criado_em));
   
+  // Renderiza o badge de verificação (definido no perfil.html)
+  if (window.renderBadgeVerificacao) {
+    window.renderBadgeVerificacao(u);
+  }
+
   const badge = document.getElementById('perfil-tipo-badge');
   if (badge) {
     const tipos = {

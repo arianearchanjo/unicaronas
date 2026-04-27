@@ -26,12 +26,12 @@ const validar = (schema) => (req, res, next) => {
       erros.push(`O campo "${campo}" deve ser texto`);
     }
 
-    if ((regras.type === 'number' || regras.type === 'integer') && isNaN(Number(valor))) {
-      erros.push(`O campo "${campo}" deve ser numérico`);
-    }
-
-    if (regras.type === 'integer' && !Number.isInteger(Number(valor))) {
-      erros.push(`O campo "${campo}" deve ser um número inteiro`);
+    if (regras.type === 'number' || regras.type === 'integer') {
+      if (isNaN(Number(valor))) {
+        erros.push(`O campo "${campo}" deve ser numérico`);
+      } else if (regras.type === 'integer' && !Number.isInteger(Number(valor))) {
+        erros.push(`O campo "${campo}" deve ser um número inteiro`);
+      }
     }
 
     if (typeof valor === 'string' && regras.maxLength && valor.length > regras.maxLength) {

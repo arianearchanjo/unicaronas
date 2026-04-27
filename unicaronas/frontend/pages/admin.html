@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — UniCaronas</title>
+  <link rel="icon" type="image/png" href="../img/icon.png?v=2">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script src="../js/theme.js"></script>
+  <style>
+    .admin-header {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+    }
+    .admin-title { font-size: 1.5rem; font-weight: 700; color: var(--text); }
+    .admin-subtitle { color: var(--text-3); font-size: 0.9rem; margin-top: 0.25rem; }
+
+    .user-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 600px) {
+      .user-card { grid-template-columns: 1fr; }
+    }
+
+    .user-info h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+    .user-meta { font-size: 0.85rem; color: var(--text-3); margin-bottom: 1rem; }
+    .user-meta span { margin-right: 1rem; display: inline-flex; align-items: center; gap: 0.3rem; }
+
+    .docs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .doc-item {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem;
+      text-align: center;
+    }
+    .doc-link {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+    .doc-link:hover { text-decoration: underline; }
+
+    .actions { display: flex; gap: 0.75rem; }
+
+    .vazio {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-3);
+      background: var(--surface);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar-placeholder"></div>
+
+  <main class="container">
+    <div id="alert-container"></div>
+
+    <!-- Modal de Redefinição de Senha Obrigatória -->
+    <div id="modal-reset-senha" class="modal" style="display: none; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);">
+      <div class="modal-content" style="max-width: 400px; margin: 10vh auto;">
+        <div class="modal-header">
+          <h2 class="modal-title"><i class="bi bi-unlock" style="margin-right: 0.5rem;"></i> Primeiro Acesso</h2>
+        </div>
+        <div class="modal-body">
+          <p style="margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--text-2);">
+            Por segurança, você deve alterar sua senha temporária antes de continuar acessando o painel administrativo.
+          </p>
+          <div class="form-group">
+            <label class="form-label">Nova Senha</label>
+            <input type="password" id="nova-senha" class="form-control" placeholder="Mínimo 8 caracteres">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirmar Nova Senha</label>
+            <input type="password" id="confirma-senha" class="form-control" placeholder="Repita a senha">
+          </div>
+          <button class="btn btn-primary btn-full mt-1" onclick="resetarSenhaAdmin()" id="btn-reset-save">Salvar nova senha</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-header">
+      <h1 class="admin-title">Painel de Verificação</h1>
+      <p class="admin-subtitle">Aprovação de documentos de motoristas e passageiros</p>
+    </div>
+
+    <div id="lista-pendentes">
+      <div style="text-align: center; padding: 3rem;">Carregando usuários pendentes...</div>
+    </div>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/navbar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!protegerRota()) return;
+      
+      const user = getUser();
+      if (!user.is_admin) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      // Verifica se precisa resetar senha
+      if (user.forcar_reset) {
+        document.getElementById('modal-reset-senha').style.display = 'block';
+      } else {
+        await carregarPendentes();
+      }
+    });
+
+    async function resetarSenhaAdmin() {
+      const senha = document.getElementById('nova-senha').value;
+      const confirma = document.getElementById('confirma-senha').value;
+      const btn = document.getElementById('btn-reset-save');
+
+      if (!senha || senha.length < 8) {
+        return showAlert('A senha deve ter no mínimo 8 caracteres.', 'error');
+      }
+      if (senha !== confirma) {
+        return showAlert('As senhas não coincidem.', 'error');
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
+
+      try {
+        await api.atualizarSenha({ senha });
+        
+        // Atualiza o usuário no localStorage para remover a flag de reset
+        const user = getUser();
+        user.forcar_reset = false;
+        setUser(user);
+
+        document.getElementById('modal-reset-senha').style.display = 'none';
+        showAlert('Senha atualizada com sucesso! Bem-vindo.', 'success');
+        await carregarPendentes();
+      } catch (err) {
+        showAlert(err.message, 'error');
+        btn.disabled = false;
+        btn.textContent = 'Salvar nova senha';
+      }
+    }
+
+    async function carregarPendentes() {
+      const container = document.getElementById('lista-pendentes');
+      try {
+        const res = await api.adminListarPendentes();
+        
+        if (res.data.length === 0) {
+          container.innerHTML = `
+            <div class="vazio">
+              <strong>Tudo em dia!</strong>
+              <p>Não há nenhum documento aguardando verificação no momento.</p>
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = res.data.map(u => `
+          <div class="user-card" id="user-${u.id}">
+            <div class="user-info">
+              <h3>${u.nome}</h3>
+              <div class="user-meta">
+                <span>E-mail: ${u.email}</span>
+                <span>Matrícula: ${u.matricula}</span>
+                <span>Perfil: ${u.perfil_tipo}</span>
+              </div>
+              
+              <div class="docs-grid">
+                ${u.identidade_url ? `
+                  <div class="doc-item">
+                    <div style="font-size: 0.75rem; color: var(--text-3)">Identidade / RG</div>
+                    <a href="${u.identidade_url}" target="_blank" class="doc-link">Ver Documento</a>
+                  </div>
+                ` : ''}
+                ${u.cnh_url ? `
+                  <div class="doc-item">
+                    <div style="font-size: 0.75rem; color: var(--text-3)">CNH</div>
+                    <a href="${u.cnh_url}" target="_blank" class="doc-link">Ver Documento</a>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+            
+            <div class="actions">
+              <button class="btn btn-danger-outline btn-sm" onclick="verificar(${u.id}, 'rejeitado')">Rejeitar</button>
+              <button class="btn btn-primary btn-sm" onclick="verificar(${u.id}, 'aprovado')">Aprovar</button>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        showAlert(err.message, 'error');
+        container.innerHTML = '<div class="alert alert-error">Erro ao carregar dados.</div>';
+      }
+    }
+
+    async function verificar(userId, status) {
+      if (!confirm(`Deseja realmente marcar como ${status}?`)) return;
+
+      try {
+        await api.adminVerificarUsuario(userId, status);
+        showAlert(`Usuário ${status === 'aprovado' ? 'aprovado' : 'rejeitado'} com sucesso!`);
+        document.getElementById(`user-${userId}`).remove();
+        
+        if (document.querySelectorAll('.user-card').length === 0) {
+          carregarPendentes();
+        }
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

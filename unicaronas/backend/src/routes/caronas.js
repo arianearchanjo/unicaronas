@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const ctrl   = require('../controllers/caronasController');
 const waitCtrl = require('../controllers/listaEsperaController');
-const auth   = require('../middleware/auth');
+const { auth }   = require('../middleware/auth');
 const { validar } = require('../middleware/validacao');
 
 const schemaCriar = {

@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const ctrl   = require('../controllers/usuariosController');
-const auth   = require('../middleware/auth');
+const { auth }   = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const { validar } = require('../middleware/validacao');
 
@@ -26,11 +26,19 @@ const schemaPerfil = {
   genero:      { type: 'string' },
 };
 
-router.post('/',        validar(schemasCadastro), ctrl.cadastrar);
+router.post('/',
+  upload.fields([
+    { name: 'cnh', maxCount: 1 },
+    { name: 'identidade', maxCount: 1 }
+  ]),
+  validar(schemasCadastro),
+  ctrl.cadastrar
+);
 router.post('/login',   validar(schemasLogin),    ctrl.login);
 router.post('/recuperar-senha',                   ctrl.recuperarSenha);
 router.get('/:id',      auth,                     ctrl.buscarPorId);
 router.patch('/perfil', auth, upload.single('foto'), validar(schemaPerfil), ctrl.atualizarPerfil);
+router.patch('/senha',  auth,                     ctrl.atualizarSenha);
 router.delete('/conta', auth,                     ctrl.deletarConta);
 
 module.exports = router;

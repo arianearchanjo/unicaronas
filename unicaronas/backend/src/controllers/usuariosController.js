@@ -11,6 +11,21 @@ const cadastrar = async (req, res, next) => {
   try {
     const { nome, email, matricula, senha, telefone, curso, dia_ead, perfil_tipo, veiculo, genero } = req.body;
 
+    // Se vier de FormData, os campos de veículo podem estar achatados
+    let dadosVeiculo = veiculo;
+    if (typeof veiculo === 'string') {
+      try { dadosVeiculo = JSON.parse(veiculo); } catch(e) {}
+    }
+    if (!dadosVeiculo && req.body['veiculo[marca]']) {
+      dadosVeiculo = {
+        marca:  req.body['veiculo[marca]'],
+        modelo: req.body['veiculo[modelo]'],
+        ano:    req.body['veiculo[ano]'],
+        cor:    req.body['veiculo[cor]'],
+        placa:  req.body['veiculo[placa]']
+      };
+    }
+
     const dominiosPermitidos = (process.env.EMAIL_DOMINIOS || '@unibrasil.com.br')
       .split(',')
       .map((d) => d.trim().toLowerCase());
@@ -39,6 +54,20 @@ const cadastrar = async (req, res, next) => {
       }
     }
 
+    // Processa arquivos de documentos
+    let cnh_url = null;
+    let identidade_url = null;
+    const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+
+    if (req.files) {
+      if (req.files.cnh && req.files.cnh[0]) {
+        cnh_url = `${baseUrl}/uploads/documentos/${req.files.cnh[0].filename}`;
+      }
+      if (req.files.identidade && req.files.identidade[0]) {
+        identidade_url = `${baseUrl}/uploads/documentos/${req.files.identidade[0].filename}`;
+      }
+    }
+
     const senhaHash = await bcrypt.hash(senha, BCRYPT_ROUNDS);
 
     const client = await db.connect();
@@ -46,26 +75,38 @@ const cadastrar = async (req, res, next) => {
       await client.query('BEGIN');
 
       const resUser = await client.query(
-        `INSERT INTO usuarios (nome, email, matricula, senha_hash, telefone, curso, dia_ead, perfil_tipo, genero)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-         RETURNING id, nome, email, matricula, curso, dia_ead, perfil_tipo, genero, criado_em`,
-        [nome.trim(), emailNorm, matricula.trim(), senhaHash, telefone || null, curso || null, diaEadVal, perfil_tipo || 'misto', genero || null]
+        `INSERT INTO usuarios (nome, email, matricula, senha_hash, telefone, curso, dia_ead, perfil_tipo, genero, cnh_url, identidade_url)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+         RETURNING id, nome, email, matricula, curso, dia_ead, perfil_tipo, genero, criado_em, status_verificacao, is_admin`,
+        [
+          nome.trim(), 
+          emailNorm, 
+          matricula.trim(), 
+          senhaHash, 
+          telefone || null, 
+          curso || null, 
+          diaEadVal, 
+          perfil_tipo || 'misto', 
+          genero || null,
+          cnh_url,
+          identidade_url
+        ]
       );
 
       const novoUsuario = resUser.rows[0];
 
-      if ((perfil_tipo === 'motorista' || perfil_tipo === 'misto') && veiculo && veiculo.marca && veiculo.placa) {
+      if ((perfil_tipo === 'motorista' || perfil_tipo === 'misto') && dadosVeiculo && dadosVeiculo.marca && dadosVeiculo.placa) {
         await client.query(
           `INSERT INTO veiculos (usuario_id, marca, modelo, ano, cor, placa)
            VALUES ($1, $2, $3, $4, $5, $6)`,
-          [novoUsuario.id, veiculo.marca.trim(), veiculo.modelo.trim(), parseInt(veiculo.ano), veiculo.cor.trim(), veiculo.placa.trim()]
+          [novoUsuario.id, dadosVeiculo.marca.trim(), dadosVeiculo.modelo.trim(), parseInt(dadosVeiculo.ano), dadosVeiculo.cor.trim(), dadosVeiculo.placa.trim()]
         );
       }
 
       await client.query('COMMIT');
 
       const token = jwt.sign(
-        { id: novoUsuario.id, email: novoUsuario.email, nome: novoUsuario.nome, perfil_tipo: novoUsuario.perfil_tipo },
+        { id: novoUsuario.id, email: novoUsuario.email, nome: novoUsuario.nome, perfil_tipo: novoUsuario.perfil_tipo, is_admin: novoUsuario.is_admin },
         process.env.JWT_SECRET,
         { expiresIn: '24h' }
       );
@@ -75,13 +116,15 @@ const cadastrar = async (req, res, next) => {
         data: {
           token,
           usuario: {
-            id:               novoUsuario.id,
-            nome:             novoUsuario.nome,
-            email:            novoUsuario.email,
-            curso:            novoUsuario.curso,
-            dia_ead:          novoUsuario.dia_ead,
-            perfil_tipo:      novoUsuario.perfil_tipo,
-            genero:           novoUsuario.genero
+            id:                 novoUsuario.id,
+            nome:               novoUsuario.nome,
+            email:              novoUsuario.email,
+            curso:              novoUsuario.curso,
+            dia_ead:            novoUsuario.dia_ead,
+            perfil_tipo:        novoUsuario.perfil_tipo,
+            genero:             novoUsuario.genero,
+            status_verificacao: novoUsuario.status_verificacao,
+            is_admin:           novoUsuario.is_admin
           }
         },
         message: 'Usuário cadastrado com sucesso',
@@ -153,7 +196,7 @@ const login = async (req, res, next) => {
     if (!senhaOk) return credenciaisInvalidas();
 
     const token = jwt.sign(
-      { id: usuario.id, email: usuario.email, nome: usuario.nome, perfil_tipo: usuario.perfil_tipo },
+      { id: usuario.id, email: usuario.email, nome: usuario.nome, perfil_tipo: usuario.perfil_tipo, is_admin: usuario.is_admin },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -163,28 +206,31 @@ const login = async (req, res, next) => {
       data: {
         token,
         usuario: {
-          id:               usuario.id,
-          nome:             usuario.nome,
-          email:            usuario.email,
-          curso:            usuario.curso,
+          id:                 usuario.id,
+          nome:               usuario.nome,
+          email:              usuario.email,
+          curso:              usuario.curso,
           avaliacao_media:  usuario.avaliacao_media,
           foto_url:         usuario.foto_url,
           dia_ead:          usuario.dia_ead,
           perfil_tipo:      usuario.perfil_tipo,
-          genero:           usuario.genero
+          genero:           usuario.genero,
+          status_verificacao: usuario.status_verificacao,
+          is_admin:           usuario.is_admin,
+          forcar_reset:       usuario.forcar_reset
         },
       },
     });
-  } catch (err) {
+    } catch (err) {
     next(err);
-  }
-};
+    }
+    };
 
-/**
- * GET /api/usuarios/:id
- */
-const buscarPorId = async (req, res, next) => {
-  try {
+    /**
+    * GET /api/usuarios/:id
+    */
+    const buscarPorId = async (req, res, next) => {
+    try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id) || id <= 0) {
       return res.status(400).json({ success: false, error: 'ID inválido' });
@@ -192,11 +238,12 @@ const buscarPorId = async (req, res, next) => {
 
     const { rows } = await db.query(
       `SELECT id, nome, email, curso, telefone, foto_url, dia_ead, perfil_tipo,
-              avaliacao_media, total_avaliacoes, criado_em, genero
+              avaliacao_media, total_avaliacoes, criado_em, genero, status_verificacao, is_admin
        FROM usuarios
        WHERE id = $1 AND ativo = true`,
       [id]
     );
+
 
     if (rows.length === 0) {
       return res.status(404).json({ success: false, error: 'Usuário não encontrado' });
@@ -286,4 +333,29 @@ const atualizarPerfil = async (req, res, next) => {
   }
 };
 
-module.exports = { cadastrar, login, buscarPorId, atualizarPerfil, deletarConta, recuperarSenha };
+/**
+ * PATCH /api/usuarios/senha
+ */
+const atualizarSenha = async (req, res, next) => {
+  try {
+    const id = req.usuario.id;
+    const { senha } = req.body;
+
+    if (!senha || senha.length < 8) {
+      return res.status(400).json({ success: false, error: 'A senha deve ter no mínimo 8 caracteres' });
+    }
+
+    const senhaHash = await bcrypt.hash(senha, BCRYPT_ROUNDS);
+
+    await db.query(
+      'UPDATE usuarios SET senha_hash = $1, forcar_reset = false, atualizado_em = NOW() WHERE id = $2',
+      [senhaHash, id]
+    );
+
+    res.json({ success: true, message: 'Senha atualizada com sucesso' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { cadastrar, login, buscarPorId, atualizarPerfil, deletarConta, recuperarSenha, atualizarSenha };

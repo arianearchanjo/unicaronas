@@ -44,7 +44,10 @@
             <input type="email" id="email" class="form-control" placeholder="nome@unibrasil.com.br" required>
           </div>
           <div class="form-group">
-            <label class="form-label" data-i18n="label-password">Senha</label>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label class="form-label" data-i18n="label-password">Senha</label>
+              <a href="#" onclick="recuperarSenha(event)" style="font-size: 0.75rem; color: var(--accent); margin-bottom: 0.4rem;">Esqueci a senha</a>
+            </div>
             <input type="password" id="senha" class="form-control" placeholder="••••••••" required>
           </div>
           <button type="submit" class="btn btn-primary btn-full mt-2" id="btn-login" data-i18n="btn-login">Entrar</button>

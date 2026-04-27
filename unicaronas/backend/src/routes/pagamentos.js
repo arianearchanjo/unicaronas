@@ -3,7 +3,7 @@
  */
 const router = require('express').Router();
 const ctrl   = require('../controllers/pagamentosController');
-const auth   = require('../middleware/auth');
+const { auth }   = require('../middleware/auth');
 
 // Gera payload Pix + QR Code para uma solicitação aceita
 router.get('/pix/:solicitacao_id', auth, ctrl.gerarPix);

@@ -569,19 +569,7 @@
       btn.textContent = 'Criando conta...';
 
       try {
-        // Chamada direta via fetch (FormData não suporta api.cadastrar padrão com JSON)
-        const apiBase = window.API_BASE_URL || 'http://localhost:3000/api';
-        const response = await fetch(`${apiBase}/usuarios`, {
-          method: 'POST',
-          body: form,
-          // Não defina Content-Type — o browser seta multipart/form-data automaticamente
-        });
-
-        const res = await response.json();
-
-        if (!response.ok || !res.success) {
-          throw new Error(res.error || 'Erro ao criar conta');
-        }
+        const res = await api.cadastrar(form);
 
         showAlert('Conta criada com sucesso! Entrando...', 'success');
 

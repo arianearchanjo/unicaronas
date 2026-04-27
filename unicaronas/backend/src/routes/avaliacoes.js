@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const ctrl   = require('../controllers/avaliacoesController');
-const auth   = require('../middleware/auth');
+const { auth }   = require('../middleware/auth');
 const { validar } = require('../middleware/validacao');
 
 const schemaAvaliar = {
