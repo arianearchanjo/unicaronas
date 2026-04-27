@@ -20,7 +20,7 @@
     .cadastro-title { font-size: 1.55rem; font-weight: 700; letter-spacing: -.4px; }
     .cadastro-subtitle { color: var(--text-3); font-size: .88rem; margin-top: .3rem; }
 
-    /* Estilo aprimorado para Seleção de Perfil */
+    /* ── Seleção de Perfil ──────────────────────────────────────── */
     .profile-selection {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -60,42 +60,118 @@
       background: var(--accent);
       color: white;
     }
-    .profile-card.active strong {
-      color: var(--accent);
-    }
+    .profile-card.active strong { color: var(--accent); }
     .profile-icon-circle {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
+      width: 48px; height: 48px; border-radius: 50%;
       background: var(--bg-2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-3);
-      transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-3); transition: all 0.2s;
     }
-    .profile-card strong {
-      display: block;
-      font-size: 0.9rem;
-      color: var(--text);
-      transition: color 0.2s;
-    }
-    .profile-card span {
-      font-size: 0.72rem;
-      color: var(--text-3);
-      line-height: 1.3;
-    }
+    .profile-card strong { display: block; font-size: 0.9rem; color: var(--text); transition: color 0.2s; }
+    .profile-card span   { font-size: 0.72rem; color: var(--text-3); line-height: 1.3; }
     .check-mark {
-      position: absolute;
-      top: 8px;
-      right: 8px;
+      position: absolute; top: 8px; right: 8px;
+      color: var(--accent); opacity: 0; transition: opacity 0.2s;
+    }
+    .profile-card.active .check-mark { opacity: 1; }
+
+    /* ── Seção de documentos ────────────────────────────────────── */
+    .doc-section {
+      border-top: 1px solid var(--border);
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      display: none;
+    }
+    .doc-section.visible { display: block; }
+
+    .doc-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      color: var(--text);
+    }
+    .doc-section-sub {
+      font-size: 0.8rem;
+      color: var(--text-3);
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+
+    /* Upload box */
+    .doc-upload-box {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: var(--bg-2);
+      position: relative;
+    }
+    .doc-upload-box:hover,
+    .doc-upload-box.has-file {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .doc-upload-box input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .doc-upload-icon {
+      width: 40px; height: 40px; margin: 0 auto 0.75rem;
+      border-radius: 50%; background: var(--bg-3);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-3);
+    }
+    .doc-upload-box.has-file .doc-upload-icon {
+      background: var(--accent);
+      color: white;
+    }
+    .doc-upload-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+    .doc-upload-hint {
+      font-size: 0.75rem;
+      color: var(--text-3);
+    }
+    .doc-upload-filename {
+      font-size: 0.78rem;
       color: var(--accent);
-      opacity: 0;
-      transition: opacity 0.2s;
+      font-weight: 600;
+      margin-top: 0.4rem;
+      display: none;
+      word-break: break-all;
     }
-    .profile-card.active .check-mark {
-      opacity: 1;
+    .doc-upload-box.has-file .doc-upload-filename { display: block; }
+
+    /* Dois uploads lado a lado no misto */
+    .doc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
     }
+    @media (max-width: 480px) {
+      .doc-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Info de segurança */
+    .doc-info {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      margin-top: 1rem;
+      font-size: 0.78rem;
+      color: var(--text-3);
+      line-height: 1.5;
+    }
+    .doc-info svg { flex-shrink: 0; margin-top: 1px; color: var(--accent); }
 
     @media (max-width: 600px) {
       body { padding: 1rem; }
@@ -121,24 +197,24 @@
       <div class="grid-2">
         <div class="form-group">
           <label class="form-label" data-i18n="label-full-name">Nome completo</label>
-          <input class="form-control" id="nome" type="text" placeholder="Seu nome" data-i18n="label-full-name">
+          <input class="form-control" id="nome" type="text" placeholder="Seu nome">
         </div>
         <div class="form-group">
           <label class="form-label" data-i18n="label-matricula">Matrícula</label>
-          <input class="form-control" id="matricula" type="text" placeholder="2024001" data-i18n="label-matricula">
+          <input class="form-control" id="matricula" type="text" placeholder="2024001">
         </div>
       </div>
 
       <div class="form-group">
         <label class="form-label" data-i18n="label-email">E-mail institucional</label>
-        <input class="form-control" id="email" type="email" placeholder="seu@unibrasil.com.br" data-i18n="label-email">
+        <input class="form-control" id="email" type="email" placeholder="seu@unibrasil.com.br">
         <span class="form-hint" data-i18n="register-email-hint">Apenas e-mails da sua universidade são aceitos</span>
       </div>
 
       <div class="grid-2">
         <div class="form-group">
           <label class="form-label" data-i18n="label-course">Curso</label>
-          <input class="form-control" id="curso" type="text" placeholder="Engenharia de Software" data-i18n="label-course">
+          <input class="form-control" id="curso" type="text" placeholder="Engenharia de Software">
         </div>
         <div class="form-group">
           <label class="form-label">Gênero</label>
@@ -151,16 +227,20 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label" data-i18n="label-phone">Telefone</label>
-        <input class="form-control" id="telefone" type="tel" placeholder="(41) 99999-0000" data-i18n="label-phone">
+        <label class="form-label">Telefone</label>
+        <input class="form-control" id="telefone" type="tel" placeholder="(41) 99999-0000">
       </div>
 
+      <!-- Seleção de perfil -->
       <div class="form-group">
         <label class="form-label">Como você usará o UniCaronas?</label>
         <div class="profile-selection">
+
           <label class="profile-card active" onclick="selectProfile(this)">
             <input type="radio" name="perfil_tipo" value="estudante" checked>
-            <div class="check-mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <div class="check-mark">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
             <div class="profile-icon-circle">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             </div>
@@ -172,7 +252,9 @@
 
           <label class="profile-card" onclick="selectProfile(this)">
             <input type="radio" name="perfil_tipo" value="motorista">
-            <div class="check-mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <div class="check-mark">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
             <div class="profile-icon-circle">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
             </div>
@@ -184,7 +266,9 @@
 
           <label class="profile-card" onclick="selectProfile(this)">
             <input type="radio" name="perfil_tipo" value="misto">
-            <div class="check-mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <div class="check-mark">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
             <div class="profile-icon-circle">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
             </div>
@@ -193,10 +277,107 @@
               <span>Quero ambas as opções</span>
             </div>
           </label>
+
         </div>
       </div>
 
-      <div class="form-group">
+      <!-- ── SEÇÃO DE DOCUMENTOS ──────────────────────────────────── -->
+
+      <!-- Passageiro: só identidade -->
+      <div class="doc-section visible" id="doc-passageiro">
+        <p class="doc-section-title">Verificação de identidade</p>
+        <p class="doc-section-sub">
+          Envie uma foto ou scan do seu RG ou documento de identificação.
+          Isso garante a segurança de todos na plataforma.
+        </p>
+        <div class="doc-upload-box" id="box-identidade" onclick="document.getElementById('input-identidade').click()">
+          <input type="file" id="input-identidade" name="identidade"
+                 accept="image/jpeg,image/png,image/webp,application/pdf"
+                 onchange="onDocFile(this, 'box-identidade', 'nome-identidade')">
+          <div class="doc-upload-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/></svg>
+          </div>
+          <p class="doc-upload-label">Clique para enviar sua identidade (RG)</p>
+          <p class="doc-upload-hint">JPEG, PNG ou PDF — máx. 5 MB</p>
+          <p class="doc-upload-filename" id="nome-identidade"></p>
+        </div>
+        <div class="doc-info">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Seus documentos são armazenados com segurança e usados apenas para verificação interna. Não são exibidos publicamente.
+        </div>
+      </div>
+
+      <!-- Motorista: só CNH -->
+      <div class="doc-section" id="doc-motorista">
+        <p class="doc-section-title">Verificação de CNH</p>
+        <p class="doc-section-sub">
+          Motoristas devem enviar uma foto ou PDF da CNH para conduzir passageiros.
+          Após análise, você receberá o selo <strong>Motorista verificado ✔️</strong> no seu perfil.
+        </p>
+        <div class="doc-upload-box" id="box-cnh" onclick="document.getElementById('input-cnh').click()">
+          <input type="file" id="input-cnh" name="cnh"
+                 accept="image/jpeg,image/png,image/webp,application/pdf"
+                 onchange="onDocFile(this, 'box-cnh', 'nome-cnh')">
+          <div class="doc-upload-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><line x1="13" y1="10" x2="19" y2="10"/><line x1="13" y1="14" x2="17" y2="14"/></svg>
+          </div>
+          <p class="doc-upload-label">Clique para enviar sua CNH</p>
+          <p class="doc-upload-hint">JPEG, PNG ou PDF — máx. 5 MB</p>
+          <p class="doc-upload-filename" id="nome-cnh"></p>
+        </div>
+        <div class="doc-info">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Seus documentos são armazenados com segurança e usados apenas para verificação interna. Não são exibidos publicamente.
+        </div>
+      </div>
+
+      <!-- Misto: CNH + identidade lado a lado -->
+      <div class="doc-section" id="doc-misto">
+        <p class="doc-section-title">Verificação de documentos</p>
+        <p class="doc-section-sub">
+          Por usar o UniCaronas como motorista e passageiro, você precisa enviar os dois documentos.
+        </p>
+        <div class="doc-grid">
+
+          <div>
+            <p style="font-size:0.82rem;font-weight:600;margin-bottom:0.5rem;color:var(--text)">🪪 CNH (motorista)</p>
+            <div class="doc-upload-box" id="box-cnh-misto" onclick="document.getElementById('input-cnh-misto').click()">
+              <input type="file" id="input-cnh-misto" name="cnh"
+                     accept="image/jpeg,image/png,image/webp,application/pdf"
+                     onchange="onDocFile(this, 'box-cnh-misto', 'nome-cnh-misto')">
+              <div class="doc-upload-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><line x1="13" y1="10" x2="19" y2="10"/><line x1="13" y1="14" x2="17" y2="14"/></svg>
+              </div>
+              <p class="doc-upload-label" style="font-size:0.78rem">Enviar CNH</p>
+              <p class="doc-upload-hint">JPG, PNG ou PDF</p>
+              <p class="doc-upload-filename" id="nome-cnh-misto"></p>
+            </div>
+          </div>
+
+          <div>
+            <p style="font-size:0.82rem;font-weight:600;margin-bottom:0.5rem;color:var(--text)">📄 Identidade (passageiro)</p>
+            <div class="doc-upload-box" id="box-identidade-misto" onclick="document.getElementById('input-identidade-misto').click()">
+              <input type="file" id="input-identidade-misto" name="identidade"
+                     accept="image/jpeg,image/png,image/webp,application/pdf"
+                     onchange="onDocFile(this, 'box-identidade-misto', 'nome-identidade-misto')">
+              <div class="doc-upload-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/></svg>
+              </div>
+              <p class="doc-upload-label" style="font-size:0.78rem">Enviar RG / Identidade</p>
+              <p class="doc-upload-hint">JPG, PNG ou PDF</p>
+              <p class="doc-upload-filename" id="nome-identidade-misto"></p>
+            </div>
+          </div>
+
+        </div>
+        <div class="doc-info">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Seus documentos são armazenados com segurança e usados apenas para verificação interna. Não são exibidos publicamente.
+        </div>
+      </div>
+      <!-- ── FIM SEÇÃO DE DOCUMENTOS ─────────────────────────────── -->
+
+      <div class="form-group" style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
         <label class="form-label" for="dia_ead">Meu dia EAD (Opcional)</label>
         <select id="dia_ead" class="form-control">
           <option value="">Não possuo dia EAD fixo</option>
@@ -210,6 +391,7 @@
         </select>
       </div>
 
+      <!-- Veículo — aparece só para motorista/misto -->
       <div id="veiculo-section" style="display:none; border-top: 1px solid var(--border); margin-top: 1.5rem; padding-top: 1.5rem;">
         <h3 style="font-size: 1rem; margin-bottom: 1rem;">Dados do Veículo</h3>
         <div class="grid-2">
@@ -238,9 +420,9 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" style="margin-top: 1.5rem;">
         <label class="form-label" data-i18n="label-password">Senha</label>
-        <input class="form-control" id="senha" type="password" placeholder="Mínimo 8 caracteres" data-i18n="label-password">
+        <input class="form-control" id="senha" type="password" placeholder="Mínimo 8 caracteres">
       </div>
 
       <button class="btn btn-primary btn-full mt-2" onclick="cadastrar()" id="btn-cadastrar" data-i18n="btn-register">
@@ -256,7 +438,10 @@
   <footer class="footer" style="width: 100%; margin-top: 4rem;">
     <div class="container footer-content">
       <div class="navbar-brand-img" style="margin-bottom: 1rem;"></div>
-      <div class="footer-dev"><span data-i18n="footer-dev-by">Desenvolvido pelas divas: </span> <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
+      <div class="footer-dev"><span data-i18n="footer-dev-by">Desenvolvido pelas divas: </span>
+        <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>,
+        <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a>
+      </div>
       <div class="footer-copyright" data-i18n="footer-rights">© 2026 UniCaronas — Todos os direitos reservados.</div>
     </div>
   </footer>
@@ -265,64 +450,141 @@
   <script src="../js/i18n.js"></script>
   <script src="../js/navbar.js"></script>
   <script>
+
+    /* ── Feedback visual ao selecionar arquivo ─────────────────── */
+    function onDocFile(input, boxId, nomeId) {
+      const box  = document.getElementById(boxId);
+      const nome = document.getElementById(nomeId);
+      if (input.files && input.files[0]) {
+        box.classList.add('has-file');
+        nome.textContent = '✔ ' + input.files[0].name;
+      } else {
+        box.classList.remove('has-file');
+        nome.textContent = '';
+      }
+    }
+
+    /* ── Seleciona perfil e atualiza seções de documentos ─────── */
     function selectProfile(el) {
       document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
       const radio = el.querySelector('input');
       radio.checked = true;
-      
+
+      const perfil = radio.value;
+
+      // Veículo
       const veiculoSec = document.getElementById('veiculo-section');
-      if (radio.value === 'motorista' || radio.value === 'misto') {
-        veiculoSec.style.display = 'block';
-      } else {
-        veiculoSec.style.display = 'none';
-      }
+      veiculoSec.style.display = (perfil === 'motorista' || perfil === 'misto') ? 'block' : 'none';
+
+      // Seções de documentos
+      document.getElementById('doc-passageiro').classList.toggle('visible', perfil === 'estudante');
+      document.getElementById('doc-motorista').classList.toggle('visible',  perfil === 'motorista');
+      document.getElementById('doc-misto').classList.toggle('visible',      perfil === 'misto');
     }
 
-    async function cadastrar() {
-      const diaEadVal = document.getElementById('dia_ead').value;
-      const perfilTipo = document.querySelector('input[name="perfil_tipo"]:checked').value;
-      
-      const dados = {
-        nome:        document.getElementById('nome').value.trim(),
-        email:       document.getElementById('email').value.trim(),
-        matricula:   document.getElementById('matricula').value.trim(),
-        curso:       document.getElementById('curso').value.trim(),
-        telefone:    document.getElementById('telefone').value.trim(),
-        dia_ead:     diaEadVal !== '' ? parseInt(diaEadVal, 10) : null,
-        perfil_tipo: perfilTipo,
-        senha:       document.getElementById('senha').value,
-      };
-
-      if (perfilTipo === 'motorista' || perfilTipo === 'misto') {
-        dados.veiculo = {
-          marca:  document.getElementById('v-marca').value.trim(),
-          modelo: document.getElementById('v-modelo').value.trim(),
-          ano:    document.getElementById('v-ano').value,
-          cor:    document.getElementById('v-cor').value.trim(),
-          placa:  document.getElementById('v-placa').value.trim()
+    /* ── Obtém o arquivo de documento correto pelo perfil ─────── */
+    function getDocFiles(perfil) {
+      if (perfil === 'estudante') {
+        return {
+          cnh:        null,
+          identidade: document.getElementById('input-identidade').files[0] || null,
         };
-        
-        if (!dados.veiculo.marca || !dados.veiculo.placa) {
-          return showAlert(currentLang === 'pt' ? 'Para motoristas, marca e placa do veículo são obrigatórios' : 'For drivers, vehicle brand and plate are required', 'error');
-        }
+      }
+      if (perfil === 'motorista') {
+        return {
+          cnh:        document.getElementById('input-cnh').files[0] || null,
+          identidade: null,
+        };
+      }
+      if (perfil === 'misto') {
+        return {
+          cnh:        document.getElementById('input-cnh-misto').files[0]        || null,
+          identidade: document.getElementById('input-identidade-misto').files[0] || null,
+        };
+      }
+      return { cnh: null, identidade: null };
+    }
+
+    /* ── Cadastro ──────────────────────────────────────────────── */
+    async function cadastrar() {
+      const diaEadVal  = document.getElementById('dia_ead').value;
+      const perfilTipo = document.querySelector('input[name="perfil_tipo"]:checked').value;
+
+      // Validações básicas
+      const nome      = document.getElementById('nome').value.trim();
+      const email     = document.getElementById('email').value.trim();
+      const matricula = document.getElementById('matricula').value.trim();
+      const senha     = document.getElementById('senha').value;
+
+      if (!nome || !email || !matricula || !senha) {
+        return showAlert('Preencha nome, e-mail, matrícula e senha.', 'error');
+      }
+      if (senha.length < 8) {
+        return showAlert('A senha deve ter ao menos 8 caracteres.', 'error');
       }
 
-      if (!dados.nome || !dados.email || !dados.matricula || !dados.senha) {
-        return showAlert(currentLang === 'pt' ? 'Preencha nome, e-mail, matrícula e senha' : 'Fill in name, email, student ID and password', 'error');
+      // Validações de veículo
+      const precisaVeiculo = perfilTipo === 'motorista' || perfilTipo === 'misto';
+      const vMarca = document.getElementById('v-marca')?.value.trim();
+      const vPlaca = document.getElementById('v-placa')?.value.trim();
+      if (precisaVeiculo && (!vMarca || !vPlaca)) {
+        return showAlert('Para motoristas, marca e placa do veículo são obrigatórios.', 'error');
       }
-      if (dados.senha.length < 8) {
-        return showAlert(currentLang === 'pt' ? 'A senha deve ter ao menos 8 caracteres' : 'The password must have at least 8 characters', 'error');
+
+      // Validações de documento
+      const { cnh, identidade } = getDocFiles(perfilTipo);
+      if ((perfilTipo === 'motorista' || perfilTipo === 'misto') && !cnh) {
+        return showAlert('Motoristas precisam enviar a CNH para se cadastrar.', 'error');
       }
+      if ((perfilTipo === 'estudante' || perfilTipo === 'misto') && !identidade) {
+        return showAlert('Passageiros precisam enviar um documento de identidade (RG).', 'error');
+      }
+
+      // Monta o FormData (suporte a arquivos)
+      const form = new FormData();
+      form.append('nome',        nome);
+      form.append('email',       email);
+      form.append('matricula',   matricula);
+      form.append('senha',       senha);
+      form.append('perfil_tipo', perfilTipo);
+      form.append('curso',       document.getElementById('curso').value.trim());
+      form.append('telefone',    document.getElementById('telefone').value.trim());
+      form.append('genero',      document.getElementById('genero').value);
+      if (diaEadVal !== '') form.append('dia_ead', diaEadVal);
+
+      if (precisaVeiculo) {
+        form.append('veiculo[marca]',  vMarca);
+        form.append('veiculo[modelo]', document.getElementById('v-modelo').value.trim());
+        form.append('veiculo[ano]',    document.getElementById('v-ano').value);
+        form.append('veiculo[cor]',    document.getElementById('v-cor').value.trim());
+        form.append('veiculo[placa]',  vPlaca);
+      }
+
+      if (cnh)        form.append('cnh',        cnh);
+      if (identidade) form.append('identidade', identidade);
 
       const btn = document.getElementById('btn-cadastrar');
-      btn.disabled = true; btn.textContent = currentLang === 'pt' ? 'Criando conta...' : 'Creating account...';
+      btn.disabled = true;
+      btn.textContent = 'Criando conta...';
 
       try {
-        const res = await api.cadastrar(dados);
-        showAlert(currentLang === 'pt' ? 'Conta criada com sucesso! Entrando...' : 'Account created successfully! Logging in...', 'success');
-        
-        // Auto-login com os dados retornados
+        // Chamada direta via fetch (FormData não suporta api.cadastrar padrão com JSON)
+        const apiBase = window.API_BASE_URL || 'http://localhost:3000/api';
+        const response = await fetch(`${apiBase}/usuarios`, {
+          method: 'POST',
+          body: form,
+          // Não defina Content-Type — o browser seta multipart/form-data automaticamente
+        });
+
+        const res = await response.json();
+
+        if (!response.ok || !res.success) {
+          throw new Error(res.error || 'Erro ao criar conta');
+        }
+
+        showAlert('Conta criada com sucesso! Entrando...', 'success');
+
         if (res.data && res.data.token) {
           setToken(res.data.token);
           setUser(res.data.usuario);
@@ -330,9 +592,11 @@
         } else {
           setTimeout(() => window.location.href = 'login.html', 2000);
         }
+
       } catch (err) {
         showAlert(err.message, 'error');
-        btn.disabled = false; btn.textContent = currentLang === 'pt' ? 'Criar conta' : 'Create account';
+        btn.disabled = false;
+        btn.textContent = 'Criar conta';
       }
     }
   </script>

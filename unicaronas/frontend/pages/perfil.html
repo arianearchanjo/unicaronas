@@ -105,6 +105,42 @@
     }
     .vazio strong { display: block; color: var(--text); margin-bottom: .4rem; font-size: .95rem; }
 
+    /* ── Badge de verificação ───────────────────────────────── */
+    .badge-verificado {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: linear-gradient(135deg, #16a34a18, #16a34a10);
+      border: 1px solid #16a34a55;
+      color: #16a34a;
+      border-radius: 999px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      margin-bottom: 0.5rem;
+    }
+    [data-theme="dark"] .badge-verificado {
+      background: linear-gradient(135deg, #16a34a25, #16a34a12);
+      border-color: #16a34a66;
+      color: #4ade80;
+    }
+    .badge-verificado svg { flex-shrink: 0; }
+
+    .badge-doc-pendente {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      color: var(--text-3);
+      border-radius: 999px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
     /* ── Loader ─────────────────────────────────────────────── */
     #perfil-loader { display: flex; justify-content: center; padding: 5rem 0; }
     .loader {
@@ -184,6 +220,8 @@
           <div class="perfil-info">
             <h1 id="perfil-nome" class="perfil-nome"></h1>
             <p  id="perfil-tipo-badge" style="margin-bottom: 0.5rem;"></p>
+            <!-- Badge de verificação — exibido dinamicamente pelo JS -->
+            <div id="perfil-badge-verificacao" style="margin-bottom: 0.35rem; display: none;"></div>
             <p  id="perfil-curso" class="perfil-curso"></p>
             <p  id="perfil-email" class="perfil-email"></p>
             <p  id="perfil-membro" class="perfil-membro"></p>
@@ -373,6 +411,63 @@
   <script src="../js/perfil.js"></script>
   <script>
     document.getElementById('btn-logout')?.addEventListener('click', () => logout());
+
+    /**
+     * renderBadgeVerificacao(usuario)
+     * Chamado após carregar os dados do usuário na página de perfil.
+     * Exibe o badge de acordo com o perfil_tipo e o status de verificação.
+     *
+     * Como usar: chame esta função dentro do perfil.js ao popular os dados,
+     * passando o objeto usuário retornado pela API.
+     * Exemplo: renderBadgeVerificacao(usuario);
+     */
+    function renderBadgeVerificacao(usuario) {
+      const wrap = document.getElementById('perfil-badge-verificacao');
+      if (!wrap) return;
+
+      const tipo           = usuario.perfil_tipo;
+      const cnhVerificada  = usuario.cnh_verificada;
+      const docVerificado  = usuario.doc_verificado;
+
+      const ehMotorista  = tipo === 'motorista' || tipo === 'misto';
+      const ehPassageiro = tipo === 'estudante'  || tipo === 'misto';
+
+      // Badge: Motorista verificado
+      if (ehMotorista && cnhVerificada) {
+        wrap.style.display = 'block';
+        wrap.innerHTML = `
+          <span class="badge-verificado">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Motorista verificado por UniCaronas
+          </span>`;
+        return;
+      }
+
+      // Badge: CNH enviada, aguardando análise
+      if (ehMotorista && !cnhVerificada) {
+        const temCnh = usuario.cnh_url; // só presente se o backend retornar (perfil próprio)
+        if (temCnh) {
+          wrap.style.display = 'block';
+          wrap.innerHTML = `
+            <span class="badge-doc-pendente">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              CNH em análise pela UniCaronas
+            </span>`;
+        }
+        return;
+      }
+
+      // Sem badge para passageiros comuns (identidade é verificação silenciosa)
+      wrap.style.display = 'none';
+    }
+
+    // Expõe globalmente para o perfil.js usar
+    window.renderBadgeVerificacao = renderBadgeVerificacao;
   </script>
   <script src="../js/chat-global.js"></script>
 </body>
