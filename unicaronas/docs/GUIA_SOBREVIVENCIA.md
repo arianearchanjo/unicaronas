@@ -16,6 +16,22 @@ Muitos erros ocorrem porque o banco de dados não existe ou está vazio.
    ```
    *Dica: Se você não sabe usar o terminal para isso, abra os arquivos .sql no seu editor de banco de dados e execute o conteúdo.*
 
+### 🔄 Resetando o Banco (Zerar e Recomeçar)
+Se o seu banco de dados está bagunçado ou você quer limpar tudo e usar os dados de exemplo, siga estes passos:
+
+1. **Limpar e recriar tabelas:** (Na pasta `unicaronas/database`)
+   ```bash
+   psql -U postgres -d unicaronas -f schema.sql
+   ```
+2. **Aplicar atualizações (Importante):** (Na pasta `unicaronas/backend`)
+   ```bash
+   npm run migrate
+   ```
+3. **Inserir dados de exemplo:** (Na pasta `unicaronas/database`)
+   ```bash
+   psql -U postgres -d unicaronas -f data.sql
+   ```
+
 ### 2. Configuração do Backend (A parte que todo mundo esquece)
 O backend não adivinha suas configurações.
 1. Entre na pasta `unicaronas/backend`.
