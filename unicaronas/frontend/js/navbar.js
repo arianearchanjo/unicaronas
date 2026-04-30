@@ -92,7 +92,7 @@ const Navbar = {
               </a>
               <div class="menu-divider"></div>
             ` : ''}
-            <a href="perfil.html" class="menu-item">
+            <a href="perfil.html?id=${usuario?.id}" class="menu-item">
               <i data-lucide="user" style="width: 16px; height: 16px; margin-right: 0.5rem; opacity: 0.8;"></i>
               <span data-i18n="nav-meu-perfil">Meu perfil</span>
             </a>

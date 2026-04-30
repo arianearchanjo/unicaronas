@@ -33,23 +33,6 @@
     }
 
     /* Estilos Sprint 5 */
-    .badge-mulheres {
-      background: #fdf2ff;
-      color: #9c27b0;
-      border: 1px solid #e1bee7;
-      padding: 0.2rem 0.6rem;
-      border-radius: 12px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      text-transform: uppercase;
-    }
-    .carona-mulheres {
-      border-top: 4px solid #9c27b0 !important;
-      background: linear-gradient(to bottom, #fffafd, #ffffff);
-    }
     .badge-lotada {
       background: #fff5f5;
       color: #e53e3e;
@@ -168,13 +151,13 @@
             </div>
           </div>
           <div class="carona-footer">
-            <div class="user-row">
+            <a href="perfil.html?id=${c.motorista_id}" class="user-row" style="text-decoration: none; color: inherit;">
               <div class="avatar">${iniciais(c.motorista_nome)}</div>
               <div>
                 <div class="user-name">${c.motorista_nome}</div>
                 <div class="user-rating">${parseFloat(c.motorista_avaliacao||0).toFixed(1)} ★</div>
               </div>
-            </div>
+            </a>
             <div style="display:flex;align-items:center;gap:0.75rem">
               <div>
                 <div class="preco-valor">${formatarMoeda(c.valor_cobrado)}</div>

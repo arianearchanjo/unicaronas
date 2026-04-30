@@ -8,11 +8,11 @@ TRUNCATE usuarios, veiculos, caronas, solicitacoes_carona, mensagens_chat, pagam
 
 -- 1. USUÁRIOS (com campo genero)
 INSERT INTO usuarios (nome, email, matricula, senha_hash, telefone, curso, dia_ead, avaliacao_media, total_avaliacoes, genero) VALUES
-  ('Ana Silva',    'ana.silva@unibrasil.com.br',    '2021001', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', '(41) 99001-0001', 'Engenharia de Software', 5, 4.8, 12, 'F'),
-  ('Carlos Lima',  'carlos.lima@unibrasil.com.br',  '2021002', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', '(41) 99001-0002', 'Farmácia',  NULL, 4.5,  8, 'M'),
-  ('Julia Santos', 'julia.santos@unibrasil.com.br', '2020003', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', '(41) 99001-0003', 'Enfermagem', 4, 4.9, 20, 'F'),
-  ('João Costa',  'joao.costa@unibrasil.com.br',  '2022004', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', '(41) 99001-0004', 'Direito', NULL, 3.0,  1, 'M'),
-  ('Mariana Rocha','mariana.rocha@unibrasil.com.br','2021005', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', '(41) 99001-0005', 'Psicologia',  NULL, 4.2,  5, 'F');
+  ('Ana Silva',    'ana.silva@unibrasil.com.br',    '2021001', '$2b$10$ruzTwjg7IDakql7r9IEHO.qxCdI2LrwPt5TbXC0SaduEJKxzQw8yW', '(41) 99001-0001', 'Engenharia de Software', 5, 4.8, 12, 'F'),
+  ('Carlos Lima',  'carlos.lima@unibrasil.com.br',  '2021002', '$2b$10$ruzTwjg7IDakql7r9IEHO.qxCdI2LrwPt5TbXC0SaduEJKxzQw8yW', '(41) 99001-0002', 'Farmácia',  NULL, 4.5,  8, 'M'),
+  ('Julia Santos', 'julia.santos@unibrasil.com.br', '2020003', '$2b$10$ruzTwjg7IDakql7r9IEHO.qxCdI2LrwPt5TbXC0SaduEJKxzQw8yW', '(41) 99001-0003', 'Enfermagem', 4, 4.9, 20, 'F'),
+  ('João Costa',  'joao.costa@unibrasil.com.br',  '2022004', '$2b$10$ruzTwjg7IDakql7r9IEHO.qxCdI2LrwPt5TbXC0SaduEJKxzQw8yW', '(41) 99001-0004', 'Direito', NULL, 3.0,  1, 'M'),
+  ('Mariana Rocha','mariana.rocha@unibrasil.com.br','2021005', '$2b$10$ruzTwjg7IDakql7r9IEHO.qxCdI2LrwPt5TbXC0SaduEJKxzQw8yW', '(41) 99001-0005', 'Psicologia',  NULL, 4.2,  5, 'F');
 
 -- 2. VEÍCULOS
 INSERT INTO veiculos (usuario_id, marca, modelo, ano, cor, placa) VALUES
