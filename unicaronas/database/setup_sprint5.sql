@@ -5,15 +5,16 @@ SET client_encoding = 'UTF8';
 TRUNCATE usuarios, veiculos, caronas, solicitacoes_carona, mensagens_chat, pagamentos, avaliacoes, lista_espera, notificacoes RESTART IDENTITY CASCADE;
 
 -- Usuários
-INSERT INTO usuarios (nome, email, matricula, senha_hash, telefone, curso, dia_ead, avaliacao_media, total_avaliacoes, genero, status_verificacao, is_admin, forcar_reset) VALUES
-  ('Ana Silva',    'ana.silva@unibrasil.com.br',    '2021001', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', '(41) 99001-0001', 'Engenharia de Software', 5, 4.8, 12, 'F', 'aprovado', false, false),
-  ('Carlos Lima',  'carlos.lima@unibrasil.com.br',  '2021002', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', '(41) 99001-0002', 'Farmácia',  NULL, 4.5,  8, 'M', 'pendente', false, false),
-  ('Julia Santos', 'julia.santos@unibrasil.com.br', '2020003', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', '(41) 99001-0003', 'Enfermagem', 4, 4.9, 20, 'F', 'aprovado', false, false),
-  ('João Costa',  'joao.costa@unibrasil.com.br',  '2022004', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', '(41) 99001-0004', 'Direito', NULL, 3.0,  1, 'M', 'pendente', false, false),
-  ('Ariane', 'ariane@unicaronas.divas.com', 'ADM-001', '$2b$12$V1N/1ljQUGs7S5g5S9zZUu8yJan4d3K/5V9DwZoMM4UcauMxjW5fC', NULL, 'Administração', NULL, 5.0, 0, 'F', 'aprovado', true, true),
-  ('Pedro', 'pedro@unicaronas.divas.com', 'ADM-002', '$2b$12$V1N/1ljQUGs7S5g5S9zZUu8yJan4d3K/5V9DwZoMM4UcauMxjW5fC', NULL, 'Administração', NULL, 5.0, 0, 'M', 'aprovado', true, true),
-  ('Matheus', 'matheus@unicaronas.divas.com', 'ADM-003', '$2b$12$V1N/1ljQUGs7S5g5S9zZUu8yJan4d3K/5V9DwZoMM4UcauMxjW5fC', NULL, 'Administração', NULL, 5.0, 0, 'M', 'aprovado', true, true),
-  ('Rafael', 'rafael@unicaronas.divas.com', 'ADM-004', '$2b$12$V1N/1ljQUGs7S5g5S9zZUu8yJan4d3K/5V9DwZoMM4UcauMxjW5fC', NULL, 'Administração', NULL, 5.0, 0, 'M', 'aprovado', true, true);
+INSERT INTO usuarios (nome, email, matricula, senha_hash, telefone, curso, dia_ead, avaliacao_media, total_avaliacoes, genero, status_verificacao, is_admin, forcar_reset, perfil_tipo) VALUES
+  ('Ana Silva',    'ana.silva@unibrasil.com.br',    '2021001', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', '(41) 99001-0001', 'Engenharia de Software', 5, 4.8, 12, 'F', 'aprovado', false, false, 'motorista'),
+  ('Carlos Lima',  'carlos.lima@unibrasil.com.br',  '2021002', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', '(41) 99001-0002', 'Farmácia',  NULL, 4.5,  8, 'M', 'pendente', false, false, 'estudante'),
+  ('Julia Santos', 'julia.santos@unibrasil.com.br', '2020003', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', '(41) 99001-0003', 'Enfermagem', 4, 4.9, 20, 'F', 'aprovado', false, false, 'motorista'),
+  ('João Costa',  'joao.costa@unibrasil.com.br',  '2022004', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', '(41) 99001-0004', 'Direito', NULL, 3.0,  1, 'M', 'pendente', false, false, 'estudante'),
+  ('Ariane', 'ariane@unicaronas.divas.com', 'ADM-001', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', NULL, 'Administração', NULL, 5.0, 0, 'F', 'aprovado', true, true, 'misto'),
+  ('Pedro', 'pedro@unicaronas.divas.com', 'ADM-002', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', NULL, 'Administração', NULL, 5.0, 0, 'M', 'aprovado', true, true, 'misto'),
+  ('Matheus', 'matheus@unicaronas.divas.com', 'ADM-003', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', NULL, 'Administração', NULL, 5.0, 0, 'M', 'aprovado', true, true, 'misto'),
+  ('Rafael', 'rafael@unicaronas.divas.com', 'ADM-004', '$2b$10$R9h/lIPz0gi.URQHeih6UuR5E2.vV4T.C/5qT.tV4U6L.vV4T.C/5', NULL, 'Administração', NULL, 5.0, 0, 'M', 'aprovado', true, true, 'misto');
+
 
 -- Veículos
 INSERT INTO veiculos (usuario_id, marca, modelo, ano, cor, placa) VALUES

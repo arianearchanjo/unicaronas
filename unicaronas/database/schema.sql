@@ -1,5 +1,5 @@
 -- =============================================================
--- UniCaronas — Schema do Banco de Dados
+-- UniCaronas — Schema do Banco de Dados Completo (v2.0)
 -- PostgreSQL 14+
 -- =============================================================
 
@@ -11,6 +11,19 @@ DROP TABLE IF EXISTS solicitacoes_carona CASCADE;
 DROP TABLE IF EXISTS caronas CASCADE;
 DROP TABLE IF EXISTS veiculos CASCADE;
 DROP TABLE IF EXISTS usuarios CASCADE;
+DROP TABLE IF EXISTS relatorios_erro CASCADE;
+DROP TABLE IF EXISTS notificacoes CASCADE;
+DROP TABLE IF EXISTS lista_espera CASCADE;
+
+-- =============================================================
+-- ENUMS
+-- =============================================================
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'status_lista_espera') THEN
+        CREATE TYPE status_lista_espera AS ENUM ('aguardando', 'notificado', 'expirado', 'convertido');
+    END IF;
+END $$;
 
 -- =============================================================
 -- TABELA: usuarios
@@ -30,12 +43,24 @@ CREATE TABLE usuarios (
   avaliacao_media  DECIMAL(2,1)  NOT NULL DEFAULT 0.0,
   total_avaliacoes INT           NOT NULL DEFAULT 0,
   ativo            BOOLEAN       NOT NULL DEFAULT true,
+  
+  -- Colunas Adicionais (Sprint 5 / Admin)
+  genero           VARCHAR(1)    CHECK (genero IN ('M', 'F') OR genero IS NULL),
+  cnh_url          VARCHAR(255),
+  identidade_url   VARCHAR(255),
+  status_verificacao VARCHAR(20) DEFAULT 'pendente' 
+                     CHECK (status_verificacao IN ('pendente', 'aprovado', 'rejeitado')),
+  is_admin         BOOLEAN       DEFAULT false,
+  forcar_reset     BOOLEAN       DEFAULT false,
+  
   criado_em        TIMESTAMP     NOT NULL DEFAULT NOW(),
   atualizado_em    TIMESTAMP     NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_usuarios_email     ON usuarios (email);
 CREATE INDEX idx_usuarios_matricula ON usuarios (matricula);
+CREATE INDEX idx_usuarios_status_verificacao ON usuarios (status_verificacao);
+CREATE INDEX idx_usuarios_is_admin ON usuarios (is_admin);
 
 -- =============================================================
 -- TABELA: veiculos
@@ -74,6 +99,11 @@ CREATE TABLE caronas (
   status                    VARCHAR(20)   NOT NULL DEFAULT 'ativa'
                             CHECK (status IN ('ativa','em_andamento','concluida','cancelada')),
   justificativa_cancelamento TEXT,
+  
+  -- Colunas Adicionais (Sprint 5)
+  itinerario               TEXT,
+  genero_preferencia       VARCHAR(20)   DEFAULT 'todos',
+
   criado_em                 TIMESTAMP     NOT NULL DEFAULT NOW(),
   atualizado_em             TIMESTAMP     NOT NULL DEFAULT NOW()
 );
@@ -104,15 +134,19 @@ CREATE INDEX idx_solicitacoes_passageiro ON solicitacoes_carona (passageiro_id);
 -- =============================================================
 CREATE TABLE mensagens_chat (
   id              SERIAL PRIMARY KEY,
-  solicitacao_id  INT       NOT NULL REFERENCES solicitacoes_carona(id) ON DELETE CASCADE,
+  solicitacao_id  INT       REFERENCES solicitacoes_carona(id) ON DELETE CASCADE,
   remetente_id    INT       NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  destinatario_id INT       REFERENCES usuarios(id) ON DELETE CASCADE,
   conteudo        TEXT      NOT NULL,
   lida            BOOLEAN   NOT NULL DEFAULT false,
+  tipo_conversa   VARCHAR(20) DEFAULT 'carona' CHECK (tipo_conversa IN ('carona', 'geral')),
+  contexto_id     INT, -- carona_id ou null
   enviado_em      TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_mensagens_solicitacao ON mensagens_chat (solicitacao_id);
 CREATE INDEX idx_mensagens_remetente   ON mensagens_chat (remetente_id);
+CREATE INDEX idx_mensagens_remet_dest ON mensagens_chat (remetente_id, destinatario_id);
 
 -- =============================================================
 -- TABELA: pagamentos
@@ -147,6 +181,51 @@ CREATE TABLE avaliacoes (
 );
 
 CREATE INDEX idx_avaliacoes_avaliado ON avaliacoes (avaliado_id);
+
+-- =============================================================
+-- TABELA: relatorios_erro
+-- =============================================================
+CREATE TABLE relatorios_erro (
+  id          SERIAL PRIMARY KEY,
+  usuario_id  INT REFERENCES usuarios(id) ON DELETE SET NULL,
+  descricao   TEXT NOT NULL,
+  status      VARCHAR(20) DEFAULT 'pendente' CHECK (status IN ('pendente', 'em_analise', 'resolvido')),
+  criado_em   TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_erros_status ON relatorios_erro (status);
+
+-- =============================================================
+-- TABELA: notificacoes
+-- =============================================================
+CREATE TABLE notificacoes (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    mensagem TEXT NOT NULL,
+    link TEXT,
+    lida BOOLEAN DEFAULT FALSE,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_notificacoes_usuario ON notificacoes (usuario_id);
+CREATE INDEX idx_notificacoes_lida ON notificacoes (lida);
+
+-- =============================================================
+-- TABELA: lista_espera
+-- =============================================================
+CREATE TABLE lista_espera (
+    id SERIAL PRIMARY KEY,
+    carona_id INTEGER NOT NULL REFERENCES caronas(id) ON DELETE CASCADE,
+    passageiro_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    posicao SERIAL,
+    status status_lista_espera DEFAULT 'aguardando',
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(carona_id, passageiro_id)
+);
+
+CREATE INDEX idx_lista_espera_carona ON lista_espera (carona_id);
+CREATE INDEX idx_lista_espera_status ON lista_espera (status);
+
 
 -- =============================================================
 -- FUNÇÃO: atualizar media de avaliacao

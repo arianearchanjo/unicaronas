@@ -85,6 +85,7 @@
           <h2 class="modal-title"><i class="bi bi-unlock" style="margin-right: 0.5rem;"></i> Primeiro Acesso</h2>
         </div>
         <div class="modal-body">
+          <div id="alert-modal"></div>
           <p style="margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--text-2);">
             Por segurança, você deve alterar sua senha temporária antes de continuar acessando o painel administrativo.
           </p>
@@ -135,21 +136,23 @@
       const senha = document.getElementById('nova-senha').value;
       const confirma = document.getElementById('confirma-senha').value;
       const btn = document.getElementById('btn-reset-save');
+      const alertContainer = 'alert-modal';
 
       if (!senha || senha.length < 8) {
-        return showAlert('A senha deve ter no mínimo 8 caracteres.', 'error');
+        return showAlert('A senha deve ter no mínimo 8 caracteres.', 'error', alertContainer);
       }
       if (senha !== confirma) {
-        return showAlert('As senhas não coincidem.', 'error');
+        return showAlert('As senhas não coincidem.', 'error', alertContainer);
       }
 
       btn.disabled = true;
       btn.textContent = 'Salvando...';
 
       try {
+        console.log('Solicitando atualização de senha...');
         await api.atualizarSenha({ senha });
         
-        // Atualiza o usuário no localStorage para remover a flag de reset
+        console.log('Senha atualizada, limpando flag local...');
         const user = getUser();
         user.forcar_reset = false;
         setUser(user);
@@ -158,7 +161,8 @@
         showAlert('Senha atualizada com sucesso! Bem-vindo.', 'success');
         await carregarPendentes();
       } catch (err) {
-        showAlert(err.message, 'error');
+        console.error('Erro ao resetar senha admin:', err);
+        showAlert(err.message || 'Erro inesperado ao salvar senha.', 'error', alertContainer);
         btn.disabled = false;
         btn.textContent = 'Salvar nova senha';
       }
