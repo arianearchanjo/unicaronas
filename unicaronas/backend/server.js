@@ -73,6 +73,12 @@ app.use(errorHandler);
 // ── Iniciar servidor ────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`UniCaronas API rodando em http://localhost:${PORT}`);
+
+  // Iniciar Jobs agendados
+  const { iniciarJobLembretes } = require('./src/jobs/lembretes');
+  const { iniciarJobEmailSemanal } = require('./src/jobs/emailSemanal');
+  iniciarJobLembretes();
+  iniciarJobEmailSemanal();
 });
 
 module.exports = app;
