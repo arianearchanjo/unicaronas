@@ -14,5 +14,6 @@ router.get('/usuarios/pendentes', ctrl.listarPendentes);
 router.patch('/usuarios/:id/verificar', ctrl.verificarDocumento);
 router.get('/erros', ctrl.listarErros);
 router.patch('/erros/:id', ctrl.atualizarStatusErro);
+router.post('/email-semanal/disparar', ctrl.dispararEmailSemanal);
 
 module.exports = router;

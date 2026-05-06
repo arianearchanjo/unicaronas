@@ -244,12 +244,20 @@ function initEdicao(u) {
   const inputTelefone = document.getElementById('edit-telefone');
   const inputCurso = document.getElementById('edit-curso');
   const inputDiaEad = document.getElementById('edit-dia-ead');
+  const inputGenero = document.getElementById('edit-genero');
+  const inputRotaOrigem = document.getElementById('edit-rota-origem');
+  const inputRotaDestino = document.getElementById('edit-rota-destino');
+  const inputReceberEmail = document.getElementById('edit-receber-email');
   const inputFoto = document.getElementById('edit-foto');
 
   if (inputNome) inputNome.value = u.nome || '';
   if (inputTelefone) inputTelefone.value = u.telefone || '';
   if (inputCurso) inputCurso.value = u.curso || '';
   if (inputDiaEad) inputDiaEad.value = (u.dia_ead !== null && u.dia_ead !== undefined) ? u.dia_ead : '';
+  if (inputGenero) inputGenero.value = u.genero || '';
+  if (inputRotaOrigem) inputRotaOrigem.value = u.rota_preferida_origem || '';
+  if (inputRotaDestino) inputRotaDestino.value = u.rota_preferida_destino || '';
+  if (inputReceberEmail) inputReceberEmail.checked = u.receber_email_semanal !== false;
   
   const radio = document.querySelector(`input[name="edit-perfil-tipo"][value="${u.perfil_tipo}"]`);
   if (radio) radio.checked = true;
@@ -318,6 +326,9 @@ async function salvarPerfil() {
     formData.append('genero', document.getElementById('edit-genero')?.value || '');
     formData.append('dia_ead', document.getElementById('edit-dia-ead')?.value || '');
     formData.append('perfil_tipo', perfilTipo || 'misto');
+    formData.append('rota_preferida_origem', document.getElementById('edit-rota-origem')?.value.trim() || '');
+    formData.append('rota_preferida_destino', document.getElementById('edit-rota-destino')?.value.trim() || '');
+    formData.append('receber_email_semanal', document.getElementById('edit-receber-email')?.checked || false);
     
     const inputFoto = document.getElementById('edit-foto');
     if (inputFoto && inputFoto.files && inputFoto.files[0]) {

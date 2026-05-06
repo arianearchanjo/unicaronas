@@ -65,4 +65,22 @@ Para instruções detalhadas de como configurar o ambiente e rodar o projeto loc
 - **Rafael Machado** — *Product Owner*
 
 ---
+
+## ⚙️ Variáveis de Ambiente (.env)
+
+Para o funcionamento completo das US19 e US20, as seguintes variáveis devem ser configuradas no `/backend/.env`:
+
+```env
+# E-mail (US20 — Job Semanal)
+SMTP_HOST=smtp.exemplo.com
+SMTP_PORT=587
+SMTP_USER=seu_email@exemplo.com
+SMTP_PASS=sua_senha_ou_app_password
+EMAIL_FROM="UniCaronas" <contato@exemplo.com>
+
+# Frontend
+FRONTEND_URL=http://localhost:5500
+```
+
+---
 *Projeto acadêmico para o curso de Engenharia de Software — 2026*
