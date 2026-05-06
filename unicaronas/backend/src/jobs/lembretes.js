@@ -1,30 +1,27 @@
-const cron = require('node-cron');
 const pool = require('../../config/database');
 const notificacoesService = require('../services/notificacoesService');
 
 /**
- * Busca caronas que partem em aproximadamente 2 horas e notifica os envolvidos.
+ * Busca caronas que partem em aproximadamente 30 minutos e notifica os envolvidos.
  */
 async function processarLembretesViagem() {
   try {
-    // Buscar caronas ativas que partem entre 2h e 2h30m a partir de agora
+    // Buscar caronas ativas que partem entre 29 e 31 minutos a partir de agora
     const queryCaronas = `
       SELECT id, motorista_id, origem, destino, horario_partida
       FROM caronas
       WHERE status = 'ativa'
-        AND horario_partida BETWEEN NOW() + INTERVAL '2 hours' AND NOW() + INTERVAL '2 hours 30 minutes'
+        AND horario_partida BETWEEN NOW() + INTERVAL '29 minutes' AND NOW() + INTERVAL '31 minutes'
     `;
     const { rows: caronas } = await pool.query(queryCaronas);
 
     for (const carona of caronas) {
-      // 1. Notificar Motorista (se não notificado recentemente)
+      // 1. Notificar Motorista
       await notificarSeNecessario({
         usuario_id: carona.motorista_id,
-        titulo: 'Sua carona parte em 2 horas',
-        mensagem: `Sua carona de ${carona.origem} para ${carona.destino} está agendada para as ${new Date(carona.horario_partida).toLocaleTimeString('pt-BR')}.`,
-        tipo: 'lembrete_viagem',
-        referencia_id: carona.id,
-        referencia_tipo: 'carona'
+        carona_id: carona.id,
+        conteudo: `Lembrete: Sua carona para ${carona.destino} parte em cerca de 30 minutos!`,
+        tipo: 'lembrete'
       });
 
       // 2. Notificar Passageiros Aceitos
@@ -38,11 +35,9 @@ async function processarLembretesViagem() {
       for (const passageiro of passageiros) {
         await notificarSeNecessario({
           usuario_id: passageiro.passageiro_id,
-          titulo: 'Sua carona parte em 2 horas',
-          mensagem: `Sua carona de ${carona.origem} para ${carona.destino} parte em 2 horas. Prepare-se!`,
-          tipo: 'lembrete_viagem',
-          referencia_id: carona.id,
-          referencia_tipo: 'carona'
+          carona_id: carona.id,
+          conteudo: `Lembrete: Sua carona para ${carona.destino} parte em cerca de 30 minutos!`,
+          tipo: 'lembrete'
         });
       }
     }
@@ -52,22 +47,21 @@ async function processarLembretesViagem() {
 }
 
 /**
- * Verifica se já existe uma notificação de lembrete para este usuário/carona nas últimas 3 horas.
+ * Verifica se já existe uma notificação de lembrete para este usuário/carona para evitar duplicatas.
  */
-async function notificarSeNecessario(dados) {
+async function notificarSeNecessario({ usuario_id, carona_id, conteudo, tipo }) {
   try {
     const queryCheck = `
       SELECT id FROM notificacoes
       WHERE usuario_id = $1
-        AND referencia_id = $2
+        AND carona_id = $2
         AND tipo = $3
-        AND criado_em > NOW() - INTERVAL '3 hours'
       LIMIT 1
     `;
-    const { rows } = await pool.query(queryCheck, [dados.usuario_id, dados.referencia_id, dados.tipo]);
+    const { rows } = await pool.query(queryCheck, [usuario_id, carona_id, tipo]);
 
     if (rows.length === 0) {
-      await notificacoesService.criarNotificacao(dados);
+      await notificacoesService.criarNotificacao({ usuario_id, carona_id, conteudo, tipo });
     }
   } catch (err) {
     console.error('Erro ao verificar/enviar notificação de lembrete:', err);
@@ -75,11 +69,8 @@ async function notificarSeNecessario(dados) {
 }
 
 function iniciarJobLembretes() {
-  // A cada 30 minutos: '*/30 * * * *'
-  cron.schedule('*/30 * * * *', () => {
-    console.log('[Job] Processando lembretes de viagem...');
-    processarLembretesViagem();
-  });
+  console.log('[Job] Lembretes de viagem iniciado (polling 60s).');
+  setInterval(processarLembretesViagem, 60000);
 }
 
 module.exports = { iniciarJobLembretes };

@@ -13,8 +13,8 @@
             this.addEventListeners();
             await this.recarregar();
 
-            // Polling a cada 60 segundos
-            setInterval(() => this.recarregar(), 60000);
+            // Polling a cada 10 segundos
+            setInterval(() => this.recarregar(), 10000);
         },
 
         injectStyles: function() {
@@ -24,7 +24,7 @@
                     position: relative;
                     display: inline-flex;
                     align-items: center;
-                    margin-right: 15px;
+                    margin-right: 1rem;
                 }
                 #uc-notif-btn {
                     background: transparent;
@@ -39,8 +39,8 @@
                 #uc-notif-btn:hover { color: var(--accent); }
                 #uc-notif-badge {
                     position: absolute;
-                    top: 2px;
-                    right: 2px;
+                    top: 4px;
+                    right: 4px;
                     background: #ff4757;
                     color: white;
                     font-size: 10px;
@@ -52,133 +52,159 @@
                     align-items: center;
                     justify-content: center;
                     padding: 0 4px;
+                    border: 2px solid var(--surface);
                 }
                 #uc-notif-panel {
-                    position: absolute;
-                    top: 100%;
-                    right: 0;
-                    width: 320px;
+                    position: fixed;
+                    top: 0;
+                    right: -350px;
+                    width: 350px;
+                    height: 100vh;
                     background: var(--surface);
-                    border: 1px solid var(--border);
-                    border-radius: 8px;
-                    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-                    z-index: 300;
-                    display: none;
+                    border-left: 1px solid var(--border);
+                    box-shadow: -5px 0 25px rgba(0,0,0,0.3);
+                    z-index: 10000;
+                    transition: right 0.3s ease;
+                    display: flex;
                     flex-direction: column;
-                    margin-top: 10px;
-                    max-height: 400px;
                 }
-                #uc-notif-panel.open { display: flex; }
+                #uc-notif-panel.open { right: 0; }
+                .uc-notif-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: rgba(0,0,0,0.5);
+                    backdrop-filter: blur(2px);
+                    z-index: 9999;
+                    display: none;
+                }
+                .uc-notif-overlay.open { display: block; }
                 .uc-notif-header {
-                    padding: 12px 15px;
+                    padding: 1.5rem;
                     border-bottom: 1px solid var(--border);
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
                 }
-                .uc-notif-header h3 { margin: 0; font-size: 16px; color: var(--text); }
-                .uc-notif-mark-all {
-                    font-size: 12px;
-                    color: var(--accent);
+                .uc-notif-header h3 { margin: 0; font-size: 1.25rem; color: var(--text); }
+                .uc-notif-close {
                     background: none;
                     border: none;
+                    color: var(--text-2);
                     cursor: pointer;
-                    padding: 0;
+                    font-size: 1.5rem;
                 }
                 .uc-notif-list {
                     overflow-y: auto;
                     flex: 1;
                 }
                 .uc-notif-item {
-                    padding: 12px 15px;
+                    padding: 1rem 1.5rem;
                     border-bottom: 1px solid var(--border);
                     cursor: pointer;
                     transition: background 0.2s;
                     display: flex;
-                    gap: 12px;
+                    gap: 1rem;
+                    position: relative;
                 }
-                .uc-notif-item:hover { background: rgba(255,255,255,0.05); }
-                .uc-notif-item.nao-lida { border-left: 3px solid var(--accent); background: rgba(108, 99, 255, 0.05); }
+                .uc-notif-item:hover { background: rgba(255,255,255,0.03); }
+                .uc-notif-item.nao-lida::before {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    bottom: 0;
+                    width: 4px;
+                    background: var(--accent);
+                }
                 .uc-notif-icon {
-                    width: 32px;
-                    height: 32px;
+                    width: 40px;
+                    height: 40px;
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     flex-shrink: 0;
+                    background: var(--border);
+                    color: var(--text-2);
                 }
-                .uc-notif-icon.info { background: #6c63ff22; color: #6c63ff; }
-                .uc-notif-icon.success { background: #2ecc7122; color: #2ecc71; }
-                .uc-notif-icon.warning { background: #f1c40f22; color: #f1c40f; }
+                .uc-notif-icon.solicitacao { background: rgba(108, 99, 255, 0.1); color: #6c63ff; }
+                .uc-notif-icon.mensagem { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
+                .uc-notif-icon.cancelamento { background: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+                .uc-notif-icon.lembrete { background: rgba(241, 196, 15, 0.1); color: #f1c40f; }
                 .uc-notif-content { flex: 1; min-width: 0; }
-                .uc-notif-title { font-weight: bold; font-size: 14px; margin-bottom: 4px; color: var(--text); }
-                .uc-notif-msg { font-size: 13px; color: #aaa; margin-bottom: 4px; line-height: 1.4; }
-                .uc-notif-time { font-size: 11px; color: #666; }
-                .uc-notif-empty { padding: 30px; text-align: center; color: #666; font-size: 14px; }
+                .uc-notif-msg { font-size: 0.9rem; color: var(--text); margin-bottom: 0.25rem; line-height: 1.4; }
+                .uc-notif-time { font-size: 0.75rem; color: var(--text-2); }
+                .uc-notif-empty { padding: 3rem 1.5rem; text-align: center; color: var(--text-2); }
             `;
             document.head.appendChild(style);
         },
 
         createElements: function() {
-            const navbarContainer = document.querySelector('.navbar .container');
-            if (!navbarContainer) return;
+            const actions = document.querySelector('.navbar-actions');
+            if (!actions) return;
 
-            const logoutBtn = document.getElementById('btn-logout');
+            // Inserir antes do dropdown do usuário
+            const userDropdown = document.getElementById('user-dropdown');
             
-            const container = document.createElement('div');
-            container.id = 'uc-notif-container';
-            container.innerHTML = `
-                <button id="uc-notif-btn" title="Notificações">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            const btnWrap = document.createElement('div');
+            btnWrap.id = 'uc-notif-container';
+            btnWrap.innerHTML = `
+                <button id="uc-notif-btn" aria-label="Notificações">
+                    <i data-lucide="bell"></i>
                     <span id="uc-notif-badge">0</span>
                 </button>
-                <div id="uc-notif-panel">
-                    <div class="uc-notif-header">
-                        <h3>Notificações</h3>
-                        <button class="uc-notif-mark-all">Marcar todas como lidas</button>
-                    </div>
-                    <div class="uc-notif-list" id="uc-notif-list">
-                        <!-- Itens aqui -->
-                    </div>
-                </div>
             `;
 
-            if (logoutBtn) {
-                navbarContainer.insertBefore(container, logoutBtn.parentNode === navbarContainer ? logoutBtn : logoutBtn.closest('li'));
+            if (userDropdown) {
+                actions.insertBefore(btnWrap, userDropdown);
             } else {
-                navbarContainer.appendChild(container);
+                actions.appendChild(btnWrap);
             }
+
+            // Criar painel e overlay no body
+            const overlay = document.createElement('div');
+            overlay.className = 'uc-notif-overlay';
+            overlay.id = 'uc-notif-overlay';
+            
+            const panel = document.createElement('div');
+            panel.id = 'uc-notif-panel';
+            panel.innerHTML = `
+                <div class="uc-notif-header">
+                    <h3>Notificações</h3>
+                    <button class="uc-notif-close">&times;</button>
+                </div>
+                <div class="uc-notif-list" id="uc-notif-list"></div>
+            `;
+
+            document.body.appendChild(overlay);
+            document.body.appendChild(panel);
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         },
 
         addEventListeners: function() {
             const btn = document.getElementById('uc-notif-btn');
             const panel = document.getElementById('uc-notif-panel');
-            const markAll = document.querySelector('.uc-notif-mark-all');
+            const overlay = document.getElementById('uc-notif-overlay');
+            const close = panel.querySelector('.uc-notif-close');
 
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                isOpen = !isOpen;
+            const togglePanel = async (open) => {
+                isOpen = open;
                 panel.classList.toggle('open', isOpen);
-            });
-
-            document.addEventListener('click', () => {
+                overlay.classList.toggle('open', isOpen);
+                
                 if (isOpen) {
-                    isOpen = false;
-                    panel.classList.remove('open');
-                }
-            });
-
-            panel.addEventListener('click', (e) => e.stopPropagation());
-
-            markAll.addEventListener('click', async () => {
-                try {
                     await api.marcarTodasNotif();
                     await this.recarregar();
-                } catch (err) {
-                    console.error('Erro ao marcar todas como lidas:', err);
                 }
-            });
+            };
+
+            btn.addEventListener('click', () => togglePanel(true));
+            close.addEventListener('click', () => togglePanel(false));
+            overlay.addEventListener('click', () => togglePanel(false));
         },
 
         recarregar: async function() {
@@ -209,58 +235,41 @@
             }
 
             list.innerHTML = notificacoes.map(n => {
-                const iconClass = this.getIconClass(n.tipo);
                 const timeStr = this.formatarTempoRelativo(n.criado_em);
+                const icon = this.getIconLucide(n.tipo);
                 return `
-                    <div class="uc-notif-item ${n.lida ? '' : 'nao-lida'}" data-id="${n.id}">
-                        <div class="uc-notif-icon ${iconClass}">
-                            ${this.getIconSvg(n.tipo)}
+                    <div class="uc-notif-item ${n.lida ? '' : 'nao-lida'}" data-id="${n.id}" data-carona-id="${n.carona_id}">
+                        <div class="uc-notif-icon ${n.tipo}">
+                            <i data-lucide="${icon}"></i>
                         </div>
                         <div class="uc-notif-content">
-                            <div class="uc-notif-title">${n.titulo}</div>
-                            <div class="uc-notif-msg">${n.mensagem}</div>
+                            <div class="uc-notif-msg">${n.conteudo}</div>
                             <div class="uc-notif-time">${timeStr}</div>
                         </div>
                     </div>
                 `;
             }).join('');
 
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
             list.querySelectorAll('.uc-notif-item').forEach(item => {
-                item.addEventListener('click', async () => {
-                    const id = item.dataset.id;
-                    const notif = notificacoes.find(n => n.id == id);
-                    
-                    try {
-                        if (!notif.lida) {
-                            await api.marcarNotificacao(id);
-                        }
-                        
-                        if (notif.referencia_tipo === 'carona' && notif.referencia_id) {
-                            window.location.href = `carona.html?id=${notif.referencia_id}`;
-                        } else {
-                            await this.recarregar();
-                        }
-                    } catch (err) {
-                        console.error('Erro ao processar clique na notificação:', err);
+                item.addEventListener('click', () => {
+                    const caronaId = item.dataset.caronaId;
+                    if (caronaId && caronaId !== 'null') {
+                        window.location.href = `carona.html?id=${caronaId}`;
                     }
                 });
             });
         },
 
-        getIconClass: function(tipo) {
-            if (tipo === 'solicitacao_aceita') return 'success';
-            if (tipo === 'solicitacao_recusada') return 'warning';
-            return 'info';
-        },
-
-        getIconSvg: function(tipo) {
-            if (tipo === 'solicitacao_aceita') {
-                return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        getIconLucide: function(tipo) {
+            switch(tipo) {
+                case 'solicitacao': return 'user-plus';
+                case 'mensagem': return 'message-circle';
+                case 'cancelamento': return 'x-circle';
+                case 'lembrete': return 'clock';
+                default: return 'bell';
             }
-            if (tipo === 'solicitacao_recusada') {
-                return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-            }
-            return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
         },
 
         formatarTempoRelativo: function(dataIso) {
@@ -268,7 +277,7 @@
             const data = new Date(dataIso);
             const difSeg = Math.floor((agora - data) / 1000);
 
-            if (difSeg < 60) return 'agora há pouco';
+            if (difSeg < 60) return 'há poucos segundos';
             if (difSeg < 3600) return `há ${Math.floor(difSeg / 60)} min`;
             if (difSeg < 86400) return `há ${Math.floor(difSeg / 3600)} horas`;
             if (difSeg < 172800) return 'ontem';
@@ -278,8 +287,10 @@
 
     window.UCNotif = UCNotif;
 
-    document.addEventListener('DOMContentLoaded', () => {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => UCNotif.init());
+    } else {
         UCNotif.init();
-    });
+    }
 
 })();

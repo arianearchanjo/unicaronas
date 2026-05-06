@@ -134,7 +134,7 @@ const api = {
   entrarListaEspera:    (id)         => request(`/caronas/${id}/espera`, { method: 'POST' }),
 
   listarNotificacoes:   ()    => request('/notificacoes'),
-  marcarNotificacao:    (id)  => request(`/notificacoes/${id}`, { method: 'PATCH' }),
+  marcarNotificacao:    (id)  => request(`/notificacoes/${id}/lida`, { method: 'PATCH' }),
   marcarTodasNotif:     ()    => request('/notificacoes/todas', { method: 'PATCH' }),
 
   enviarMensagem:      (body) => request('/mensagens', { method: 'POST', body: JSON.stringify(body) }),

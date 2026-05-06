@@ -1,5 +1,6 @@
 // backend/src/controllers/mensagensController.js
 const db = require('../../config/database');
+const notificacoesService = require('../services/notificacoesService');
 
 // POST /api/mensagens — Enviar mensagem
 const enviar = async (req, res, next) => {
@@ -45,6 +46,14 @@ const enviar = async (req, res, next) => {
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
       [sol_id, remetente_id, dest_id, conteudo, tipo, ctx_id]
     );
+
+    // Notificar o destinatário
+    await notificacoesService.criarNotificacao({
+      usuario_id: dest_id,
+      carona_id: ctx_id,
+      conteudo: `Você recebeu uma nova mensagem.`,
+      tipo: 'mensagem'
+    });
 
     res.status(201).json({ success: true, data: resultado.rows[0] });
   } catch (err) {

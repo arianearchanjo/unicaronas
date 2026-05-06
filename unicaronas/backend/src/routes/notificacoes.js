@@ -12,7 +12,7 @@ router.get('/', notificacoesController.listar);
 // PATCH /api/notificacoes/todas - Marcar todas como lidas (DEVE VIR ANTES DE :id)
 router.patch('/todas', notificacoesController.marcarTodasLidas);
 
-// PATCH /api/notificacoes/:id - Marcar uma específica como lida
-router.patch('/:id', notificacoesController.marcarLida);
+// PATCH /api/notificacoes/:id/lida - Marcar uma específica como lida
+router.patch('/:id/lida', notificacoesController.marcarLida);
 
 module.exports = router;

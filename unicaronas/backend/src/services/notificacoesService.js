@@ -4,14 +4,14 @@ const notificacoesService = {
   /**
    * Cria uma nova notificação no banco de dados
    */
-  async criarNotificacao({ usuario_id, titulo, mensagem, tipo, referencia_id = null, referencia_tipo = null }) {
+  async criarNotificacao({ usuario_id, carona_id = null, tipo, conteudo }) {
     try {
       const query = `
-        INSERT INTO notificacoes (usuario_id, titulo, mensagem, tipo, referencia_id, referencia_tipo)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO notificacoes (usuario_id, carona_id, tipo, conteudo)
+        VALUES ($1, $2, $3, $4)
         RETURNING *;
       `;
-      const values = [usuario_id, titulo, mensagem, tipo, referencia_id, referencia_tipo];
+      const values = [usuario_id, carona_id, tipo, conteudo];
       const { rows } = await pool.query(query, values);
       return rows[0];
     } catch (err) {
