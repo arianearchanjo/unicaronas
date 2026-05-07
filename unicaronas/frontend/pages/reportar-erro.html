@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UniCaronas — Reportar Erro</title>
+  <link rel="icon" type="image/png" href="../img/icon.png?v=2">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/theme.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .report-container {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    .accent-bar {
+      width: 32px;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 99px;
+      margin-bottom: .6rem;
+    }
+    .report-header {
+      margin-bottom: 2rem;
+    }
+    .report-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-1);
+      margin-bottom: 0.5rem;
+    }
+    .report-header p {
+      color: var(--text-2);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="navbar-placeholder"></div>
+
+  <main class="container">
+    <div id="alert-container" style="margin-top: 1rem;"></div>
+    <div class="report-container fade-up">
+      <div class="report-header">
+        <div class="accent-bar"></div>
+        <h2 data-i18n="report-title">🐞 Reportar um Erro</h2>
+        <p data-i18n="report-sub">Encontrou algo que não funciona? Descreva o problema abaixo para que nossa equipe possa corrigir.</p>
+      </div>
+
+      <form id="form-reportar-erro">
+        <div class="form-group">
+          <label class="form-label" data-i18n="report-label-desc">Descrição do Problema</label>
+          <textarea id="erro-descricao" class="form-control" rows="6" 
+            data-i18n="report-placeholder"
+            placeholder="O que aconteceu? Onde você clicou?"></textarea>
+        </div>
+        
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+          <button type="button" class="btn btn-ghost" onclick="window.history.back()" data-i18n="btn-cancel">Cancelar</button>
+          <button type="submit" class="btn btn-primary" style="flex: 1;" id="btn-enviar-erro" data-i18n="report-btn-send">Enviar Relatório</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/navbar.js"></script>
+  <script>
+    document.getElementById('form-reportar-erro').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const desc = document.getElementById('erro-descricao').value.trim();
+      const btn = document.getElementById('btn-enviar-erro');
+
+      if (!desc) {
+        return typeof showAlert === 'function' 
+          ? showAlert(t('report-error-empty') || 'Por favor, descreva o erro.', 'error')
+          : alert('Por favor, descreva o erro.');
+      }
+
+      btn.disabled = true;
+      const originalText = btn.textContent;
+      btn.textContent = t('loading') || 'Enviando...';
+
+      try {
+        await api.reportarErro(desc);
+        if (typeof showAlert === 'function') {
+          showAlert(t('report-success') || 'Obrigado! Seu relatório foi enviado.');
+          setTimeout(() => window.location.href = 'dashboard.html', 2000);
+        } else {
+          alert('Obrigado! Seu relatório foi enviado.');
+          window.location.href = 'dashboard.html';
+        }
+      } catch (err) {
+        if (typeof showAlert === 'function') {
+          showAlert(err.message, 'error');
+        } else {
+          alert(err.message);
+        }
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    });
+
+    // Inicializa Lucide icons
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  </script>
+</body>
+</html>

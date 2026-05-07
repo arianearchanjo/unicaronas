@@ -80,6 +80,15 @@ const translations = {
     'btn-cancel': 'Cancelar',
     'btn-save-changes': 'Salvar alterações',
     
+    // Reportar Erro
+    'report-title': 'Reportar um Erro',
+    'report-sub': 'Encontrou algo que não funciona? Descreva o problema abaixo para que nossa equipe possa corrigir.',
+    'report-label-desc': 'Descrição do Problema',
+    'report-placeholder': 'O que aconteceu? Onde você clicou?',
+    'report-btn-send': 'Enviar Relatório',
+    'report-success': 'Obrigado! Seu relatório foi enviado à equipe administrativa.',
+    'report-error-empty': 'Por favor, descreva o erro.',
+    
     // Buscar
     'search-title': 'Buscar Carona',
     'search-sub': 'Encontre pessoas indo para o mesmo destino que você',
