@@ -128,10 +128,22 @@ const atualizarStatusErro = async (req, res, next) => {
 const dispararEmailSemanal = async (req, res, next) => {
   try {
     console.log('[Admin] Disparando e-mails semanais manualmente...');
-    // Não esperamos o processamento terminar se for muitos usuários, 
-    // mas como é para teste, podemos esperar.
-    await processarEmailsSemanais();
-    res.json({ success: true, message: 'Job de e-mail semanal disparado com sucesso.' });
+    const result = await processarEmailsSemanais();
+    
+    if (result.success) {
+      res.json({ 
+        success: true, 
+        message: 'Job de e-mail semanal disparado com sucesso.',
+        stats: {
+          total: result.total,
+          sucesso: result.sucesso,
+          falhas: result.falhas,
+          erros: result.erros
+        }
+      });
+    } else {
+      res.status(500).json({ success: false, error: result.error });
+    }
   } catch (err) {
     next(err);
   }

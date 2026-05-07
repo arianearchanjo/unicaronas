@@ -84,7 +84,11 @@ function gerarTemplateEmail(usuario, caronas) {
  */
 async function processarEmailsSemanais() {
   const transporter = getTransporter();
-  if (!transporter) return;
+  const stats = { total: 0, sucesso: 0, falhas: 0, erros: [] };
+  
+  if (!transporter) {
+    return { success: false, error: 'SMTP não configurado' };
+  }
 
   try {
     const queryUsuarios = `
@@ -98,34 +102,43 @@ async function processarEmailsSemanais() {
     const { rows: usuarios } = await pool.query(queryUsuarios);
 
     for (const usuario of usuarios) {
-      const queryCaronas = `
-        SELECT c.*, u.nome AS motorista_nome 
-        FROM caronas c
-        JOIN usuarios u ON u.id = c.motorista_id
-        WHERE c.status = 'ativa' 
-          AND c.vagas_disponiveis > 0
-          AND c.horario_partida BETWEEN NOW() AND NOW() + INTERVAL '7 days'
-          AND (LOWER(c.origem) LIKE LOWER($1) OR LOWER(c.itinerario) LIKE LOWER($1))
-          AND (LOWER(c.destino) LIKE LOWER($2) OR LOWER(c.itinerario) LIKE LOWER($2))
-        ORDER BY c.horario_partida ASC
-        LIMIT 10
-      `;
-      const { rows: caronas } = await pool.query(queryCaronas, [`%${usuario.rota_preferida_origem}%`, `%${usuario.rota_preferida_destino}%`]);
+      try {
+        const queryCaronas = `
+          SELECT c.*, u.nome AS motorista_nome 
+          FROM caronas c
+          JOIN usuarios u ON u.id = c.motorista_id
+          WHERE c.status = 'ativa' 
+            AND c.vagas_disponiveis > 0
+            AND c.horario_partida BETWEEN NOW() AND NOW() + INTERVAL '7 days'
+            AND (LOWER(c.origem) LIKE LOWER($1) OR LOWER(c.itinerario) LIKE LOWER($1))
+            AND (LOWER(c.destino) LIKE LOWER($2) OR LOWER(c.itinerario) LIKE LOWER($2))
+          ORDER BY c.horario_partida ASC
+          LIMIT 10
+        `;
+        const { rows: caronas } = await pool.query(queryCaronas, [`%${usuario.rota_preferida_origem}%`, `%${usuario.rota_preferida_destino}%`]);
 
-      if (caronas.length > 0) {
-        const mailOptions = {
-          from: process.env.EMAIL_FROM || '"UniCaronas" <contato@unicaronas.com>',
-          to: usuario.email,
-          subject: 'Resumo Semanal de Caronas - UniCaronas',
-          html: gerarTemplateEmail(usuario, caronas)
-        };
+        if (caronas.length > 0) {
+          stats.total++;
+          const mailOptions = {
+            from: process.env.EMAIL_FROM || '"UniCaronas" <contato@unicaronas.com>',
+            to: usuario.email,
+            subject: 'Resumo Semanal de Caronas - UniCaronas',
+            html: gerarTemplateEmail(usuario, caronas)
+          };
 
-        await transporter.sendMail(mailOptions);
+          await transporter.sendMail(mailOptions);
+          stats.sucesso++;
+        }
+      } catch (e) {
+        stats.falhas++;
+        stats.erros.push(`Erro ao enviar para ${usuario.email}: ${e.message}`);
       }
     }
-    console.log('[Job Email] E-mails semanais processados.');
+    console.log(`[Job Email] Processamento concluído. Sucesso: ${stats.sucesso}, Falhas: ${stats.falhas}`);
+    return { success: true, ...stats };
   } catch (err) {
     console.error('Erro no job de e-mail semanal:', err);
+    return { success: false, error: err.message, ...stats };
   }
 }
 

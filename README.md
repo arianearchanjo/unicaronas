@@ -68,7 +68,7 @@ Para instruções detalhadas de como configurar o ambiente e rodar o projeto loc
 
 ## ⚙️ Variáveis de Ambiente (.env)
 
-Para o funcionamento completo das US19 e US20, as seguintes variáveis devem ser configuradas no `/backend/.env`:
+Para o funcionamento completo das US19, US20 e US21, as seguintes variáveis devem ser configuradas no `/backend/.env`:
 
 ```env
 # E-mail (US20 — Job Semanal)
@@ -83,4 +83,5 @@ FRONTEND_URL=http://localhost:5500
 ```
 
 ---
+*Sprint 6 concluída com sucesso — Auditoria Técnica Finalizada*
 *Projeto acadêmico para o curso de Engenharia de Software — 2026*

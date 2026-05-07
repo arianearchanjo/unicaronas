@@ -343,10 +343,20 @@ async function salvarPerfil() {
     
     // Atualiza interface
     renderPerfil(res.data, true);
+    renderCompletude(res.data, true); // Atualiza barra de progresso
+    
     fecharModal();
-    showAlert('Perfil updated successfully', 'success');
+    
+    // Feedback visual aprimorado
+    const msgSuccess = currentLang === 'pt' ? 'Alterações salvas com sucesso!' : 'Changes saved successfully!';
+    showAlert(msgSuccess, 'success');
+    
+    // Rolar para o topo para ver o alerta se necessário
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
   } catch (err) {
-    showAlert(err.message || 'Error saving', 'error', 'alert-modal');
+    const msgError = err.message || (currentLang === 'pt' ? 'Erro ao salvar alterações' : 'Error saving changes');
+    showAlert(msgError, 'error', 'alert-modal');
   } finally {
     if (btn) {
         btn.disabled = false;

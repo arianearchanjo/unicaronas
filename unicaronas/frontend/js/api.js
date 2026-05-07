@@ -142,6 +142,13 @@ const api = {
   listarConversas:     ()     => request('/mensagens/conversas'),
   contagemNaoLidas:    ()     => request('/mensagens/nao-lidas'),
 
+  // US21 - Indicador de digitação
+  setDigitando: (solicitacao_id) => request('/mensagens/digitando', { 
+    method: 'POST', 
+    body: JSON.stringify({ solicitacao_id }) 
+  }),
+  getDigitando: (sid) => request(`/mensagens/${sid}/digitando`),
+
   pagar:               (body) => request('/pagamentos', { method: 'POST', body: JSON.stringify(body) }),
   historicoPagamentos: ()     => request('/pagamentos/historico'),
 
