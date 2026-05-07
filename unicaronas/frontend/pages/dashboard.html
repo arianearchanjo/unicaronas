@@ -109,6 +109,7 @@
   <script src="../js/i18n.js"></script>
   <script src="../js/navbar.js"></script>
   <script src="../js/chat-global.js"></script>
+  <script src="../js/notificacoes-global.js"></script>
   <script>
     protegerRota();
     const usuario = getUser();
@@ -181,13 +182,13 @@
             ${c.distancia_km ? `<div class="meta-item"><span class="meta-label">${t('card-dist')}</span><span class="meta-value">${c.distancia_km} km</span></div>` : ''}
           </div>
           <div class="carona-footer">
-            <div class="user-row">
+            <a href="perfil.html?id=${c.motorista_id}" class="user-row" style="text-decoration: none; color: inherit;">
               <div class="avatar">${iniciais(c.motorista_nome)}</div>
               <div>
                 <div class="user-name">${c.motorista_nome}</div>
                 <div class="user-rating">${parseFloat(c.motorista_avaliacao||0).toFixed(1)} — ${currentLang === 'pt' ? 'motorista' : 'driver'}</div>
               </div>
-            </div>
+            </a>
             <div style="display:flex;align-items:center;gap:1rem">
               <div>
                 <div class="preco-label">${t('card-price-per-person')}</div>

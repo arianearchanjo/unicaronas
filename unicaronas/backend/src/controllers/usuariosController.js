@@ -40,7 +40,7 @@ const cadastrar = async (req, res, next) => {
 
     const { rows: existentes } = await db.query(
       'SELECT id FROM usuarios WHERE email = $1 OR matricula = $2',
-      [emailNorm, matricula]
+      [emailNorm, matricula.trim()]
     );
     if (existentes.length > 0) {
       return res.status(409).json({ success: false, error: 'E-mail ou matrícula já cadastrados' });
@@ -341,6 +341,8 @@ const atualizarSenha = async (req, res, next) => {
     const id = req.usuario.id;
     const { senha } = req.body;
 
+    console.log(`[Auth] Tentativa de atualização de senha para usuário ID: ${id}`);
+
     if (!senha || senha.length < 8) {
       return res.status(400).json({ success: false, error: 'A senha deve ter no mínimo 8 caracteres' });
     }
@@ -352,8 +354,11 @@ const atualizarSenha = async (req, res, next) => {
       [senhaHash, id]
     );
 
+    console.log(`[Auth] Senha atualizada com sucesso para usuário ID: ${id}`);
+
     res.json({ success: true, message: 'Senha atualizada com sucesso' });
   } catch (err) {
+    console.error(`[Auth] Erro ao atualizar senha para usuário ID: ${req.usuario?.id}:`, err);
     next(err);
   }
 };

@@ -58,7 +58,7 @@
     <div id="alert-container"></div>
 
     <div style="margin-bottom: 2rem;">
-      <h1 style="font-size: 1.5rem; font-weight: 700;">🐞 Relatórios de Erros</h1>
+      <h1 style="font-size: 1.5rem; font-weight: 700;">Relatórios de Erros</h1>
       <p style="color: var(--text-3); font-size: 0.9rem;">Problemas técnicos reportados pelos usuários</p>
     </div>
 
@@ -75,6 +75,12 @@
       const user = getUser();
       if (!user.is_admin) { window.location.href = 'dashboard.html'; return; }
       
+      // Se precisa resetar senha, manda para a página admin principal que tem o modal
+      if (user.forcar_reset) {
+        window.location.href = 'admin.html';
+        return;
+      }
+
       await carregarErros();
     });
 

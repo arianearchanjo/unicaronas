@@ -13,12 +13,20 @@ const pool = new Pool({
 
 async function resetDb() {
   try {
-    const sqlPath = path.join(__dirname, '..', 'database', 'setup_sprint5.sql');
-    const sql = fs.readFileSync(sqlPath, 'utf8');
-    await pool.query(sql);
-    console.log('✅ Banco de dados resetado com os hashes corretos!');
+    const schemaPath = path.join(__dirname, '..', 'database', 'schema.sql');
+    const setupPath = path.join(__dirname, '..', 'database', 'setup_sprint5.sql');
+    
+    console.log('⏳ Recriando tabelas (schema.sql)...');
+    const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+    await pool.query(schemaSql);
+    
+    console.log('⏳ Inserindo dados de teste (setup_sprint5.sql)...');
+    const setupSql = fs.readFileSync(setupPath, 'utf8');
+    await pool.query(setupSql);
+    
+    console.log('✅ Banco de dados resetado com sucesso!');
   } catch (err) {
-    console.error('❌ Erro:', err.message);
+    console.error('❌ Erro no reset:', err.message);
   } finally {
     await pool.end();
   }

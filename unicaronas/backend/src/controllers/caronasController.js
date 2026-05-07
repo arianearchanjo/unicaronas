@@ -1,5 +1,6 @@
 const db = require('../../config/database');
 const { calcularValorSugerido } = require('../utils/precificacao');
+const notificacoesService = require('../services/notificacoesService');
 
 const STATUS_VALIDOS_SOLICITACAO = ['aceita', 'recusada'];
 
@@ -315,6 +316,16 @@ const solicitar = async (req, res, next) => {
       [carona_id, passageiro_id]
     );
 
+    // Notificar o motorista
+    await notificacoesService.criarNotificacao({
+      usuario_id: carona.motorista_id,
+      titulo: 'Nova solicitação de carona',
+      mensagem: `Você recebeu uma nova solicitação para a carona de ${carona_id}.`,
+      tipo: 'nova_solicitacao',
+      referencia_id: carona_id,
+      referencia_tipo: 'carona'
+    });
+
     res.status(201).json({ success: true, data: rows[0] });
   } catch (err) {
     if (err.code === '23505') {
@@ -388,7 +399,7 @@ const responderSolicitacao = async (req, res, next) => {
     const motorista_id = req.usuario.id;
 
     const { rows: solicitacoes } = await db.query(
-      `SELECT s.status AS solicitacao_status, c.motorista_id
+      `SELECT s.status AS solicitacao_status, s.passageiro_id, s.carona_id, c.motorista_id
        FROM solicitacoes_carona s
        JOIN caronas c ON c.id = s.carona_id
        WHERE s.id = $1`,
@@ -412,6 +423,27 @@ const responderSolicitacao = async (req, res, next) => {
       'UPDATE solicitacoes_carona SET status = $1, atualizado_em = NOW() WHERE id = $2 RETURNING *',
       [status, id]
     );
+
+    // Notificar o passageiro
+    if (status === 'aceita') {
+      await notificacoesService.criarNotificacao({
+        usuario_id: sol.passageiro_id,
+        titulo: 'Sua solicitação foi aceita!',
+        mensagem: `Sua solicitação para a carona ${sol.carona_id} foi aceita pelo motorista.`,
+        tipo: 'solicitacao_aceita',
+        referencia_id: sol.carona_id,
+        referencia_tipo: 'carona'
+      });
+    } else if (status === 'recusada') {
+      await notificacoesService.criarNotificacao({
+        usuario_id: sol.passageiro_id,
+        titulo: 'Solicitação não aprovada',
+        mensagem: `Sua solicitação para a carona ${sol.carona_id} foi recusada.`,
+        tipo: 'solicitacao_recusada',
+        referencia_id: sol.carona_id,
+        referencia_tipo: 'carona'
+      });
+    }
 
     res.json({ success: true, data: rows[0] });
   } catch (err) {

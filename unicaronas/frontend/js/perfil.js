@@ -30,6 +30,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderAvaliacoes(resAv.data);
     renderHistorico(resHis.data);
     
+    // Novas funcionalidades de gamificação
+    renderCompletude(resU.data, ehProprio);
+    renderBadges(resU.data);
+    
     if (ehProprio) {
       initEdicao(resU.data);
       if (resU.data.perfil_tipo !== 'estudante') {
@@ -56,6 +60,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 function renderPerfil(u, ehProprio) {
   atualizarAvatar('perfil-avatar', u.foto_url, u.nome);
   setText('perfil-nome',   u.nome);
+  
+  // Debug para identificar troca de usuário
+  console.log('[UniCaronas] Visualizando Perfil:', { id: u.id, nome: u.nome, is_admin: u.is_admin });
+  console.log('[UniCaronas] Usuário Logado:', getUser());
+
   setText('perfil-curso',  u.curso  || (currentLang === 'pt' ? 'Curso não informado' : 'Course not informed'));
   setText('perfil-email',  u.email);
   setText('perfil-membro', t('profile-member-since') + ' ' + formatarDataCurta(u.criado_em));
@@ -430,4 +439,54 @@ async function removerVeiculo(id) {
   } catch (err) {
     showAlert(err.message, 'error');
   }
+}
+
+// ── Gamificação ──────────────────────────────────────────────────────────────
+
+function renderCompletude(u, ehProprio) {
+  const wrap = document.getElementById('wrap-completude');
+  const bar  = document.getElementById('bar-completude');
+  const txt  = document.getElementById('txt-completude');
+  
+  if (!wrap || !ehProprio) return;
+  wrap.style.display = 'block';
+
+  let pontos = 0;
+  if (u.foto_url) pontos += 20;
+  if (u.telefone) pontos += 15;
+  if (u.curso)    pontos += 15;
+  if (u.genero)   pontos += 10;
+  if (u.dia_ead !== null && u.dia_ead !== undefined && u.dia_ead !== '') pontos += 10;
+  
+  if (u.perfil_tipo === 'estudante') {
+    if (parseInt(u.total_caronas_passageiro || 0) > 0) pontos += 30;
+  } else {
+    if (u.status_verificacao === 'aprovado') pontos += 30;
+  }
+
+  bar.style.width = pontos + '%';
+  txt.textContent = pontos + '%';
+}
+
+function renderBadges(u) {
+  const activate = (id) => document.getElementById(id)?.classList.add('active');
+  
+  // 1. Pioneiro (Criado há mais de 30 dias ou ID baixo)
+  // Como é um sistema novo, vamos considerar ID < 10 como pioneiro
+  if (u.id <= 10) activate('badge-pioneiro');
+  
+  // 2. Verificado
+  if (u.status_verificacao === 'aprovado') activate('badge-verificado');
+  
+  // 3. Top Motorista
+  if (u.perfil_tipo !== 'estudante' && parseFloat(u.avaliacao_media || 0) >= 4.5 && parseInt(u.total_caronas_motorista || 0) >= 5) {
+    activate('badge-top-driver');
+  }
+  
+  // 4. Passageiro Ouro
+  if (parseInt(u.total_caronas_passageiro || 0) >= 10) activate('badge-passageiro-ouro');
+  
+  // 5. Eco-Amigo (Total de caronas > 20)
+  const total = parseInt(u.total_caronas_motorista || 0) + parseInt(u.total_caronas_passageiro || 0);
+  if (total >= 20) activate('badge-eco');
 }

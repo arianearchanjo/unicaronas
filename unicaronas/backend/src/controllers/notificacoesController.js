@@ -1,60 +1,61 @@
-const pool = require('../../config/database');
+const notificacoesService = require('../services/notificacoesService');
 
 const notificacoesController = {
   /**
    * GET /api/notificacoes
-   * Lista notificações do usuário logado
    */
-  async listar(req, res) {
-    const usuario_id = req.usuario.id;
-
+  async listar(req, res, next) {
     try {
-      const query = `
-        SELECT * FROM notificacoes
-        WHERE usuario_id = $1
-        ORDER BY criado_em DESC
-        LIMIT 50;
-      `;
-      const result = await pool.query(query, [usuario_id]);
-
+      const usuario_id = req.usuario.id;
+      const notificacoes = await notificacoesService.listarPorUsuario(usuario_id);
+      
       return res.json({
         success: true,
-        dados: result.rows
+        data: notificacoes
       });
     } catch (err) {
-      console.error(err);
-      return res.status(500).json({ success: false, error: 'Erro ao listar notificações.' });
+      next(err);
     }
   },
 
   /**
-   * PATCH /api/notificacoes/:id/lida
-   * Marca uma notificação como lida
+   * PATCH /api/notificacoes/:id
    */
-  async marcarComoLida(req, res) {
-    const { id } = req.params;
-    const usuario_id = req.usuario.id;
-
+  async marcarLida(req, res, next) {
     try {
-      const query = `
-        UPDATE notificacoes
-        SET lida = true
-        WHERE id = $1 AND usuario_id = $2
-        RETURNING *;
-      `;
-      const result = await pool.query(query, [id, usuario_id]);
+      const { id } = req.params;
+      const usuario_id = req.usuario.id;
 
-      if (result.rows.length === 0) {
+      const notificacao = await notificacoesService.marcarComoLida(id, usuario_id);
+
+      if (!notificacao) {
         return res.status(404).json({ success: false, error: 'Notificação não encontrada.' });
       }
 
       return res.json({
         success: true,
-        dados: result.rows[0]
+        data: notificacao
       });
     } catch (err) {
-      console.error(err);
-      return res.status(500).json({ success: false, error: 'Erro ao atualizar notificação.' });
+      next(err);
+    }
+  },
+
+  /**
+   * PATCH /api/notificacoes/todas
+   */
+  async marcarTodasLidas(req, res, next) {
+    try {
+      const usuario_id = req.usuario.id;
+      const notificacoes = await notificacoesService.marcarTodasComoLidas(usuario_id);
+
+      return res.json({
+        success: true,
+        message: `${notificacoes.length} notificações marcadas como lidas.`,
+        data: notificacoes
+      });
+    } catch (err) {
+      next(err);
     }
   }
 };
