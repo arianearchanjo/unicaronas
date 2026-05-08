@@ -1,5 +1,4 @@
 const db     = require('../../config/database');
-const { processarEmailsSemanais } = require('../jobs/emailSemanal');
 
 const BCRYPT_ROUNDS = 12;
 
@@ -121,32 +120,4 @@ const atualizarStatusErro = async (req, res, next) => {
   }
 };
 
-/**
- * POST /api/admin/email-semanal/disparar
- * Dispara manualmente o job de e-mail semanal (ambiente de dev)
- */
-const dispararEmailSemanal = async (req, res, next) => {
-  try {
-    console.log('[Admin] Disparando e-mails semanais manualmente...');
-    const result = await processarEmailsSemanais();
-    
-    if (result.success) {
-      res.json({ 
-        success: true, 
-        message: 'Job de e-mail semanal disparado com sucesso.',
-        stats: {
-          total: result.total,
-          sucesso: result.sucesso,
-          falhas: result.falhas,
-          erros: result.erros
-        }
-      });
-    } else {
-      res.status(500).json({ success: false, error: result.error });
-    }
-  } catch (err) {
-    next(err);
-  }
-};
-
-module.exports = { listarPendentes, verificarDocumento, reportarErro, listarErros, atualizarStatusErro, dispararEmailSemanal };
+module.exports = { listarPendentes, verificarDocumento, reportarErro, listarErros, atualizarStatusErro };

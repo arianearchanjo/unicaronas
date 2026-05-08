@@ -10,8 +10,3 @@ CREATE TABLE notificacoes (
     lida BOOLEAN DEFAULT FALSE,
     criado_em TIMESTAMP DEFAULT NOW()
 );
-
--- US20 E-mail de Resumo Semanal
-ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS rota_preferida_origem VARCHAR(100);
-ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS rota_preferida_destino VARCHAR(100);
-ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS receber_email_semanal BOOLEAN DEFAULT TRUE;

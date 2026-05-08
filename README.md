@@ -83,5 +83,3 @@ FRONTEND_URL=http://localhost:5500
 ```
 
 ---
-*Sprint 6 concluída com sucesso — Auditoria Técnica Finalizada*
-*Projeto acadêmico para o curso de Engenharia de Software — 2026*

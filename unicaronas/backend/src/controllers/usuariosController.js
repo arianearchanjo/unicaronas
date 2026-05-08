@@ -238,8 +238,7 @@ const login = async (req, res, next) => {
 
     const { rows } = await db.query(
       `SELECT id, nome, email, curso, telefone, foto_url, dia_ead, perfil_tipo,
-              avaliacao_media, total_avaliacoes, criado_em, genero, status_verificacao, is_admin,
-              rota_preferida_origem, rota_preferida_destino, receber_email_semanal
+              avaliacao_media, total_avaliacoes, criado_em, genero, status_verificacao, is_admin
        FROM usuarios
        WHERE id = $1 AND ativo = true`,
       [id]
@@ -284,8 +283,7 @@ const atualizarPerfil = async (req, res, next) => {
   try {
     const id = req.usuario.id;
     const { 
-      nome, telefone, curso, dia_ead, perfil_tipo, genero, 
-      rota_preferida_origem, rota_preferida_destino, receber_email_semanal 
+      nome, telefone, curso, dia_ead, perfil_tipo, genero
     } = req.body;
     let { foto_url } = req.body;
 
@@ -312,13 +310,9 @@ const atualizarPerfil = async (req, res, next) => {
          dia_ead                = COALESCE($5, dia_ead),
          perfil_tipo            = COALESCE($6, perfil_tipo),
          genero                 = COALESCE($7, genero),
-         rota_preferida_origem  = COALESCE($8, rota_preferida_origem),
-         rota_preferida_destino = COALESCE($9, rota_preferida_destino),
-         receber_email_semanal  = COALESCE($10, receber_email_semanal),
          atualizado_em          = NOW()
-       WHERE id = $11
-       RETURNING id, nome, email, curso, telefone, foto_url, dia_ead, perfil_tipo, genero, 
-                 rota_preferida_origem, rota_preferida_destino, receber_email_semanal`,
+       WHERE id = $8
+       RETURNING id, nome, email, curso, telefone, foto_url, dia_ead, perfil_tipo, genero`,
       [
         nome?.trim() || null, 
         telefone?.trim() || null, 
@@ -327,9 +321,6 @@ const atualizarPerfil = async (req, res, next) => {
         diaEadVal !== undefined ? diaEadVal : null,
         perfil_tipo || null, 
         genero || null,
-        rota_preferida_origem?.trim() || null,
-        rota_preferida_destino?.trim() || null,
-        receber_email_semanal !== undefined ? (receber_email_semanal === 'true' || receber_email_semanal === true) : null,
         id
       ]
     );

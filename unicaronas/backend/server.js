@@ -76,9 +76,7 @@ app.listen(PORT, () => {
 
   // Iniciar Jobs agendados
   const { iniciarJobLembretes } = require('./src/jobs/lembretes');
-  const { iniciarJobEmailSemanal } = require('./src/jobs/emailSemanal');
   iniciarJobLembretes();
-  iniciarJobEmailSemanal();
 });
 
 module.exports = app;
