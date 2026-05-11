@@ -282,7 +282,9 @@ const login = async (req, res, next) => {
 const atualizarPerfil = async (req, res, next) => {
   try {
     const id = req.usuario.id;
-    const { nome, telefone, curso, dia_ead, perfil_tipo, genero } = req.body;
+    const { 
+      nome, telefone, curso, dia_ead, perfil_tipo, genero
+    } = req.body;
     let { foto_url } = req.body;
 
     if (req.file) {
@@ -301,14 +303,14 @@ const atualizarPerfil = async (req, res, next) => {
     const { rows } = await db.query(
       `UPDATE usuarios
        SET
-         nome          = COALESCE($1, nome),
-         telefone      = COALESCE($2, telefone),
-         curso         = COALESCE($3, curso),
-         foto_url      = COALESCE($4, foto_url),
-         dia_ead       = COALESCE($5, dia_ead),
-         perfil_tipo   = COALESCE($6, perfil_tipo),
-         genero        = COALESCE($7, genero),
-         atualizado_em = NOW()
+         nome                   = COALESCE($1, nome),
+         telefone               = COALESCE($2, telefone),
+         curso                  = COALESCE($3, curso),
+         foto_url               = COALESCE($4, foto_url),
+         dia_ead                = COALESCE($5, dia_ead),
+         perfil_tipo            = COALESCE($6, perfil_tipo),
+         genero                 = COALESCE($7, genero),
+         atualizado_em          = NOW()
        WHERE id = $8
        RETURNING id, nome, email, curso, telefone, foto_url, dia_ead, perfil_tipo, genero`,
       [

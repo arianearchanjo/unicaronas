@@ -133,13 +133,21 @@ const api = {
   }),
   entrarListaEspera:    (id)         => request(`/caronas/${id}/espera`, { method: 'POST' }),
 
-  listarNotificacoes:   ()           => request('/notificacoes'),
-  marcarNotificacaoLida:(id)         => request(`/notificacoes/${id}/lida`, { method: 'PATCH' }),
+  listarNotificacoes:   ()    => request('/notificacoes'),
+  marcarNotificacao:    (id)  => request(`/notificacoes/${id}/lida`, { method: 'PATCH' }),
+  marcarTodasNotif:     ()    => request('/notificacoes/todas', { method: 'PATCH' }),
 
   enviarMensagem:      (body) => request('/mensagens', { method: 'POST', body: JSON.stringify(body) }),
   listarMensagens:     (id, isUser = false)  => request(`/mensagens/${id}${isUser ? '?is_user=true' : ''}`),
   listarConversas:     ()     => request('/mensagens/conversas'),
   contagemNaoLidas:    ()     => request('/mensagens/nao-lidas'),
+
+  // US21 - Indicador de digitação
+  setDigitando: (solicitacao_id) => request('/mensagens/digitando', { 
+    method: 'POST', 
+    body: JSON.stringify({ solicitacao_id }) 
+  }),
+  getDigitando: (sid) => request(`/mensagens/${sid}/digitando`),
 
   pagar:               (body) => request('/pagamentos', { method: 'POST', body: JSON.stringify(body) }),
   historicoPagamentos: ()     => request('/pagamentos/historico'),
@@ -205,7 +213,7 @@ if (isLogado()) {
   setInterval(async () => {
     try {
       const res = await api.listarNotificacoes();
-      const naoLidas = res.dados.filter(n => !n.lida).length;
+      const naoLidas = res.data.filter(n => !n.lida).length;
       const badge = document.getElementById('nav-notificacoes-badge');
       if (badge) {
         if (naoLidas > 0) {

@@ -1,5 +1,6 @@
 const db = require('../../config/database');
 const { calcularValorSugerido } = require('../utils/precificacao');
+const notificacoesService = require('../services/notificacoesService');
 
 const STATUS_VALIDOS_SOLICITACAO = ['aceita', 'recusada'];
 
@@ -315,6 +316,14 @@ const solicitar = async (req, res, next) => {
       [carona_id, passageiro_id]
     );
 
+    // Notificar o motorista
+    await notificacoesService.criarNotificacao({
+      usuario_id: carona.motorista_id,
+      carona_id: carona_id,
+      conteudo: `Você recebeu uma nova solicitação para a carona de ${carona_id}.`,
+      tipo: 'solicitacao'
+    });
+
     res.status(201).json({ success: true, data: rows[0] });
   } catch (err) {
     if (err.code === '23505') {
@@ -388,7 +397,7 @@ const responderSolicitacao = async (req, res, next) => {
     const motorista_id = req.usuario.id;
 
     const { rows: solicitacoes } = await db.query(
-      `SELECT s.status AS solicitacao_status, c.motorista_id
+      `SELECT s.status AS solicitacao_status, s.passageiro_id, s.carona_id, c.motorista_id
        FROM solicitacoes_carona s
        JOIN caronas c ON c.id = s.carona_id
        WHERE s.id = $1`,
@@ -412,6 +421,23 @@ const responderSolicitacao = async (req, res, next) => {
       'UPDATE solicitacoes_carona SET status = $1, atualizado_em = NOW() WHERE id = $2 RETURNING *',
       [status, id]
     );
+
+    // Notificar o passageiro
+    if (status === 'aceita') {
+      await notificacoesService.criarNotificacao({
+        usuario_id: sol.passageiro_id,
+        carona_id: sol.carona_id,
+        conteudo: `Sua solicitação para a carona ${sol.carona_id} foi aceita pelo motorista.`,
+        tipo: 'solicitacao'
+      });
+    } else if (status === 'recusada') {
+      await notificacoesService.criarNotificacao({
+        usuario_id: sol.passageiro_id,
+        carona_id: sol.carona_id,
+        conteudo: `Sua solicitação para a carona ${sol.carona_id} foi recusada.`,
+        tipo: 'solicitacao'
+      });
+    }
 
     res.json({ success: true, data: rows[0] });
   } catch (err) {
@@ -539,6 +565,21 @@ const cancelar = async (req, res, next) => {
        RETURNING *`,
       [justificativa?.trim() || null, id, motorista_id]
     );
+
+    // Notificar passageiros confirmados
+    const { rows: passageiros } = await db.query(
+      "SELECT passageiro_id FROM solicitacoes_carona WHERE carona_id = $1 AND status = 'aceita'",
+      [id]
+    );
+
+    for (const p of passageiros) {
+      await notificacoesService.criarNotificacao({
+        usuario_id: p.passageiro_id,
+        carona_id: id,
+        conteudo: `A carona ${id} foi cancelada pelo motorista. Justificativa: ${justificativa || 'Não informada'}.`,
+        tipo: 'cancelamento'
+      });
+    }
 
     res.json({ success: true, data: rows[0], message: 'Carona cancelada com sucesso' });
   } catch (err) {

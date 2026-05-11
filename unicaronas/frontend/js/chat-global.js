@@ -13,6 +13,8 @@
     ativa: null,         // id da conversa aberta
     aberto: false,
     pollingId: null,
+    typingPollingId: null,
+    lastTypingSent: 0,
     inicializado: false,
     usuario: null,
   };
@@ -95,6 +97,9 @@
         <!-- Tela de mensagens -->
         <div id="uc-tela-msgs" class="uc-screen" style="display:none;flex-direction:column">
           <div id="uc-msgs-container" class="uc-msgs"></div>
+          <div id="uc-typing-indicator" style="display:none; padding: 0.2rem 1rem; font-size: 0.75rem; color: var(--text-3); font-style: italic;">
+            alguém está digitando...
+          </div>
           <div class="uc-input-wrap">
             <input id="uc-input" class="uc-input" type="text" placeholder="Digite uma mensagem..." autocomplete="off" maxlength="1000">
             <button id="uc-btn-send" class="uc-btn-send" aria-label="Enviar">
@@ -490,10 +495,24 @@
     document.getElementById('uc-btn-minimize').addEventListener('click', fecharChat);
     document.getElementById('uc-btn-back').addEventListener('click', voltarLista);
     document.getElementById('uc-btn-send').addEventListener('click', enviarMensagem);
-    document.getElementById('uc-input').addEventListener('keydown', (e) => {
+    
+    const input = document.getElementById('uc-input');
+    input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         enviarMensagem();
+      }
+    });
+
+    // US21 - Detectar digitação
+    input.addEventListener('input', () => {
+      const agora = Date.now();
+      if (STATE.ativa && agora - STATE.lastTypingSent > 2000) {
+        STATE.lastTypingSent = agora;
+        fetchAPI('/mensagens/digitando', {
+          method: 'POST',
+          body: JSON.stringify({ solicitacao_id: STATE.ativa })
+        }).catch(() => {});
       }
     });
   }
@@ -682,8 +701,23 @@
     if (STATE.pollingId) clearInterval(STATE.pollingId);
     STATE.pollingId = setInterval(async () => {
       await atualizarMensagens();
-      // A cada 30s, recarrega lista de conversas (novas podem aparecer)
     }, POLL_INTERVAL);
+
+    // Polling de digitação (apenas se chat aberto e conversa ativa)
+    if (STATE.typingPollingId) clearInterval(STATE.typingPollingId);
+    STATE.typingPollingId = setInterval(async () => {
+      if (STATE.aberto && STATE.ativa) {
+        try {
+          const res = await fetchAPI(`/mensagens/${STATE.ativa}/digitando`);
+          const indicator = document.getElementById('uc-typing-indicator');
+          if (res.typing) {
+            indicator.style.display = 'block';
+          } else {
+            indicator.style.display = 'none';
+          }
+        } catch (_) {}
+      }
+    }, 2000);
 
     // Recarregar lista completa a cada 30s
     setInterval(carregarConversas, 30000);

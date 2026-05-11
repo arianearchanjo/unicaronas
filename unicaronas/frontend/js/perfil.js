@@ -244,12 +244,14 @@ function initEdicao(u) {
   const inputTelefone = document.getElementById('edit-telefone');
   const inputCurso = document.getElementById('edit-curso');
   const inputDiaEad = document.getElementById('edit-dia-ead');
+  const inputGenero = document.getElementById('edit-genero');
   const inputFoto = document.getElementById('edit-foto');
 
   if (inputNome) inputNome.value = u.nome || '';
   if (inputTelefone) inputTelefone.value = u.telefone || '';
   if (inputCurso) inputCurso.value = u.curso || '';
   if (inputDiaEad) inputDiaEad.value = (u.dia_ead !== null && u.dia_ead !== undefined) ? u.dia_ead : '';
+  if (inputGenero) inputGenero.value = u.genero || '';
   
   const radio = document.querySelector(`input[name="edit-perfil-tipo"][value="${u.perfil_tipo}"]`);
   if (radio) radio.checked = true;
@@ -332,10 +334,20 @@ async function salvarPerfil() {
     
     // Atualiza interface
     renderPerfil(res.data, true);
+    renderCompletude(res.data, true); // Atualiza barra de progresso
+    
     fecharModal();
-    showAlert('Perfil updated successfully', 'success');
+    
+    // Feedback visual aprimorado
+    const msgSuccess = currentLang === 'pt' ? 'Alterações salvas com sucesso!' : 'Changes saved successfully!';
+    showAlert(msgSuccess, 'success');
+    
+    // Rolar para o topo para ver o alerta se necessário
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
   } catch (err) {
-    showAlert(err.message || 'Error saving', 'error', 'alert-modal');
+    const msgError = err.message || (currentLang === 'pt' ? 'Erro ao salvar alterações' : 'Error saving changes');
+    showAlert(msgError, 'error', 'alert-modal');
   } finally {
     if (btn) {
         btn.disabled = false;
