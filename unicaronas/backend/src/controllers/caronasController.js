@@ -342,7 +342,7 @@ const listarSolicitacoes = async(req, res, next) => {
     const motorista_id = req.usuario.id;
 
     if(isNaN(carona_id) || carona_id <= 0){
-      return res.status(400).json({sucess: false, error: 'ID invalido'});
+      return res.status(400).json({success: false, error: 'ID invalido'});
     }
 
     const { rows: caronas } = await db.query(
@@ -581,7 +581,13 @@ const cancelar = async (req, res, next) => {
       });
     }
 
-    res.json({ success: true, data: rows[0], message: 'Carona cancelada com sucesso' });
+    res.json({ 
+      success: true, 
+      data: {
+        ...rows[0],
+        message: 'Carona cancelada com sucesso'
+      }
+    });
   } catch (err) {
     next(err);
   }

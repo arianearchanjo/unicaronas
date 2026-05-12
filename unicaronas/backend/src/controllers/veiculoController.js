@@ -91,7 +91,7 @@ const deletarVeiculo = async (req, res, next) => {
       return res.status(404).json({ success: false, error: 'Veículo não encontrado ou não autorizado.' });
     }
 
-    res.json({ success: true, message: 'Veículo removido com sucesso.' });
+    res.json({ success: true, data: { message: 'Veículo removido com sucesso.' } });
   } catch (err) {
     next(err);
   }

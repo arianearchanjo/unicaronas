@@ -51,8 +51,10 @@ const notificacoesController = {
 
       return res.json({
         success: true,
-        message: `${notificacoes.length} notificações marcadas como lidas.`,
-        data: notificacoes
+        data: {
+          notificacoes,
+          message: `${notificacoes.length} notificações marcadas como lidas.`
+        }
       });
     } catch (err) {
       next(err);

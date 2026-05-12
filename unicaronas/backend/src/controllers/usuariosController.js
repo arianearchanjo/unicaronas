@@ -125,9 +125,9 @@ const cadastrar = async (req, res, next) => {
             genero:             novoUsuario.genero,
             status_verificacao: novoUsuario.status_verificacao,
             is_admin:           novoUsuario.is_admin
-          }
-        },
-        message: 'Usuário cadastrado com sucesso',
+          },
+          message: 'Usuário cadastrado com sucesso'
+        }
       });
     } catch (err) {
       await client.query('ROLLBACK');
@@ -154,7 +154,7 @@ const recuperarSenha = async (req, res, next) => {
 
     res.json({ 
       success: true, 
-      message: 'Instruções de recuperação enviadas para o seu e-mail institucional.' 
+      data: { message: 'Instruções de recuperação enviadas para o seu e-mail institucional.' }
     });
   } catch (err) {
     next(err);
@@ -168,7 +168,7 @@ const deletarConta = async (req, res, next) => {
   try {
     const usuario_id = req.usuario.id;
     await db.query('DELETE FROM usuarios WHERE id = $1', [usuario_id]);
-    res.json({ success: true, message: 'Conta excluída com sucesso.' });
+    res.json({ success: true, data: { message: 'Conta excluída com sucesso.' } });
   } catch (err) {
     next(err);
   }
@@ -358,7 +358,7 @@ const atualizarSenha = async (req, res, next) => {
 
     console.log(`[Auth] Senha atualizada com sucesso para usuário ID: ${id}`);
 
-    res.json({ success: true, message: 'Senha atualizada com sucesso' });
+    res.json({ success: true, data: { message: 'Senha atualizada com sucesso' } });
   } catch (err) {
     console.error(`[Auth] Erro ao atualizar senha para usuário ID: ${req.usuario?.id}:`, err);
     next(err);

@@ -178,13 +178,15 @@ const processar = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      data: rows[0],
-      resumo: {
-        valor_total:       valorTotal,
-        taxa_plataforma:   taxa,
-        repasse_motorista: repasse,
-        referencia:        referenciaExterna,
-        metodo,
+      data: {
+        ...rows[0],
+        resumo: {
+          valor_total:       valorTotal,
+          taxa_plataforma:   taxa,
+          repasse_motorista: repasse,
+          referencia:        referenciaExterna,
+          metodo,
+        },
       },
     });
   } catch (err) {

@@ -50,8 +50,10 @@ const verificarDocumento = async (req, res, next) => {
 
     res.json({ 
       success: true, 
-      message: `Documentos ${status === 'aprovado' ? 'aprovados' : 'rejeitados'} com sucesso.`,
-      data: rows[0]
+      data: {
+        ...rows[0],
+        message: `Documentos ${status === 'aprovado' ? 'aprovados' : 'rejeitados'} com sucesso.`
+      }
     });
   } catch (err) {
     next(err);

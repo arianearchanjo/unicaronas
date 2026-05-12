@@ -61,8 +61,10 @@ const getTyping = (req, res) => {
 
   res.json({ 
     success: true, 
-    typing: typingUsers.length > 0,
-    users: typingUsers 
+    data: {
+      typing: typingUsers.length > 0,
+      users: typingUsers 
+    }
   });
 };
 

@@ -53,8 +53,10 @@ const listaEsperaController = {
 
       return res.status(201).json({
         success: true,
-        dados: result.rows[0],
-        mensagem: 'Você entrou na lista de espera. Avisaremos se uma vaga for liberada!'
+        data: {
+          ...result.rows[0],
+          message: 'Você entrou na lista de espera. Avisaremos se uma vaga for liberada!'
+        }
       });
     } catch (err) {
       console.error(err);

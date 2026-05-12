@@ -171,7 +171,7 @@ const contagemNaoLidas = async (req, res, next) => {
        WHERE m.destinatario_id = $1 AND m.lida = false`,
       [usuario_id]
     );
-    res.json({ success: true, count: rows[0].total });
+    res.json({ success: true, data: { count: rows[0].total } });
   } catch (err) {
     next(err);
   }
