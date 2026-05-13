@@ -37,7 +37,6 @@ const sendResetEmail = async (to, link) => {
       </div>
     `,
   };
-
   try {
     await transporter.sendMail(mailOptions);
     console.log(`[MailService] E-mail de reset enviado para: ${to}`);

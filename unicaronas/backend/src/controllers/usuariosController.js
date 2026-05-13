@@ -180,7 +180,6 @@ const recuperarSenha = async (req, res, next) => {
 
     // 4. Chamar o mailService para enviar o link
     const resetLink = `${process.env.FRONTEND_URL}/reset-password.html?token=${token}&email=${encodeURIComponent(emailNorm)}`;
-    
     // Enviamos o e-mail de forma assíncrona para não travar a resposta da API
     mailService.sendResetEmail(emailNorm, resetLink).catch(err => {
       console.error(`[RecuperarSenha] Falha ao enviar e-mail para ${emailNorm}:`, err);
