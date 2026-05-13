@@ -36,6 +36,7 @@ router.post('/',
 );
 router.post('/login',   validar(schemasLogin),    ctrl.login);
 router.post('/recuperar-senha',                   ctrl.recuperarSenha);
+router.post('/redefinir-senha',                   ctrl.redefinirSenha);
 router.get('/:id',      auth,                     ctrl.buscarPorId);
 router.patch('/perfil', auth, upload.single('foto'), validar(schemaPerfil), ctrl.atualizarPerfil);
 router.patch('/senha',  auth,                     ctrl.atualizarSenha);

@@ -102,6 +102,7 @@ const api = {
   }),
   login:           (body) => request('/usuarios/login', { method: 'POST', body: JSON.stringify(body) }),
   recuperarSenha:  (body) => request('/usuarios/recuperar-senha', { method: 'POST', body: JSON.stringify(body) }),
+  redefinirSenha:  (body) => request('/usuarios/redefinir-senha', { method: 'POST', body: JSON.stringify(body) }),
   perfil:          (id)   => request(`/usuarios/${id}`),
   atualizarPerfil: (body) => request('/usuarios/perfil', { 
     method: 'PATCH', 

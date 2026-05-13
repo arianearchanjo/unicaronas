@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const jwt    = require('jsonwebtoken');
+const crypto = require('crypto');
 const db     = require('../../config/database');
+const mailService = require('../services/mailService');
 
 const BCRYPT_ROUNDS = 12;
 
@@ -146,16 +148,45 @@ const cadastrar = async (req, res, next) => {
 const recuperarSenha = async (req, res, next) => {
   try {
     const { email } = req.body;
-    const { rows } = await db.query('SELECT id FROM usuarios WHERE email = $1', [email.toLowerCase().trim()]);
+    const emailNorm = email.toLowerCase().trim();
+
+    // 1. Validar se o e-mail existe
+    const { rows } = await db.query('SELECT id, nome FROM usuarios WHERE email = $1 AND ativo = true', [emailNorm]);
     
+    // Para evitar user enumeration, sempre retornamos sucesso
+    const successResponse = () => res.json({ 
+      success: true, 
+      data: { message: 'Se o e-mail informado estiver cadastrado, você receberá as instruções de recuperação em instantes.' }
+    });
+
     if (rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'E-mail não encontrado' });
+      return successResponse();
     }
 
-    res.json({ 
-      success: true, 
-      data: { message: 'Instruções de recuperação enviadas para o seu e-mail institucional.' }
+    const usuario = rows[0];
+
+    // 2. Gerar um token seguro (32 bytes = 64 hex chars)
+    const token = crypto.randomBytes(32).toString('hex');
+    
+    // 3. Salvar o hash do token no banco (Segurança: se o DB vazar, o token original não é exposto)
+    // Usamos bcrypt para seguir a recomendação do usuário
+    const tokenHash = await bcrypt.hash(token, 10);
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutos
+
+    await db.query(
+      'INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)',
+      [usuario.id, tokenHash, expiresAt]
+    );
+
+    // 4. Chamar o mailService para enviar o link
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password.html?token=${token}&email=${encodeURIComponent(emailNorm)}`;
+    
+    // Enviamos o e-mail de forma assíncrona para não travar a resposta da API
+    mailService.sendResetEmail(emailNorm, resetLink).catch(err => {
+      console.error(`[RecuperarSenha] Falha ao enviar e-mail para ${emailNorm}:`, err);
     });
+
+    return successResponse();
   } catch (err) {
     next(err);
   }
@@ -365,4 +396,77 @@ const atualizarSenha = async (req, res, next) => {
   }
 };
 
-module.exports = { cadastrar, login, buscarPorId, atualizarPerfil, deletarConta, recuperarSenha, atualizarSenha };
+/**
+ * POST /api/usuarios/redefinir-senha
+ */
+const redefinirSenha = async (req, res, next) => {
+  try {
+    const { email, token, novaSenha } = req.body;
+
+    if (!novaSenha || novaSenha.length < 8) {
+      return res.status(400).json({ success: false, error: 'A nova senha deve ter no mínimo 8 caracteres' });
+    }
+
+    const emailNorm = email.toLowerCase().trim();
+
+    // 1. Buscar usuário
+    const { rows: userRows } = await db.query('SELECT id FROM usuarios WHERE email = $1 AND ativo = true', [emailNorm]);
+    if (userRows.length === 0) {
+      return res.status(400).json({ success: false, error: 'Solicitação inválida ou expirada.' });
+    }
+    const usuarioId = userRows[0].id;
+
+    // 2. Buscar tokens válidos para este usuário
+    const { rows: tokenRows } = await db.query(
+      'SELECT id, token FROM password_resets WHERE user_id = $1 AND expires_at > NOW() ORDER BY created_at DESC',
+      [usuarioId]
+    );
+
+    if (tokenRows.length === 0) {
+      return res.status(400).json({ success: false, error: 'O link de recuperação expirou ou é inválido.' });
+    }
+
+    // 3. Verificar se o token fornecido bate com algum hash no banco
+    let tokenValido = null;
+    for (const row of tokenRows) {
+      const match = await bcrypt.compare(token, row.token);
+      if (match) {
+        tokenValido = row;
+        break;
+      }
+    }
+
+    if (!tokenValido) {
+      return res.status(400).json({ success: false, error: 'O link de recuperação é inválido.' });
+    }
+
+    // 4. Atualizar a senha
+    const senhaHash = await bcrypt.hash(novaSenha, BCRYPT_ROUNDS);
+    
+    const client = await db.connect();
+    try {
+      await client.query('BEGIN');
+
+      await client.query(
+        'UPDATE usuarios SET senha_hash = $1, forcar_reset = false, atualizado_em = NOW() WHERE id = $2',
+        [senhaHash, usuarioId]
+      );
+
+      // 5. Deletar todos os tokens de reset do usuário (invalidar outros links antigos)
+      await client.query('DELETE FROM password_resets WHERE user_id = $1', [usuarioId]);
+
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+
+    res.json({ success: true, data: { message: 'Senha redefinida com sucesso! Você já pode fazer login.' } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { cadastrar, login, buscarPorId, atualizarPerfil, deletarConta, recuperarSenha, atualizarSenha, redefinirSenha };

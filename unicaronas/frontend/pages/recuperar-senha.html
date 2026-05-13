@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperar Senha - UniCaronas</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="shortcut icon" href="../img/icon.png" type="image/png">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <a href="../index.html" class="navbar-brand-wrap">
+        <div class="navbar-brand-img"></div>
+        <div class="navbar-brand-text">Uni<span>Caronas</span></div>
+      </a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div style="max-width: 450px; margin: 4rem auto;">
+      <div class="card fade-up">
+        <div class="card-title">Recuperação de Acesso</div>
+        <h2 style="margin-bottom: 1rem;">Esqueceu sua senha?</h2>
+        <p class="text-muted mb-2">Informe seu e-mail institucional para receber as instruções de recuperação.</p>
+        
+        <div id="alert-container"></div>
+
+        <form id="recovery-form">
+          <div class="form-group">
+            <label class="form-label">E-mail Institucional</label>
+            <input type="email" id="email" class="form-control" placeholder="exemplo@unibrasil.com.br" required>
+          </div>
+
+          <button type="submit" id="btn-submit" class="btn btn-primary btn-full mt-1">
+            Enviar link de recuperação
+          </button>
+        </form>
+
+        <div class="text-center mt-3">
+          <a href="login.html" class="text-muted" style="font-size: 0.85rem; font-weight: 600;">Voltar para o Login</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-logo">Uni<span>Caronas</span></div>
+      <div class="footer-copyright">&copy; 2026 UniCaronas. Todos os direitos reservados.</div>
+    </div>
+  </footer>
+
+  <script src="../js/api.js"></script>
+  <script>
+    const form = document.getElementById('recovery-form');
+    const btn = document.getElementById('btn-submit');
+    const alertContainer = document.getElementById('alert-container');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+
+      // Estado de carregamento
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+      alertContainer.innerHTML = '';
+
+      try {
+        const res = await api.recuperarSenha({ email });
+        
+        // Sucesso (mesmo que o e-mail não exista, para segurança)
+        form.style.display = 'none';
+        showAlert(res.data.message, 'success');
+        
+        const successMsg = document.createElement('div');
+        successMsg.className = 'text-center mt-3';
+        successMsg.innerHTML = `
+          <p class="text-muted">Não recebeu? Verifique sua caixa de spam ou <a href="javascript:location.reload()">tente novamente</a>.</p>
+        `;
+        form.parentNode.appendChild(successMsg);
+
+      } catch (err) {
+        showAlert(err.message, 'error');
+        btn.disabled = false;
+        btn.textContent = 'Enviar link de recuperação';
+      }
+    });
+  </script>
+</body>
+</html>

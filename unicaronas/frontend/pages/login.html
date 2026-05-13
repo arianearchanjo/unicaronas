@@ -46,7 +46,7 @@
           <div class="form-group">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <label class="form-label" data-i18n="label-password">Senha</label>
-              <a href="#" onclick="recuperarSenha(event)" style="font-size: 0.75rem; color: var(--accent); margin-bottom: 0.4rem;">Esqueci a senha</a>
+              <a href="recuperar-senha.html" style="font-size: 0.75rem; color: var(--accent); margin-bottom: 0.4rem;">Esqueci a senha</a>
             </div>
             <input type="password" id="senha" class="form-control" placeholder="••••••••" required>
           </div>
@@ -75,21 +75,6 @@
   <script src="../js/navbar.js"></script>
   <script>
     if (isLogado()) window.location.href = 'dashboard.html';
-
-    async function recuperarSenha(e) {
-      e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      if (!email) {
-        return showAlert('Digite seu e-mail institucional primeiro.', 'error');
-      }
-      
-      try {
-        const res = await api.recuperarSenha({ email });
-        showAlert(res.message, 'success');
-      } catch (err) {
-        showAlert(err.message, 'error');
-      }
-    }
 
     document.getElementById('form-login').addEventListener('submit', async (e) => {
       e.preventDefault();
