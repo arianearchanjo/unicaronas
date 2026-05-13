@@ -425,7 +425,7 @@
         <input class="form-control" id="senha" type="password" placeholder="Mínimo 8 caracteres">
       </div>
 
-      <button class="btn btn-primary btn-full mt-2" onclick="cadastrar()" id="btn-cadastrar" data-i18n="btn-register">
+      <button class="btn btn-primary btn-full mt-2" type="button" onclick="cadastrar(event)" id="btn-cadastrar" data-i18n="btn-register">
         Criar conta
       </button>
 
@@ -507,84 +507,91 @@
     }
 
     /* ── Cadastro ──────────────────────────────────────────────── */
-    async function cadastrar() {
-      const diaEadVal  = document.getElementById('dia_ead').value;
-      const perfilTipo = document.querySelector('input[name="perfil_tipo"]:checked').value;
-
-      // Validações básicas
-      const nome      = document.getElementById('nome').value.trim();
-      const email     = document.getElementById('email').value.trim();
-      const matricula = document.getElementById('matricula').value.trim();
-      const senha     = document.getElementById('senha').value;
-
-      if (!nome || !email || !matricula || !senha) {
-        return showAlert('Preencha nome, e-mail, matrícula e senha.', 'error');
+    async function cadastrar(e) {
+      if (e) {
+        if (typeof e.preventDefault === 'function') e.preventDefault();
+        if (typeof e.stopPropagation === 'function') e.stopPropagation();
       }
-      if (senha.length < 8) {
-        return showAlert('A senha deve ter ao menos 8 caracteres.', 'error');
-      }
-
-      // Validações de veículo
-      const precisaVeiculo = perfilTipo === 'motorista' || perfilTipo === 'misto';
-      const vMarca = document.getElementById('v-marca')?.value.trim();
-      const vPlaca = document.getElementById('v-placa')?.value.trim();
-      if (precisaVeiculo && (!vMarca || !vPlaca)) {
-        return showAlert('Para motoristas, marca e placa do veículo são obrigatórios.', 'error');
-      }
-
-      // Validações de documento
-      const { cnh, identidade } = getDocFiles(perfilTipo);
-      if ((perfilTipo === 'motorista' || perfilTipo === 'misto') && !cnh) {
-        return showAlert('Motoristas precisam enviar a CNH para se cadastrar.', 'error');
-      }
-      if ((perfilTipo === 'estudante' || perfilTipo === 'misto') && !identidade) {
-        return showAlert('Passageiros precisam enviar um documento de identidade (RG).', 'error');
-      }
-
-      // Monta o FormData (suporte a arquivos)
-      const form = new FormData();
-      form.append('nome',        nome);
-      form.append('email',       email);
-      form.append('matricula',   matricula);
-      form.append('senha',       senha);
-      form.append('perfil_tipo', perfilTipo);
-      form.append('curso',       document.getElementById('curso').value.trim());
-      form.append('telefone',    document.getElementById('telefone').value.trim());
-      form.append('genero',      document.getElementById('genero').value);
-      if (diaEadVal !== '') form.append('dia_ead', diaEadVal);
-
-      if (precisaVeiculo) {
-        form.append('veiculo[marca]',  vMarca);
-        form.append('veiculo[modelo]', document.getElementById('v-modelo').value.trim());
-        form.append('veiculo[ano]',    document.getElementById('v-ano').value);
-        form.append('veiculo[cor]',    document.getElementById('v-cor').value.trim());
-        form.append('veiculo[placa]',  vPlaca);
-      }
-
-      if (cnh)        form.append('cnh',        cnh);
-      if (identidade) form.append('identidade', identidade);
 
       const btn = document.getElementById('btn-cadastrar');
-      btn.disabled = true;
-      btn.textContent = 'Criando conta...';
+      if (!btn) return;
 
       try {
-        const res = await api.cadastrar(form);
+        const emailInput = document.getElementById('email');
+        const email = emailInput ? emailInput.value.trim() : '';
+        const nome = document.getElementById('nome').value.trim();
+        const matricula = document.getElementById('matricula').value.trim();
+        const senha = document.getElementById('senha').value;
+        const perfilTipo = document.querySelector('input[name="perfil_tipo"]:checked').value;
+        const diaEadVal = document.getElementById('dia_ead').value;
 
+        if (!nome || !email || !matricula || !senha) {
+          showAlert('Preencha nome, e-mail, matrícula e senha.', 'error');
+          return;
+        }
+        if (senha.length < 8) {
+          showAlert('A senha deve ter ao menos 8 caracteres.', 'error');
+          return;
+        }
+
+        const precisaVeiculo = perfilTipo === 'motorista' || perfilTipo === 'misto';
+        const vMarca = document.getElementById('v-marca')?.value.trim();
+        const vPlaca = document.getElementById('v-placa')?.value.trim();
+        if (precisaVeiculo && (!vMarca || !vPlaca)) {
+          showAlert('Para motoristas, marca e placa do veículo são obrigatórios.', 'error');
+          return;
+        }
+
+        const { cnh, identidade } = getDocFiles(perfilTipo);
+        if ((perfilTipo === 'motorista' || perfilTipo === 'misto') && !cnh) {
+          showAlert('Motoristas precisam enviar a CNH para se cadastrar.', 'error');
+          return;
+        }
+        if ((perfilTipo === 'estudante' || perfilTipo === 'misto') && !identidade) {
+          showAlert('Passageiros precisam enviar um documento de identidade (RG).', 'error');
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Criando conta...';
+
+        const form = new FormData();
+        form.append('nome', nome);
+        form.append('email', email);
+        form.append('matricula', matricula);
+        form.append('senha', senha);
+        form.append('perfil_tipo', perfilTipo);
+        form.append('curso', document.getElementById('curso').value.trim());
+        form.append('telefone', document.getElementById('telefone').value.trim());
+        form.append('genero', document.getElementById('genero').value);
+        if (diaEadVal !== '') form.append('dia_ead', diaEadVal);
+
+        if (precisaVeiculo) {
+          form.append('veiculo[marca]', vMarca);
+          form.append('veiculo[modelo]', document.getElementById('v-modelo').value.trim());
+          form.append('veiculo[ano]', document.getElementById('v-ano').value);
+          form.append('veiculo[cor]', document.getElementById('v-cor').value.trim());
+          form.append('veiculo[placa]', vPlaca);
+        }
+
+        if (cnh) form.append('cnh', cnh);
+        if (identidade) form.append('identidade', identidade);
+
+        const res = await api.cadastrar(form);
         showAlert('Conta criada com sucesso! Entrando...', 'success');
 
         if (res.data && res.data.token) {
           setToken(res.data.token);
           setUser(res.data.usuario);
-          setTimeout(() => window.location.href = 'dashboard.html', 1500);
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
         } else {
-          setTimeout(() => window.location.href = 'login.html', 2000);
+          setTimeout(() => { window.location.href = 'login.html'; }, 2000);
         }
 
       } catch (err) {
-        showAlert(err.message, 'error');
         btn.disabled = false;
         btn.textContent = 'Criar conta';
+        showAlert(err.message || 'Erro inesperado ao realizar cadastro.', 'error');
       }
     }
   </script>

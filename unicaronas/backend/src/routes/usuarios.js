@@ -3,6 +3,7 @@ const ctrl   = require('../controllers/usuariosController');
 const { auth }   = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const { validar } = require('../middleware/validacao');
+const { verificarDominioEmail } = require('../middleware/verificarDominio');
 
 const schemasCadastro = {
   nome:        { required: true, type: 'string', minLength: 2, maxLength: 100 },
@@ -32,6 +33,7 @@ router.post('/',
     { name: 'identidade', maxCount: 1 }
   ]),
   validar(schemasCadastro),
+  verificarDominioEmail,
   ctrl.cadastrar
 );
 router.post('/login',           validar(schemasLogin),    ctrl.login);
