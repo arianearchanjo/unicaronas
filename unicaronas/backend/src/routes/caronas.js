@@ -25,6 +25,7 @@ router.get('/solicitacoes/pendentes', auth, ctrl.solicitacoesPendentes);
 router.get('/historico/:usuario_id', auth, ctrl.historico);
 router.post('/',        auth, validar(schemaCriar),     ctrl.criar);
 router.get('/:id',                    ctrl.buscarPorId);
+router.get('/:id/comprovante', auth,   ctrl.gerarComprovante);
 router.get('/:id/solicitacoes', auth,  ctrl.listarSolicitacoes);
 router.get('/:id/minha-solicitacao', auth, ctrl.minhaSolicitacao);
 router.post('/:id/solicitar', auth,   ctrl.solicitar);

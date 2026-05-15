@@ -110,6 +110,7 @@ const api = {
   }),
   deletarConta:    ()     => request('/usuarios/conta', { method: 'DELETE' }),
   atualizarSenha:  (body) => request('/usuarios/senha', { method: 'PATCH', body: JSON.stringify(body) }),
+  getEcoStats:     (id)   => request(`/usuarios/${id}/eco-stats`),
 
   listarCaronas: (params = {}) => {
     const qs = new URLSearchParams(

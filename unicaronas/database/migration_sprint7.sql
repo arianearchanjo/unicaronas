@@ -1,0 +1,12 @@
+-- Migration Sprint 7 — US22 & US24
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS email_verificado BOOLEAN DEFAULT FALSE;
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS instituicao_nome VARCHAR(255);
+
+CREATE TABLE IF NOT EXISTS verification_tokens (
+  id SERIAL PRIMARY KEY,
+  usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+  token VARCHAR(6) NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  used BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT NOW()
+);

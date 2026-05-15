@@ -192,6 +192,13 @@
             ${!sou_motorista && minhaSol?.status === 'pendente' ? `
               <div class="alert alert-warning mt-2">Solicitação pendente...</div>
             ` : ''}
+
+            ${c.status === 'concluida' && (sou_motorista || minhaSol?.status === 'aceita') ? `
+              <button class="btn btn-ghost btn-full mt-2" onclick="exportarComprovante(${c.id})">
+                <i data-lucide="file-text" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;"></i>
+                Exportar comprovante
+              </button>
+            ` : ''}
           </div>
         `;
 
@@ -320,6 +327,30 @@
         showAlert('Solicitação recusada.', 'success');
         carregarDados();
       } catch (err) { showAlert(err.message, 'error'); }
+    }
+
+    async function exportarComprovante(caronaId) {
+      const token = getToken();
+      const url = `${API_URL}/caronas/${caronaId}/comprovante`;
+      
+      try {
+        const response = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) throw new Error('Erro ao gerar comprovante');
+        
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `comprovante-carona-${caronaId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } catch (err) {
+        showAlert(err.message, 'error');
+      }
     }
 
     carregarDados();

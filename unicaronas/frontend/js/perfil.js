@@ -19,14 +19,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   setLoader(true);
 
   try {
-    const [resU, resAv, resHis] = await Promise.all([
+    const [resU, resAv, resHis, resEco] = await Promise.all([
       api.perfil(perfilId),
       api.avaliacoes(perfilId),
-      api.getHistorico(perfilId)
+      api.getHistorico(perfilId),
+      api.getEcoStats(perfilId)
     ]);
 
     renderPerfil(resU.data, ehProprio);
     renderStats(resU.data);
+    renderEcoStats(resEco.data);
     renderAvaliacoes(resAv.data);
     renderHistorico(resHis.data);
     
@@ -54,6 +56,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     setLoader(false);
   }
 });
+
+function renderEcoStats(eco) {
+  setText('eco-km', (eco.km_total || 0) + ' km');
+  setText('eco-co2', (eco.co2_evitado_kg || 0) + ' kg');
+  setText('eco-economia', formatarMoeda(eco.economia_reais || 0));
+}
 
 // ── Perfil ────────────────────────────────────────────────────────────────────
 

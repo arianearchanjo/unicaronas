@@ -34,10 +34,13 @@ router.post('/',
   validar(schemasCadastro),
   ctrl.cadastrar
 );
-router.post('/login',   validar(schemasLogin),    ctrl.login);
-router.post('/recuperar-senha',                   ctrl.recuperarSenha);
-router.post('/redefinir-senha',                   ctrl.redefinirSenha);
-router.get('/:id',      auth,                     ctrl.buscarPorId);
+router.post('/login',           validar(schemasLogin),    ctrl.login);
+router.post('/verificar-email',                           ctrl.verificarEmail);
+router.post('/reenviar-token',                            ctrl.reenviarToken);
+router.post('/recuperar-senha',                           ctrl.recuperarSenha);
+router.post('/redefinir-senha',                           ctrl.redefinirSenha);
+router.get('/:id',              auth,                     ctrl.buscarPorId);
+router.get('/:id/eco-stats',    auth,                     ctrl.ecoStats);
 router.patch('/perfil', auth, upload.single('foto'), validar(schemaPerfil), ctrl.atualizarPerfil);
 router.patch('/senha',  auth,                     ctrl.atualizarSenha);
 router.delete('/conta', auth,                     ctrl.deletarConta);
