@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const pool = require('../../config/database');
 const { criarNotificacao } = require('../utils/notificacoes');
 
@@ -47,7 +48,7 @@ async function processarListaEspera() {
       }
     }
   } catch (err) {
-    console.error('Erro no job da lista de espera:', err);
+    logger.error('Erro no job da lista de espera:', err);
   }
 }
 

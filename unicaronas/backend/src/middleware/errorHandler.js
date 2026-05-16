@@ -1,3 +1,5 @@
+const logger = require('../utils/logger');
+
 /**
  * Middleware centralizado de tratamento de erros.
  * Distingue erros conhecidos (operacionais) de erros inesperados.
@@ -20,7 +22,7 @@ const errorHandler = (err, req, res, next) => { // eslint-disable-line no-unused
   }
 
   // Log apenas de erros inesperados
-  console.error('[ErrorHandler]', err.message, err.stack);
+  logger.error('[ErrorHandler]', err.message, err.stack);
 
   res.status(500).json({ success: false, error: 'Erro interno do servidor' });
 };

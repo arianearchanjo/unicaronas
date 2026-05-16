@@ -69,10 +69,6 @@ function renderPerfil(u, ehProprio) {
   atualizarAvatar('perfil-avatar', u.foto_url, u.nome);
   setText('perfil-nome',   u.nome);
   
-  // Debug para identificar troca de usuário
-  console.log('[UniCaronas] Visualizando Perfil:', { id: u.id, nome: u.nome, is_admin: u.is_admin });
-  console.log('[UniCaronas] Usuário Logado:', getUser());
-
   setText('perfil-curso',  u.curso  || (currentLang === 'pt' ? 'Curso não informado' : 'Course not informed'));
   setText('perfil-email',  u.email);
   setText('perfil-membro', t('profile-member-since') + ' ' + formatarDataCurta(u.criado_em));

@@ -1,4 +1,14 @@
 (function() {
+  // ── Supressão de logs em produção ──────────────────────────
+  const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+  if (isProduction) {
+    const noop = () => {};
+    console.log = noop;
+    console.debug = noop;
+    console.info = noop;
+    // console.error e console.warn são mantidos para depuração de problemas críticos
+  }
+
   const savedTheme = localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
 

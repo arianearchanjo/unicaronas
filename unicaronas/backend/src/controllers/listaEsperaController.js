@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const pool = require('../../config/database');
 
 const listaEsperaController = {
@@ -59,7 +60,7 @@ const listaEsperaController = {
         }
       });
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       return res.status(500).json({ success: false, error: 'Erro ao entrar na lista de espera.' });
     }
   }

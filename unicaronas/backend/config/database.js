@@ -1,4 +1,5 @@
 // backend/config/database.js
+const logger = require('../src/utils/logger');
 const { Pool } = require('pg'); // importa "pool" da biblioteca 'pg' do postgre
 
 /*
@@ -19,15 +20,15 @@ const pool = new Pool({
 });
 
 pool.on('error', (err) => {
-  console.error('Erro inesperado no pool do PostgreSQL:', err); // tratamento de erros
+  logger.error('Erro inesperado no pool do PostgreSQL:', err); // tratamento de erros
 });
 
 // Testar conexão ao iniciar - executado somente uma vez
 pool.connect((err, client, release) => {
   if (err) {
-    console.error('❌ Erro ao conectar ao PostgreSQL:', err.message);
+    logger.error('❌ Erro ao conectar ao PostgreSQL:', err.message);
   } else {
-    console.log('✅ Conectado ao PostgreSQL');
+    logger.log('✅ Conectado ao PostgreSQL');
     release();
   }
 });

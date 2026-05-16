@@ -1,3 +1,4 @@
+const logger = require('./logger');
 const pool = require('../../config/database');
 
 /**
@@ -11,7 +12,7 @@ async function criarNotificacao(usuario_id, mensagem, link = null) {
     const query = 'INSERT INTO notificacoes (usuario_id, mensagem, link) VALUES ($1, $2, $3)';
     await pool.query(query, [usuario_id, mensagem, link]);
   } catch (err) {
-    console.error('Erro ao criar notificação:', err);
+    logger.error('Erro ao criar notificação:', err);
   }
 }
 

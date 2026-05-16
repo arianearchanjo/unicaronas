@@ -5,8 +5,10 @@ const express = require('express');
 const cors    = require('cors');
 const helmet  = require('helmet');
 const path    = require('path');
+const morgan  = require('morgan');
 require('dotenv').config();
 
+const logger = require('./src/utils/logger');
 const usuariosRoutes   = require('./src/routes/usuarios');
 const caronasRoutes    = require('./src/routes/caronas');
 const mensagensRoutes  = require('./src/routes/mensagens');
@@ -20,6 +22,14 @@ const { processarListaEspera } = require('./src/services/listaEsperaService');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
+const isProduction = process.env.NODE_ENV === 'production';
+
+// ── Logging (Morgan) ────────────────────────────────────────
+if (isProduction) {
+  app.use(morgan('combined')); // Log mais detalhado e profissional para produção
+} else {
+  app.use(morgan('dev')); // Log colorido e curto para desenvolvimento
+}
 
 // Job para processar lista de espera a cada 60 segundos
 setInterval(processarListaEspera, 60000);
@@ -63,7 +73,7 @@ app.use('/api/admin',        adminRoutes);
 
 // ── Rota 404 ────────────────────────────────────────────────
 app.use((req, res) => {
-  console.warn(`[404] Rota não encontrada: ${req.method} ${req.originalUrl}`);
+  logger.warn(`[404] Rota não encontrada: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ success: false, error: 'Rota não encontrada' });
 });
 
@@ -72,7 +82,7 @@ app.use(errorHandler);
 
 // ── Iniciar servidor ────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`UniCaronas API rodando em http://localhost:${PORT}`);
+  logger.log(`UniCaronas API rodando em http://localhost:${PORT}`);
 
   // Iniciar Jobs agendados
   const { iniciarJobLembretes } = require('./src/jobs/lembretes');

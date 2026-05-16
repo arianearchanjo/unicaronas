@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const pool = require('../../config/database');
 const notificacoesService = require('../services/notificacoesService');
 
@@ -42,7 +43,7 @@ async function processarLembretesViagem() {
       }
     }
   } catch (err) {
-    console.error('Erro no job de lembretes:', err);
+    logger.error('Erro no job de lembretes:', err);
   }
 }
 
@@ -64,12 +65,12 @@ async function notificarSeNecessario({ usuario_id, carona_id, conteudo, tipo }) 
       await notificacoesService.criarNotificacao({ usuario_id, carona_id, conteudo, tipo });
     }
   } catch (err) {
-    console.error('Erro ao verificar/enviar notificação de lembrete:', err);
+    logger.error('Erro ao verificar/enviar notificação de lembrete:', err);
   }
 }
 
 function iniciarJobLembretes() {
-  console.log('[Job] Lembretes de viagem iniciado (polling 60s).');
+  logger.log('[Job] Lembretes de viagem iniciado (polling 60s).');
   setInterval(processarLembretesViagem, 60000);
 }
 

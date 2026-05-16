@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const pool = require('../../config/database');
 
 const notificacoesService = {
@@ -15,7 +16,7 @@ const notificacoesService = {
       const { rows } = await pool.query(query, values);
       return rows[0];
     } catch (err) {
-      console.error('Erro ao criar notificação:', err);
+      logger.error('Erro ao criar notificação:', err);
       throw err;
     }
   },
@@ -34,7 +35,7 @@ const notificacoesService = {
       const { rows } = await pool.query(query, [usuario_id, limite]);
       return rows;
     } catch (err) {
-      console.error('Erro ao listar notificações:', err);
+      logger.error('Erro ao listar notificações:', err);
       throw err;
     }
   },
@@ -53,7 +54,7 @@ const notificacoesService = {
       const { rows } = await pool.query(query, [id, usuario_id]);
       return rows[0];
     } catch (err) {
-      console.error('Erro ao marcar notificação como lida:', err);
+      logger.error('Erro ao marcar notificação como lida:', err);
       throw err;
     }
   },
@@ -72,7 +73,7 @@ const notificacoesService = {
       const { rows } = await pool.query(query, [usuario_id]);
       return rows;
     } catch (err) {
-      console.error('Erro ao marcar todas as notificações como lidas:', err);
+      logger.error('Erro ao marcar todas as notificações como lidas:', err);
       throw err;
     }
   }

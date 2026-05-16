@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
@@ -39,9 +40,9 @@ const sendResetEmail = async (to, link) => {
   };
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`[MailService] E-mail de reset enviado para: ${to}`);
+    logger.log(`[MailService] E-mail de reset enviado para: ${to}`);
   } catch (error) {
-    console.error('[MailService] Erro ao enviar e-mail:', error);
+    logger.error('[MailService] Erro ao enviar e-mail:', error);
     throw new Error('Não foi possível enviar o e-mail de recuperação.');
   }
 };
@@ -75,9 +76,9 @@ const sendVerificationEmail = async (to, token) => {
   };
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`[MailService] E-mail de verificação enviado para: ${to}`);
+    logger.log(`[MailService] E-mail de verificação enviado para: ${to}`);
   } catch (error) {
-    console.error('[MailService] Erro ao enviar e-mail de verificação:', error);
+    logger.error('[MailService] Erro ao enviar e-mail de verificação:', error);
     throw new Error('Não foi possível enviar o e-mail de verificação.');
   }
 };
