@@ -235,6 +235,7 @@ const showAlert = (msg, tipo = 'success', containerId = 'alert-container') => {
   const el = document.getElementById(containerId);
   if (!el) return;
   el.innerHTML = `<div class="alert alert-${tipo}" role="alert">${msg}</div>`;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   setTimeout(() => { el.innerHTML = ''; }, 5000);
 };
 
