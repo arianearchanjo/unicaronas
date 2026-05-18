@@ -6,6 +6,8 @@ const cors    = require('cors');
 const helmet  = require('helmet');
 const path    = require('path');
 const morgan  = require('morgan');
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf');
 require('dotenv').config();
 
 const logger = require('./src/utils/logger');
@@ -26,32 +28,43 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 // ── Logging (Morgan) ────────────────────────────────────────
 if (isProduction) {
-  app.use(morgan('combined')); // Log mais detalhado e profissional para produção
+  app.use(morgan('combined'));
 } else {
-  app.use(morgan('dev')); // Log colorido e curto para desenvolvimento
+  app.use(morgan('dev'));
 }
 
 // Job para processar lista de espera a cada 60 segundos
 setInterval(processarListaEspera, 60000);
 
-// ── CORS explícito (resolve problemas com Live Server / file://) ──
+// ── Middleware Base ─────────────────────────────────────────
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// ── CSRF Protection ─────────────────────────────────────────
+const csrfProtection = csrf({ cookie: true });
+app.use(csrfProtection);
+
+// Endpoint para o frontend obter o token CSRF
+app.get('/api/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
+
+// ── CORS explícito ──────────────────────────────────────────
 const corsOptions = {
-  origin: '*',
+  origin: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: false,
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // responde preflight em todas as rotas
+app.options('*', cors(corsOptions));
 
 // ── Helmet (depois do CORS para não conflitar) ──────────────
 app.use(helmet({
   crossOriginResourcePolicy: false,
 }));
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // ── Servir arquivos estáticos (uploads) ─────────────────────
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -78,6 +91,12 @@ app.use((req, res) => {
 });
 
 // ── Error handler global ────────────────────────────────────
+app.use((err, req, res, next) => {
+  if (err.code === 'EBADCSRFTOKEN') {
+    return res.status(403).json({ success: false, error: 'Token CSRF inválido ou ausente.' });
+  }
+  next(err);
+});
 app.use(errorHandler);
 
 // ── Iniciar servidor ────────────────────────────────────────

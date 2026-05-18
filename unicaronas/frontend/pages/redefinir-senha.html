@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Recuperar Senha - UniCaronas</title>
+  <title>Redefinir Senha - UniCaronas</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="shortcut icon" href="../img/icon.png" type="image/png">
   <link rel="stylesheet" href="../css/acessibilidade.css">
@@ -20,27 +20,28 @@
 
   <main class="container">
     <div style="max-width: 450px; margin: 4rem auto;">
-      <div class="card fade-up">
-        <div class="card-title">Recuperação de Acesso</div>
-        <h2 style="margin-bottom: 1rem;">Esqueceu sua senha?</h2>
-        <p class="text-muted mb-2">Informe seu e-mail institucional para receber as instruções de recuperação.</p>
+      <div id="reset-card" class="card fade-up">
+        <div class="card-title">Recuperação</div>
+        <h2 style="margin-bottom: 1rem;">Redefinir Senha</h2>
+        <p class="text-muted mb-2">Digite sua nova senha abaixo.</p>
         
         <div id="alert-container" role="alert" aria-live="polite"></div>
 
-        <form id="recovery-form">
+        <form id="form-redefinir">
           <div class="form-group">
-            <label class="form-label">E-mail Institucional</label>
-            <input type="email" id="email" class="form-control" placeholder="exemplo@unibrasil.com.br" required>
+            <label class="form-label" for="nova-senha">Nova Senha</label>
+            <input type="password" id="nova-senha" class="form-control" required minlength="6" placeholder="Mínimo 6 caracteres" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="confirmar-senha">Confirmar Nova Senha</label>
+            <input type="password" id="confirmar-senha" class="form-control" required minlength="6" placeholder="Repita a nova senha" />
           </div>
 
           <button type="submit" id="btn-submit" class="btn btn-primary btn-full mt-1">
-            Enviar link de recuperação
+            Redefinir Senha
           </button>
         </form>
-
-        <div class="text-center mt-3">
-          <a href="login.html" class="text-muted" style="font-size: 0.85rem; font-weight: 600;">Voltar para o Login</a>
-        </div>
       </div>
     </div>
   </main>
@@ -54,38 +55,52 @@
 
   <script src="../js/api.js"></script>
   <script>
-    const form = document.getElementById('recovery-form');
+    const form = document.getElementById('form-redefinir');
+    const senhaInput = document.getElementById('nova-senha');
+    const confirmarInput = document.getElementById('confirmar-senha');
     const btn = document.getElementById('btn-submit');
-    const alertContainer = document.getElementById('alert-container');
+
+    // Extrair token e e-mail da URL
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const email = params.get('email');
+
+    if (!token || !email) {
+      showAlert('Link de recuperação inválido ou incompleto.', 'error');
+      form.style.display = 'none';
+    }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      const email = document.getElementById('email').value;
+      const novaSenha = senhaInput.value;
+      const confirmarSenha = confirmarInput.value;
 
-      // Estado de carregamento
+      if (novaSenha !== confirmarSenha) {
+        return showAlert('As senhas não coincidem.', 'error');
+      }
+
       btn.disabled = true;
-      btn.textContent = 'Enviando...';
-      alertContainer.innerHTML = '';
+      btn.textContent = 'Processando...';
 
       try {
-        const res = await api.recuperarSenha({ email });
+        await api.redefinirSenha({
+          email,
+          token,
+          novaSenha
+        });
+
+        showAlert('Senha redefinida com sucesso! Redirecionando...', 'success');
         
-        // Sucesso (mesmo que o e-mail não exista, para segurança)
-        form.style.display = 'none';
-        showAlert(res.data.message, 'success');
-        
-        const successMsg = document.createElement('div');
-        successMsg.className = 'text-center mt-3';
-        successMsg.innerHTML = `
-          <p class="text-muted">Não recebeu? Verifique sua caixa de spam ou <a href="javascript:location.reload()">tente novamente</a>.</p>
-        `;
-        form.parentNode.appendChild(successMsg);
+        // Redireciona após 3 segundos
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 3000);
 
       } catch (err) {
         showAlert(err.message, 'error');
         btn.disabled = false;
-        btn.textContent = 'Enviar link de recuperação';
+        btn.textContent = 'Redefinir Senha';
       }
     });
   </script>

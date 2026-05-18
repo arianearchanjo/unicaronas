@@ -38,6 +38,7 @@
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; display: none; }
     .modal-box { background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); width: 100%; max-width: 400px; }
   </style>
+  <link rel="stylesheet" href="../css/acessibilidade.css">
 </head>
 <body>
 
@@ -105,6 +106,10 @@
   <script src="../js/api.js"></script>
   <script src="../js/i18n.js"></script>
   <script src="../js/navbar.js"></script>
+  <script src="../js/chat-state.js"></script>
+  <script src="../js/chat-api.js"></script>
+  <script src="../js/chat-ui.js"></script>
+  <script src="../js/chat-polling.js"></script>
   <script src="../js/chat-global.js"></script>
   <script>
     protegerRota();
@@ -311,5 +316,17 @@
     carregarMinhasCaronas();
     document.getElementById('btn-logout')?.addEventListener('click', () => logout());
   </script>
+
+  <script src="../js/acessibilidade.js"></script>
+
+  <!-- VLibras -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
 </body>
 </html>

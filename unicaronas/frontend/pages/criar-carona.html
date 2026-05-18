@@ -6,6 +6,7 @@
   <title>UniCaronas — Oferecer carona</title>
   <link rel="icon" type="image/png" href="../img/icon.png?v=2">
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/acessibilidade.css">
   <link rel="stylesheet" href="../css/autocomplete.css">
   <script src="../js/theme.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -27,7 +28,7 @@
     </div>
 
     <div class="card fade-up">
-      <div id="alert-container"></div>
+      <div id="alert-container" role="alert" aria-live="polite" role="alert" aria-live="polite"></div>
 
       <!-- Informativo de Endereço -->
       <div style="background: var(--bg-2); border-left: 4px solid var(--accent); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 0.75rem;">
@@ -42,48 +43,48 @@
       <div class="grid-2">
         <div class="form-group">
           <label class="form-label" data-i18n="label-origin">Origem</label>
-          <input class="form-control" id="origem" type="text" placeholder="Seu local de partida" autocomplete="off">
+          <input class="form-control" id="origem" type="text" placeholder="Seu local de partida" autocomplete="off" aria-label="Origem" aria-required="true">
         </div>
         <div class="form-group">
           <label class="form-label" data-i18n="label-destination">Destino</label>
-          <input class="form-control" id="destino" type="text" placeholder="Campus ou endereço de chegada" autocomplete="off">
+          <input class="form-control" id="destino" type="text" placeholder="Campus ou endereço de chegada" autocomplete="off" aria-label="Destino" aria-required="true">
         </div>
       </div>
 
       <div class="grid-2">
         <div class="form-group">
           <label class="form-label" data-i18n="label-vehicle">Veículo (opcional)</label>
-          <select class="form-control" id="veiculo_id">
+          <select class="form-control" id="veiculo_id" aria-label="Veículo">
             <option value="">Carregando veículos...</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label" data-i18n="label-meeting-point">Ponto de encontro <span style="color:var(--red)">*</span></label>
-          <input class="form-control" id="ponto_encontro" type="text" placeholder="Ex: Portaria Principal ou Seu Endereço - Mogged by Japanoski" required>
+          <input class="form-control" id="ponto_encontro" type="text" placeholder="Ex: Portaria Principal ou Seu Endereço - Mogged by Japanoski" required aria-label="Ponto de encontro" aria-required="true">
         </div>
       </div>
 
       <div class="form-group">
         <label class="form-label" data-i18n="label-meeting-point-details">Detalhes do ponto de encontro <span style="color:var(--red)">*</span></label>
-        <input class="form-control" id="ponto_encontro_detalhes" type="text" placeholder="Ex: ao lado da escada, em frente à copa..." required>
+        <input class="form-control" id="ponto_encontro_detalhes" type="text" placeholder="Ex: ao lado da escada, em frente à copa..." required aria-label="Detalhes do ponto de encontro" aria-required="true">
       </div>
 
       <div class="form-group">
         <label class="form-label" data-i18n="label-itinerary">Itinerário (pontos no caminho)</label>
-        <input class="form-control" id="itinerario" type="text" data-i18n="placeholder-itinerary" placeholder="Ex: Passando por Batel, Centro e Santa Felicidade">
+        <input class="form-control" id="itinerario" type="text" data-i18n="placeholder-itinerary" placeholder="Ex: Passando por Batel, Centro e Santa Felicidade" aria-label="Itinerário">
       </div>
 
       <div class="grid-2">
         <div class="form-group">
           <label class="form-label" data-i18n="label-datetime">Data e horário</label>
-          <input class="form-control" id="horario" type="datetime-local" onchange="verificarDiaEad()">
+          <input class="form-control" id="horario" type="datetime-local" onchange="verificarDiaEad()" aria-label="Data e horário" aria-required="true">
           <div id="aviso-ead" class="alert alert-warning" style="display:none; margin-top:0.5rem; padding: 0.5rem; font-size: 0.8rem;">
             Atenção: Este é o seu dia EAD. Você tem certeza que deseja oferecer carona?
           </div>
         </div>
         <div class="form-group">
           <label class="form-label" data-i18n="label-vagas">Vagas disponíveis</label>
-          <input class="form-control" id="vagas" type="number" min="1" max="6" value="3">
+          <input class="form-control" id="vagas" type="number" min="1" max="6" value="3" aria-label="Vagas disponíveis" aria-required="true">
         </div>
       </div>
 
@@ -91,12 +92,12 @@
         <div class="form-group">
           <label class="form-label" data-i18n="card-dist">Distância estimada (km)</label>
           <input class="form-control" id="distancia" type="number" min="0" step="0.5"
-            placeholder="Ex: 25" oninput="atualizarSugestao()">
+            placeholder="Ex: 25" oninput="atualizarSugestao()" aria-label="Distância estimada">
           <span class="form-hint">valor_sugerido = distância × R$ 0,30 / km</span>
         </div>
         <div class="form-group">
           <label class="form-label" data-i18n="label-value">Valor por passageiro</label>
-          <input class="form-control" id="valor" type="number" min="0" step="0.50" placeholder="0,00">
+          <input class="form-control" id="valor" type="number" min="0" step="0.50" placeholder="0,00" aria-label="Valor por passageiro" aria-required="true">
           <span class="form-hint" data-i18n="btn-publish">Aceite a sugestão ou defina outro valor</span>
         </div>
       </div>
@@ -110,12 +111,12 @@
       <div class="form-group">
         <label class="form-label"><span data-i18n="label-obs">Observações</span> <span style="font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
         <textarea class="form-control" id="observacoes" rows="2"
-          placeholder="Ponto de encontro, desvio aceito, bagagem..." data-i18n="label-obs"></textarea>
+          placeholder="Ponto de encontro, desvio aceito, bagagem..." data-i18n="label-obs" aria-label="Observações"></textarea>
       </div>
 
       <div class="toggle-wrap">
         <label class="toggle">
-          <input type="checkbox" id="recorrente">
+          <input type="checkbox" id="recorrente" aria-label="Carona semanal">
           <span class="toggle-slider"></span>
         </label>
         <span class="toggle-label">Carona semanal (criar para as próximas 4 semanas)</span>
@@ -123,7 +124,7 @@
 
       <div class="divider"></div>
 
-      <button class="btn btn-success btn-full" onclick="publicarCarona()" id="btn-pub" data-i18n="btn-publish">
+      <button class="btn btn-success btn-full" onclick="publicarCarona()" id="btn-pub" data-i18n="btn-publish" aria-label="Publicar carona">
         Publicar carona
       </button>
     </div>
@@ -271,6 +272,23 @@
     
     document.getElementById('btn-logout')?.addEventListener('click', () => logout());
   </script>
+
+  <script src="../js/acessibilidade.js"></script>
+
+  <!-- VLibras -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
+
+  <script src="../js/chat-state.js"></script>
+  <script src="../js/chat-api.js"></script>
+  <script src="../js/chat-ui.js"></script>
+  <script src="../js/chat-polling.js"></script>
   <script src="../js/chat-global.js"></script>
   <script src="../js/notificacoes-global.js"></script>
 </body>

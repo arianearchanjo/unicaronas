@@ -15,6 +15,14 @@ const login = async (req, res, next) => {
     const usuario = rows[0];
     const token = jwt.sign({ id: usuario.id, email: usuario.email, is_admin: usuario.is_admin }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
 
+    // Configuração do Cookie HttpOnly
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 dias
+    });
+
     res.json({ success: true, data: { token, usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email, perfil_tipo: usuario.perfil_tipo, email_verificado: usuario.email_verificado } } });
   } catch (err) {
     next(err);
@@ -110,7 +118,14 @@ const recuperarSenha = async (req, res, next) => {
 };
 
 const redefinirSenha = async (req, res, next) => {
-  res.status(501).json({ success: false, error: 'Não implementado nesta refatoração' });
+  try {
+    const { email, token, novaSenha } = req.body;
+    const resultado = await usuariosService.redefinirSenha(email, token, novaSenha);
+    res.json({ success: true, data: resultado });
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ success: false, error: err.message, code: err.code });
+    next(err);
+  }
 };
 
 const atualizarSenha = async (req, res, next) => {

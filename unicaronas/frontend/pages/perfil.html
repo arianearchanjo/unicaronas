@@ -220,6 +220,7 @@
     .conquista-label { font-size: 0.62rem; font-weight: 700; color: var(--text-3); text-transform: uppercase; line-height: 1.2; }
     .active .conquista-label { color: var(--text-2); }
   </style>
+  <link rel="stylesheet" href="../css/acessibilidade.css">
 </head>
 <body>
 
@@ -227,7 +228,7 @@
 
   <main class="container">
 
-    <div id="alert-container" role="status" aria-live="polite"></div>
+    <div id="alert-container" role="alert" aria-live="polite" role="status" aria-live="polite"></div>
 
     <!-- Loader -->
     <div id="perfil-loader">
@@ -398,7 +399,7 @@
        aria-labelledby="modal-titulo-label" hidden>
     <div class="modal-box">
       <h2 id="modal-titulo-label" class="modal-titulo" data-i18n="modal-edit-title">Editar perfil</h2>
-      <div id="alert-modal" role="alert" aria-live="polite"></div>
+      <div id="alert-modal" role="alert" aria-live="polite" role="alert" aria-live="polite"></div>
 
       <form id="form-editar-perfil" novalidate>
         <div class="form-group">
@@ -562,7 +563,23 @@
     // Expõe globalmente para o perfil.js usar
     window.renderBadgeVerificacao = renderBadgeVerificacao;
   </script>
+  <script src="../js/chat-state.js"></script>
+  <script src="../js/chat-api.js"></script>
+  <script src="../js/chat-ui.js"></script>
+  <script src="../js/chat-polling.js"></script>
   <script src="../js/chat-global.js"></script>
   <script src="../js/notificacoes-global.js"></script>
+
+  <script src="../js/acessibilidade.js"></script>
+
+  <!-- VLibras -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
 </body>
 </html>

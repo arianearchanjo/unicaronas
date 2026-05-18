@@ -141,6 +141,39 @@ const usuariosService = {
       co2_evitado_kg: parseFloat((km_total * 0.12).toFixed(2)),
       economia_reais: parseFloat((km_total * 0.70).toFixed(2))
     };
+  },
+
+  async redefinirSenha(email, token, novaSenha) {
+    const { rows } = await db.query(
+      `SELECT pr.*, u.id as user_id
+       FROM password_resets pr
+       JOIN usuarios u ON u.id = pr.user_id
+       WHERE u.email = $1 AND pr.token = $2 AND pr.expires_at > NOW()`,
+      [email.toLowerCase(), token]
+    );
+
+    if (rows.length === 0) {
+      throw { status: 400, message: "Token inválido ou expirado.", code: "TOKEN_INVALIDO" };
+    }
+
+    const reset = rows[0];
+    const senhaHash = await bcrypt.hash(novaSenha, BCRYPT_ROUNDS);
+
+    const client = await db.connect();
+    try {
+      await client.query('BEGIN');
+      // Atualiza a senha
+      await client.query('UPDATE usuarios SET senha_hash = $1 WHERE id = $2', [senhaHash, reset.user_id]);
+      // Remove o token utilizado (ou todos os tokens do usuário por segurança)
+      await client.query('DELETE FROM password_resets WHERE user_id = $1', [reset.user_id]);
+      await client.query('COMMIT');
+      return { mensagem: "Senha redefinida com sucesso." };
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
   }
 };
 

@@ -5,68 +5,42 @@
 
 const API_URL = 'http://localhost:3000/api';
 
+// ─── CSRF ─────────────────────────────────────────────────────────────────────
+
+let cachedCsrfToken = null;
+
+async function getCsrfToken() {
+  if (cachedCsrfToken) return cachedCsrfToken;
+  try {
+    const res = await fetch(`${API_URL}/csrf-token`, { credentials: 'include' });
+    const data = await res.json();
+    cachedCsrfToken = data.csrfToken;
+    return cachedCsrfToken;
+  } catch (e) {
+    console.error('Erro ao buscar token CSRF:', e);
+    return null;
+  }
+}
+
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
-const getToken  = () => localStorage.getItem('unicaronas_token');
+// O token agora é gerenciado via HttpOnly Cookie pelo navegador.
 const getUser   = () => JSON.parse(localStorage.getItem('unicaronas_user') || 'null');
-const setToken  = (t) => localStorage.setItem('unicaronas_token', t);
 const setUser   = (u) => localStorage.setItem('unicaronas_user', JSON.stringify(u));
-const clearToken= () => localStorage.removeItem('unicaronas_token');
 const clearUser = () => localStorage.removeItem('unicaronas_user');
-const isLogado  = () => !!getToken();
+// isLogado agora depende da existência do objeto user, já que o token está no cookie HttpOnly
+const isLogado  = () => !!getUser();
 
-// Idêntico ao original — redireciona para login.html relativo à página atual
 const logout = () => {
-  clearToken();
   clearUser();
+  // No backend, deveríamos ter uma rota para limpar o cookie de token. 
+  // Por enquanto, limpamos o estado local e redirecionamos.
   window.location.href = 'login.html';
 };
 
-// Redireciona se não estiver logado (nome original mantido)
-const protegerRota = () => {
-  if (!isLogado()) {
-    window.location.href = 'login.html';
-    return false;
-  }
-  aplicarRegrasPerfil();
-  return true;
-};
-
-const aplicarRegrasPerfil = () => {
-  const u = getUser();
-  if (!u) return;
-
-  const tipo = u.perfil_tipo || 'misto';
-
-  // Regras para Passageiro (estudante)
-  if (tipo === 'estudante') {
-    document.querySelectorAll('.role-motorista, #nav-oferecer-wrap, #nav-gerenciar-wrap').forEach(el => el.style.display = 'none');
-  }
-  
-  // Regras para Motorista
-  if (tipo === 'motorista') {
-    document.querySelectorAll('.role-passageiro, #nav-buscar-wrap').forEach(el => el.style.display = 'none');
-  }
-
-  // Se for misto, garante que tudo apareça (exceto se houver lógica específica)
-  if (tipo === 'misto') {
-    document.querySelectorAll('#nav-oferecer-wrap, #nav-gerenciar-wrap, #nav-buscar-wrap').forEach(el => el.style.display = 'block');
-  }
-
-  // Proteção de acesso direto a páginas proibidas
-  const path = window.location.pathname;
-  if (tipo === 'estudante' && (path.includes('criar-carona.html') || path.includes('gerenciar-caronas.html'))) {
-    window.location.href = 'dashboard.html';
-  }
-  if (tipo === 'motorista' && path.includes('buscar.html')) {
-    window.location.href = 'dashboard.html';
-  }
-};
-
-// ─── Requisição base ───────────────────────────────────────────────────────────
+// ... (rest of the file until request function)
 
 const request = async (path, options = {}) => {
-  const token = getToken();
   const headers = { ...options.headers };
   
   // Se não for FormData, define Content-Type como JSON
@@ -74,11 +48,21 @@ const request = async (path, options = {}) => {
     headers['Content-Type'] = 'application/json';
   }
   
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  // CSRF Protection para métodos mutantes
+  if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(options.method?.toUpperCase())) {
+    const csrfToken = await getCsrfToken();
+    if (csrfToken) {
+      headers['X-CSRF-Token'] = csrfToken;
+    }
+  }
 
   let response;
   try {
-    response = await fetch(`${API_URL}${path}`, { ...options, headers });
+    response = await fetch(`${API_URL}${path}`, { 
+      ...options, 
+      headers,
+      credentials: 'include' // Envia cookies (JWT e CSRF)
+    });
   } catch (e) {
     const errorMsg = (typeof currentLang !== 'undefined' && currentLang === 'en') 
       ? 'Could not connect to the server. Check your connection.' 

@@ -54,6 +54,7 @@
       color: #2c5282;
     }
   </style>
+  <link rel="stylesheet" href="../css/acessibilidade.css">
 </head>
 <body>
   <div id="navbar-placeholder"></div>
@@ -216,7 +217,23 @@
 
     buscar();
   </script>
+  <script src="../js/chat-state.js"></script>
+  <script src="../js/chat-api.js"></script>
+  <script src="../js/chat-ui.js"></script>
+  <script src="../js/chat-polling.js"></script>
   <script src="../js/chat-global.js"></script>
   <script src="../js/notificacoes-global.js"></script>
+
+  <script src="../js/acessibilidade.js"></script>
+
+  <!-- VLibras -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
 </body>
 </html>
