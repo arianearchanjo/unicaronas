@@ -39,12 +39,8 @@ router.post('/',
   verificarDominioEmail,
   ctrl.cadastrar
 );
-<<<<<<< HEAD
-router.post('/login',           validar(schemasLogin),    ctrl.login);
-router.post('/logout',                                    ctrl.logout);
-=======
 router.post('/login',           authLimiter, validar(schemasLogin),    ctrl.login);
->>>>>>> 956f0166340ffc5c9ef63ef82a1e0826512fb02e
+router.post('/logout',                                    ctrl.logout);
 router.post('/verificar-email',                           ctrl.verificarEmail);
 router.post('/reenviar-token',                            ctrl.reenviarToken);
 router.post('/recuperar-senha', authLimiter,              ctrl.recuperarSenha);

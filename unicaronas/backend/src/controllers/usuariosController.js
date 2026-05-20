@@ -15,20 +15,18 @@ const login = async (req, res, next) => {
     const usuario = rows[0];
     const token = jwt.sign({ id: usuario.id, email: usuario.email, is_admin: usuario.is_admin }, process.env.JWT_SECRET || 'secret', { expiresIn: '24h' });
 
-<<<<<<< HEAD
-    // Configuração de segurança do cookie
-    const cookieOptions = {
+    // Configuração de segurança do cookie HttpOnly
+    res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 24 * 60 * 60 * 1000 // 24 horas
-    };
-
-    res.cookie('token', token, cookieOptions);
+    });
 
     res.json({ 
       success: true, 
       data: { 
+        token,
         usuario: { 
           id: usuario.id, 
           nome: usuario.nome, 
@@ -38,17 +36,6 @@ const login = async (req, res, next) => {
         } 
       } 
     });
-=======
-    // Configuração do Cookie HttpOnly
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 dias
-    });
-
-    res.json({ success: true, data: { token, usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email, perfil_tipo: usuario.perfil_tipo, email_verificado: usuario.email_verificado } } });
->>>>>>> 956f0166340ffc5c9ef63ef82a1e0826512fb02e
   } catch (err) {
     next(err);
   }

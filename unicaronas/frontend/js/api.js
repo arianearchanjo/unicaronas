@@ -24,7 +24,6 @@ async function getCsrfToken() {
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
-<<<<<<< HEAD
 const getUser   = () => JSON.parse(localStorage.getItem('unicaronas_user') || 'null');
 const setUser   = (u) => localStorage.setItem('unicaronas_user', JSON.stringify(u));
 const clearUser = () => localStorage.removeItem('unicaronas_user');
@@ -82,24 +81,8 @@ const aplicarRegrasPerfil = () => {
     window.location.href = 'dashboard.html';
   }
 };
+
 // ─── Requisição base ───────────────────────────────────────────────────────────
-=======
-// O token agora é gerenciado via HttpOnly Cookie pelo navegador.
-const getUser   = () => JSON.parse(localStorage.getItem('unicaronas_user') || 'null');
-const setUser   = (u) => localStorage.setItem('unicaronas_user', JSON.stringify(u));
-const clearUser = () => localStorage.removeItem('unicaronas_user');
-// isLogado agora depende da existência do objeto user, já que o token está no cookie HttpOnly
-const isLogado  = () => !!getUser();
-
-const logout = () => {
-  clearUser();
-  // No backend, deveríamos ter uma rota para limpar o cookie de token. 
-  // Por enquanto, limpamos o estado local e redirecionamos.
-  window.location.href = 'login.html';
-};
-
-// ... (rest of the file until request function)
->>>>>>> 956f0166340ffc5c9ef63ef82a1e0826512fb02e
 
 const request = async (path, options = {}) => {
   const headers = { ...options.headers };
@@ -108,16 +91,6 @@ const request = async (path, options = {}) => {
   if (!(options.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
-<<<<<<< HEAD
-
-  let response;
-  try {
-    // Adicionado credentials: 'include' para enviar cookies HttpOnly
-    response = await fetch(`${API_URL}${path}`, { 
-      ...options, 
-      headers,
-      credentials: 'include'
-=======
   
   // CSRF Protection para métodos mutantes
   if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(options.method?.toUpperCase())) {
@@ -129,11 +102,11 @@ const request = async (path, options = {}) => {
 
   let response;
   try {
+    // Adicionado credentials: 'include' para enviar cookies HttpOnly (JWT e CSRF)
     response = await fetch(`${API_URL}${path}`, { 
       ...options, 
       headers,
-      credentials: 'include' // Envia cookies (JWT e CSRF)
->>>>>>> 956f0166340ffc5c9ef63ef82a1e0826512fb02e
+      credentials: 'include'
     });
   } catch (e) {
     // Erro de rede ou conexão

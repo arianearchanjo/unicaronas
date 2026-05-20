@@ -530,15 +530,6 @@
         const perfilTipo = document.querySelector('input[name="perfil_tipo"]:checked').value;
         const diaEadVal = document.getElementById('dia_ead').value;
 
-<<<<<<< HEAD
-        showAlert('Conta criada com sucesso! Redirecionando...', 'success');
-
-        setTimeout(() => window.location.href = 'login.html', 2000);
-
-      } catch (err) {
-
-        showAlert(err.message, 'error');
-=======
         if (!nome || !email || !matricula || !senha) {
           showAlert('Preencha nome, e-mail, matrícula e senha.', 'error');
           return;
@@ -602,7 +593,6 @@
         }
 
       } catch (err) {
->>>>>>> 956f0166340ffc5c9ef63ef82a1e0826512fb02e
         btn.disabled = false;
         btn.textContent = 'Criar conta';
         showAlert(err.message || 'Erro inesperado ao realizar cadastro.', 'error');

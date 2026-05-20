@@ -2,10 +2,6 @@
 const jwt = require('jsonwebtoken');
 
 const auth = (req, res, next) => {
-<<<<<<< HEAD
-  const token = req.cookies.token;
-
-=======
   const header = req.headers.authorization;
   let token = null;
 
@@ -15,7 +11,6 @@ const auth = (req, res, next) => {
     token = req.cookies.token;
   }
 
->>>>>>> 956f0166340ffc5c9ef63ef82a1e0826512fb02e
   if (!token) {
     return res.status(401).json({
       success: false,

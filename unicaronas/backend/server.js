@@ -27,13 +27,8 @@ const cors    = require('cors');
 const helmet  = require('helmet');
 const cookieParser = require('cookie-parser');
 const path    = require('path');
-<<<<<<< HEAD
-=======
 const morgan  = require('morgan');
-const cookieParser = require('cookie-parser');
-const csrf = require('csurf');
-require('dotenv').config();
->>>>>>> 956f0166340ffc5c9ef63ef82a1e0826512fb02e
+const csrf    = require('csurf');
 
 const logger = require('./src/utils/logger');
 const usuariosRoutes   = require('./src/routes/usuarios');
@@ -49,10 +44,6 @@ const { apiLimiter }   = require('./src/middleware/rateLimiter');
 const { processarListaEspera } = require('./src/services/listaEsperaService');
 
 const app  = express();
-<<<<<<< HEAD
-=======
-const PORT = process.env.PORT || 3000;
-const isProduction = process.env.NODE_ENV === 'production';
 
 // Confiar em proxies (necessário para express-rate-limit em produção)
 app.set('trust proxy', 1);
@@ -63,16 +54,30 @@ if (isProduction) {
 } else {
   app.use(morgan('dev'));
 }
->>>>>>> 956f0166340ffc5c9ef63ef82a1e0826512fb02e
 
 // Job para processar lista de espera a cada 60 segundos
 setInterval(processarListaEspera, 60000);
 
-<<<<<<< HEAD
+// ── Middleware Base ─────────────────────────────────────────
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// ── Rate Limiting Global ─────────────────────────────────────
+app.use('/api', apiLimiter);
+
+// ── CSRF Protection ─────────────────────────────────────────
+const csrfProtection = csrf({ cookie: true });
+app.use(csrfProtection);
+
+// Endpoint para o frontend obter o token CSRF
+app.get('/api/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
+
 // ── CORS Restrito (Produção vs Desenvolvimento) ──────────
 const corsOptions = {
   origin: (origin, callback) => {
-    const isProduction = process.env.NODE_ENV === 'production';
     const frontendUrl = process.env.FRONTEND_URL;
 
     // Permitir requisições sem 'origin' (como Postman ou chamadas entre servidores)
@@ -93,38 +98,12 @@ const corsOptions = {
     return callback(new Error('Acesso não permitido por política de CORS'), false);
   },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-=======
-// ── Middleware Base ─────────────────────────────────────────
-app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// ── Rate Limiting Global ─────────────────────────────────────
-app.use('/api', apiLimiter);
-
-// ── CSRF Protection ─────────────────────────────────────────
-const csrfProtection = csrf({ cookie: true });
-app.use(csrfProtection);
-
-// Endpoint para o frontend obter o token CSRF
-app.get('/api/csrf-token', (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
-
-// ── CORS explícito ──────────────────────────────────────────
-const corsOptions = {
-  origin: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
->>>>>>> 956f0166340ffc5c9ef63ef82a1e0826512fb02e
   credentials: true,
 };
 
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
-
-app.use(cookieParser());
 
 // ── Helmet (depois do CORS para não conflitar) ──────────────
 app.use(helmet({
