@@ -6,6 +6,7 @@
   <title>UniCaronas — Criar conta</title>
   <link rel="icon" type="image/png" href="../img/icon.png?v=2">
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/acessibilidade.css">
   <script src="../js/theme.js"></script>
   <style>
     body {
@@ -192,33 +193,33 @@
     </div>
 
     <div class="card">
-      <div id="alert-container"></div>
+      <div id="alert-container" role="alert" aria-live="polite" role="alert" aria-live="polite"></div>
 
       <div class="grid-2">
         <div class="form-group">
           <label class="form-label" data-i18n="label-full-name">Nome completo</label>
-          <input class="form-control" id="nome" type="text" placeholder="Seu nome">
+          <input class="form-control" id="nome" type="text" placeholder="Seu nome" aria-label="Nome completo" aria-required="true">
         </div>
         <div class="form-group">
           <label class="form-label" data-i18n="label-matricula">Matrícula</label>
-          <input class="form-control" id="matricula" type="text" placeholder="2024001">
+          <input class="form-control" id="matricula" type="text" placeholder="2024001" aria-label="Matrícula" aria-required="true">
         </div>
       </div>
 
       <div class="form-group">
         <label class="form-label" data-i18n="label-email">E-mail institucional</label>
-        <input class="form-control" id="email" type="email" placeholder="seu@unibrasil.com.br">
+        <input class="form-control" id="email" type="email" placeholder="seu@unibrasil.com.br" aria-label="E-mail institucional" aria-required="true">
         <span class="form-hint" data-i18n="register-email-hint">Apenas e-mails da sua universidade são aceitos</span>
       </div>
 
       <div class="grid-2">
         <div class="form-group">
           <label class="form-label" data-i18n="label-course">Curso</label>
-          <input class="form-control" id="curso" type="text" placeholder="Engenharia de Software">
+          <input class="form-control" id="curso" type="text" placeholder="Engenharia de Software" aria-label="Curso">
         </div>
         <div class="form-group">
           <label class="form-label">Gênero</label>
-          <select id="genero" class="form-control">
+          <select id="genero" class="form-control" aria-label="Gênero">
             <option value="">Prefiro não informar</option>
             <option value="M">Masculino</option>
             <option value="F">Feminino</option>
@@ -228,16 +229,16 @@
 
       <div class="form-group">
         <label class="form-label">Telefone</label>
-        <input class="form-control" id="telefone" type="tel" placeholder="(41) 99999-0000">
+        <input class="form-control" id="telefone" type="tel" placeholder="(41) 99999-0000" aria-label="Telefone">
       </div>
 
       <!-- Seleção de perfil -->
       <div class="form-group">
         <label class="form-label">Como você usará o UniCaronas?</label>
-        <div class="profile-selection">
+        <div class="profile-selection" role="radiogroup" aria-label="Tipo de perfil">
 
           <label class="profile-card active" onclick="selectProfile(this)">
-            <input type="radio" name="perfil_tipo" value="estudante" checked>
+            <input type="radio" name="perfil_tipo" value="estudante" checked aria-label="Perfil Passageiro">
             <div class="check-mark">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
@@ -251,7 +252,7 @@
           </label>
 
           <label class="profile-card" onclick="selectProfile(this)">
-            <input type="radio" name="perfil_tipo" value="motorista">
+            <input type="radio" name="perfil_tipo" value="motorista" aria-label="Perfil Motorista">
             <div class="check-mark">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
@@ -265,7 +266,7 @@
           </label>
 
           <label class="profile-card" onclick="selectProfile(this)">
-            <input type="radio" name="perfil_tipo" value="misto">
+            <input type="radio" name="perfil_tipo" value="misto" aria-label="Perfil Misto">
             <div class="check-mark">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
@@ -293,7 +294,8 @@
         <div class="doc-upload-box" id="box-identidade" onclick="document.getElementById('input-identidade').click()">
           <input type="file" id="input-identidade" name="identidade"
                  accept="image/jpeg,image/png,image/webp,application/pdf"
-                 onchange="onDocFile(this, 'box-identidade', 'nome-identidade')">
+                 onchange="onDocFile(this, 'box-identidade', 'nome-identidade')"
+                 aria-label="Upload de identidade (RG)">
           <div class="doc-upload-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/></svg>
           </div>
@@ -317,7 +319,8 @@
         <div class="doc-upload-box" id="box-cnh" onclick="document.getElementById('input-cnh').click()">
           <input type="file" id="input-cnh" name="cnh"
                  accept="image/jpeg,image/png,image/webp,application/pdf"
-                 onchange="onDocFile(this, 'box-cnh', 'nome-cnh')">
+                 onchange="onDocFile(this, 'box-cnh', 'nome-cnh')"
+                 aria-label="Upload de CNH">
           <div class="doc-upload-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><line x1="13" y1="10" x2="19" y2="10"/><line x1="13" y1="14" x2="17" y2="14"/></svg>
           </div>
@@ -344,7 +347,8 @@
             <div class="doc-upload-box" id="box-cnh-misto" onclick="document.getElementById('input-cnh-misto').click()">
               <input type="file" id="input-cnh-misto" name="cnh"
                      accept="image/jpeg,image/png,image/webp,application/pdf"
-                     onchange="onDocFile(this, 'box-cnh-misto', 'nome-cnh-misto')">
+                     onchange="onDocFile(this, 'box-cnh-misto', 'nome-cnh-misto')"
+                     aria-label="Upload de CNH (Misto)">
               <div class="doc-upload-icon">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><line x1="13" y1="10" x2="19" y2="10"/><line x1="13" y1="14" x2="17" y2="14"/></svg>
               </div>
@@ -359,7 +363,8 @@
             <div class="doc-upload-box" id="box-identidade-misto" onclick="document.getElementById('input-identidade-misto').click()">
               <input type="file" id="input-identidade-misto" name="identidade"
                      accept="image/jpeg,image/png,image/webp,application/pdf"
-                     onchange="onDocFile(this, 'box-identidade-misto', 'nome-identidade-misto')">
+                     onchange="onDocFile(this, 'box-identidade-misto', 'nome-identidade-misto')"
+                     aria-label="Upload de identidade (Misto)">
               <div class="doc-upload-icon">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/></svg>
               </div>
@@ -379,7 +384,7 @@
 
       <div class="form-group" style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
         <label class="form-label" for="dia_ead">Meu dia EAD (Opcional)</label>
-        <select id="dia_ead" class="form-control">
+        <select id="dia_ead" class="form-control" aria-label="Dia EAD">
           <option value="">Não possuo dia EAD fixo</option>
           <option value="1">Segunda-feira</option>
           <option value="2">Terça-feira</option>
@@ -397,35 +402,35 @@
         <div class="grid-2">
           <div class="form-group">
             <label class="form-label">Marca</label>
-            <input class="form-control" id="v-marca" type="text" placeholder="Ex: Toyota">
+            <input class="form-control" id="v-marca" type="text" placeholder="Ex: Toyota" aria-label="Marca do veículo">
           </div>
           <div class="form-group">
             <label class="form-label">Modelo</label>
-            <input class="form-control" id="v-modelo" type="text" placeholder="Ex: Corolla">
+            <input class="form-control" id="v-modelo" type="text" placeholder="Ex: Corolla" aria-label="Modelo do veículo">
           </div>
         </div>
         <div class="grid-3" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label class="form-label">Ano</label>
-            <input class="form-control" id="v-ano" type="number" placeholder="2022">
+            <input class="form-control" id="v-ano" type="number" placeholder="2022" aria-label="Ano do veículo">
           </div>
           <div class="form-group">
             <label class="form-label">Cor</label>
-            <input class="form-control" id="v-cor" type="text" placeholder="Prata">
+            <input class="form-control" id="v-cor" type="text" placeholder="Prata" aria-label="Cor do veículo">
           </div>
           <div class="form-group">
             <label class="form-label">Placa</label>
-            <input class="form-control" id="v-placa" type="text" placeholder="ABC-1234">
+            <input class="form-control" id="v-placa" type="text" placeholder="ABC-1234" aria-label="Placa do veículo">
           </div>
         </div>
       </div>
 
       <div class="form-group" style="margin-top: 1.5rem;">
         <label class="form-label" data-i18n="label-password">Senha</label>
-        <input class="form-control" id="senha" type="password" placeholder="Mínimo 8 caracteres">
+        <input class="form-control" id="senha" type="password" placeholder="Mínimo 8 caracteres" aria-label="Senha" aria-required="true">
       </div>
 
-      <button class="btn btn-primary btn-full mt-2" onclick="cadastrar()" id="btn-cadastrar" data-i18n="btn-register">
+      <button class="btn btn-primary btn-full mt-2" type="button" onclick="cadastrar(event)" id="btn-cadastrar" data-i18n="btn-register" aria-label="Criar conta">
         Criar conta
       </button>
 
@@ -507,70 +512,25 @@
     }
 
     /* ── Cadastro ──────────────────────────────────────────────── */
-    async function cadastrar() {
-      const diaEadVal  = document.getElementById('dia_ead').value;
-      const perfilTipo = document.querySelector('input[name="perfil_tipo"]:checked').value;
-
-      // Validações básicas
-      const nome      = document.getElementById('nome').value.trim();
-      const email     = document.getElementById('email').value.trim();
-      const matricula = document.getElementById('matricula').value.trim();
-      const senha     = document.getElementById('senha').value;
-
-      if (!nome || !email || !matricula || !senha) {
-        return showAlert('Preencha nome, e-mail, matrícula e senha.', 'error');
+    async function cadastrar(e) {
+      if (e) {
+        if (typeof e.preventDefault === 'function') e.preventDefault();
+        if (typeof e.stopPropagation === 'function') e.stopPropagation();
       }
-      if (senha.length < 8) {
-        return showAlert('A senha deve ter ao menos 8 caracteres.', 'error');
-      }
-
-      // Validações de veículo
-      const precisaVeiculo = perfilTipo === 'motorista' || perfilTipo === 'misto';
-      const vMarca = document.getElementById('v-marca')?.value.trim();
-      const vPlaca = document.getElementById('v-placa')?.value.trim();
-      if (precisaVeiculo && (!vMarca || !vPlaca)) {
-        return showAlert('Para motoristas, marca e placa do veículo são obrigatórios.', 'error');
-      }
-
-      // Validações de documento
-      const { cnh, identidade } = getDocFiles(perfilTipo);
-      if ((perfilTipo === 'motorista' || perfilTipo === 'misto') && !cnh) {
-        return showAlert('Motoristas precisam enviar a CNH para se cadastrar.', 'error');
-      }
-      if ((perfilTipo === 'estudante' || perfilTipo === 'misto') && !identidade) {
-        return showAlert('Passageiros precisam enviar um documento de identidade (RG).', 'error');
-      }
-
-      // Monta o FormData (suporte a arquivos)
-      const form = new FormData();
-      form.append('nome',        nome);
-      form.append('email',       email);
-      form.append('matricula',   matricula);
-      form.append('senha',       senha);
-      form.append('perfil_tipo', perfilTipo);
-      form.append('curso',       document.getElementById('curso').value.trim());
-      form.append('telefone',    document.getElementById('telefone').value.trim());
-      form.append('genero',      document.getElementById('genero').value);
-      if (diaEadVal !== '') form.append('dia_ead', diaEadVal);
-
-      if (precisaVeiculo) {
-        form.append('veiculo[marca]',  vMarca);
-        form.append('veiculo[modelo]', document.getElementById('v-modelo').value.trim());
-        form.append('veiculo[ano]',    document.getElementById('v-ano').value);
-        form.append('veiculo[cor]',    document.getElementById('v-cor').value.trim());
-        form.append('veiculo[placa]',  vPlaca);
-      }
-
-      if (cnh)        form.append('cnh',        cnh);
-      if (identidade) form.append('identidade', identidade);
 
       const btn = document.getElementById('btn-cadastrar');
-      btn.disabled = true;
-      btn.textContent = 'Criando conta...';
+      if (!btn) return;
 
       try {
-        const res = await api.cadastrar(form);
+        const emailInput = document.getElementById('email');
+        const email = emailInput ? emailInput.value.trim() : '';
+        const nome = document.getElementById('nome').value.trim();
+        const matricula = document.getElementById('matricula').value.trim();
+        const senha = document.getElementById('senha').value;
+        const perfilTipo = document.querySelector('input[name="perfil_tipo"]:checked').value;
+        const diaEadVal = document.getElementById('dia_ead').value;
 
+<<<<<<< HEAD
         showAlert('Conta criada com sucesso! Redirecionando...', 'success');
 
         setTimeout(() => window.location.href = 'login.html', 2000);
@@ -578,10 +538,88 @@
       } catch (err) {
 
         showAlert(err.message, 'error');
+=======
+        if (!nome || !email || !matricula || !senha) {
+          showAlert('Preencha nome, e-mail, matrícula e senha.', 'error');
+          return;
+        }
+        if (senha.length < 8) {
+          showAlert('A senha deve ter ao menos 8 caracteres.', 'error');
+          return;
+        }
+
+        const precisaVeiculo = perfilTipo === 'motorista' || perfilTipo === 'misto';
+        const vMarca = document.getElementById('v-marca')?.value.trim();
+        const vPlaca = document.getElementById('v-placa')?.value.trim();
+        if (precisaVeiculo && (!vMarca || !vPlaca)) {
+          showAlert('Para motoristas, marca e placa do veículo são obrigatórios.', 'error');
+          return;
+        }
+
+        const { cnh, identidade } = getDocFiles(perfilTipo);
+        if ((perfilTipo === 'motorista' || perfilTipo === 'misto') && !cnh) {
+          showAlert('Motoristas precisam enviar a CNH para se cadastrar.', 'error');
+          return;
+        }
+        if ((perfilTipo === 'estudante' || perfilTipo === 'misto') && !identidade) {
+          showAlert('Passageiros precisam enviar um documento de identidade (RG).', 'error');
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Criando conta...';
+
+        const form = new FormData();
+        form.append('nome', nome);
+        form.append('email', email);
+        form.append('matricula', matricula);
+        form.append('senha', senha);
+        form.append('perfil_tipo', perfilTipo);
+        form.append('curso', document.getElementById('curso').value.trim());
+        form.append('telefone', document.getElementById('telefone').value.trim());
+        form.append('genero', document.getElementById('genero').value);
+        if (diaEadVal !== '') form.append('dia_ead', diaEadVal);
+
+        if (precisaVeiculo) {
+          form.append('veiculo[marca]', vMarca);
+          form.append('veiculo[modelo]', document.getElementById('v-modelo').value.trim());
+          form.append('veiculo[ano]', document.getElementById('v-ano').value);
+          form.append('veiculo[cor]', document.getElementById('v-cor').value.trim());
+          form.append('veiculo[placa]', vPlaca);
+        }
+
+        if (cnh) form.append('cnh', cnh);
+        if (identidade) form.append('identidade', identidade);
+
+        const res = await api.cadastrar(form);
+        showAlert('Conta criada com sucesso! Entrando...', 'success');
+
+        if (res.data && res.data.usuario) {
+          setUser(res.data.usuario);
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+        } else {
+          setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+        }
+
+      } catch (err) {
+>>>>>>> 956f0166340ffc5c9ef63ef82a1e0826512fb02e
         btn.disabled = false;
         btn.textContent = 'Criar conta';
+        showAlert(err.message || 'Erro inesperado ao realizar cadastro.', 'error');
       }
     }
   </script>
+
+  <script src="../js/acessibilidade.js"></script>
+
+  <!-- VLibras -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
 </body>
 </html>

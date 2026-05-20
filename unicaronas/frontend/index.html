@@ -6,6 +6,7 @@
   <title>UniCaronas — Caronas Universitárias</title>
   <link rel="icon" type="image/png" href="img/icon.png?v=2">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/acessibilidade.css">
   <script src="js/theme.js"></script>
   <style>
     .hero {
@@ -24,7 +25,7 @@
     }
     .hero p {
       font-size: 1.25rem;
-      color: var(--text-2);
+      color: var(--text-2); 
       max-width: 600px;
       margin: 0 auto 2.5rem;
     }
@@ -182,5 +183,17 @@
       }
     });
   </script>
+
+  <script src="js/acessibilidade.js"></script>
+
+  <!-- VLibras -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
 </body>
 </html>

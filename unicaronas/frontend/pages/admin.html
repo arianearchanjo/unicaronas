@@ -71,12 +71,13 @@
       border-radius: var(--radius-lg);
     }
   </style>
+  <link rel="stylesheet" href="../css/acessibilidade.css">
 </head>
 <body>
   <div id="navbar-placeholder"></div>
 
   <main class="container">
-    <div id="alert-container"></div>
+    <div id="alert-container" role="alert" aria-live="polite"></div>
 
     <!-- Modal de Redefinição de Senha Obrigatória -->
     <div id="modal-reset-senha" class="modal" style="display: none; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);">
@@ -85,7 +86,7 @@
           <h2 class="modal-title"><i class="bi bi-unlock" style="margin-right: 0.5rem;"></i> Primeiro Acesso</h2>
         </div>
         <div class="modal-body">
-          <div id="alert-modal"></div>
+          <div id="alert-modal" role="alert" aria-live="polite"></div>
           <p style="margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--text-2);">
             Por segurança, você deve alterar sua senha temporária antes de continuar acessando o painel administrativo.
           </p>
@@ -237,5 +238,17 @@
       }
     }
   </script>
+
+  <script src="../js/acessibilidade.js"></script>
+
+  <!-- VLibras -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
 </body>
 </html>

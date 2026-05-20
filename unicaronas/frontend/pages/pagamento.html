@@ -6,6 +6,7 @@
   <title>UniCaronas — Pagamento Pix</title>
   <link rel="icon" type="image/png" href="../img/icon.png?v=2">
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/acessibilidade.css">
   <script src="../js/theme.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
@@ -259,7 +260,7 @@
         <p>Escolha como deseja pagar sua vaga na carona</p>
       </div>
 
-      <div id="alert-container"></div>
+      <div id="alert-container" role="alert" aria-live="polite"></div>
 
       <div class="card mb-2 fade-up" id="card-resumo">
         <div class="card-title">Resumo</div>
@@ -271,10 +272,10 @@
       <div class="card mb-2 fade-up fade-up-1" id="card-metodo">
         <div class="card-title">Forma de pagamento</div>
 
-        <div class="metodo-grid">
-          <label class="metodo-card active" id="card-pix" onclick="selecionarMetodo('pix', this)">
-            <input type="radio" name="metodo" value="pix" checked>
-            <div class="metodo-icon-wrap">
+        <div class="metodo-grid" role="radiogroup" aria-label="Selecione a forma de pagamento">
+          <label class="metodo-card active" id="card-pix" onclick="selecionarMetodo('pix', this)" role="radio" aria-checked="true" tabindex="0">
+            <input type="radio" name="metodo" value="pix" checked aria-label="Pagar com Pix">
+            <div class="metodo-icon-wrap" aria-hidden="true">
               <svg width="26" height="26" viewBox="0 0 512 512" fill="none">
                 <path d="M340.7 60.4c-18.9 0-36.7 7.4-50 20.7l-87.4 87.4c-7.4 7.4-17.2 11.4-27.6 11.4s-20.3-4.1-27.6-11.4l-87.4-87.4C47.4 67.8 29.6 60.4 10.7 60.4" stroke="#32BCAD" stroke-width="32" stroke-linecap="round"/>
                 <path d="M10.7 451.6c18.9 0 36.7-7.4 50-20.7l87.4-87.4c7.4-7.4 17.2-11.4 27.6-11.4s20.3 4.1 27.6 11.4l87.4 87.4c13.3 13.3 31.1 20.7 50 20.7" stroke="#32BCAD" stroke-width="32" stroke-linecap="round"/>
@@ -669,5 +670,17 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   </script>
+
+  <script src="../js/acessibilidade.js"></script>
+
+  <!-- VLibras -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
 </body>
 </html>

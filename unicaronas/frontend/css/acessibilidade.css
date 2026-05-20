@@ -1,0 +1,190 @@
+/**
+ * UniCaronas — acessibilidade.css
+ * Estilos para o widget e modos de acessibilidade.
+ */
+
+/* ── Widget FAB ── */
+#uc-widget-acessibilidade {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 10000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#uc-btn-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #1a73e8;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background 0.2s;
+}
+#uc-btn-fab:hover { transform: scale(1.1); background: #1557b0; }
+#uc-btn-fab svg { width: 28px; height: 28px; }
+
+/* ── Painel ── */
+.uc-panel {
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  width: 300px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: ucSlideIn 0.3s ease;
+  border: 1px solid #ddd;
+}
+
+@keyframes ucSlideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.uc-panel-header {
+  background: #1a73e8;
+  color: #fff;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+}
+.uc-panel-header button {
+  background: none; border: none; color: #fff; font-size: 24px; cursor: pointer;
+}
+
+.uc-panel-body {
+  padding: 16px;
+  max-height: 450px;
+  overflow-y: auto;
+  color: #333;
+}
+
+.uc-control-group { margin-bottom: 20px; }
+.uc-label {
+  display: block; font-size: 12px; font-weight: 700; color: #666;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+
+/* ── Fonte ── */
+.uc-font-row { display: flex; align-items: center; gap: 8px; }
+.uc-font-row button {
+  flex: 1; padding: 8px; border: 1px solid #ddd; background: #f8f9fa;
+  border-radius: 6px; cursor: pointer; font-weight: 700;
+}
+.uc-font-row button:hover { background: #e9ecef; }
+#uc-f-val { min-width: 50px; text-align: center; font-weight: 700; }
+
+/* ── Toggles ── */
+.uc-toggles { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.uc-toggle {
+  display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px;
+}
+.uc-toggle input { display: none; }
+.uc-t-box {
+  width: 40px; height: 22px; background: #ccc; border-radius: 11px;
+  position: relative; transition: 0.3s; flex-shrink: 0;
+}
+.uc-t-box::before {
+  content: ''; position: absolute; width: 16px; height: 16px;
+  background: #fff; border-radius: 50%; top: 3px; left: 3px;
+  transition: 0.3s;
+}
+.uc-toggle input:checked + .uc-t-box { background: #1a73e8; }
+.uc-toggle input:checked + .uc-t-box::before { transform: translateX(18px); }
+
+/* ── Botões Leitor ── */
+.uc-reader-btns { display: flex; gap: 8px; margin-top: 8px; }
+.uc-btn-s {
+  flex: 1; padding: 6px; font-size: 12px; border-radius: 4px;
+  border: 1px solid #1a73e8; color: #1a73e8; background: #fff; cursor: pointer;
+}
+.uc-btn-s:hover { background: #f0f7ff; }
+
+.uc-btn-reset {
+  width: 100%; padding: 10px; margin-top: 10px; border: none;
+  background: #f1f3f4; color: #5f6368; border-radius: 6px;
+  cursor: pointer; font-weight: 600;
+}
+.uc-btn-reset:hover { background: #e8eaed; color: #202124; }
+
+/* ── Modos Aplicados ao HTML ── */
+
+/* Alto Contraste */
+html.uc-alto-contraste body {
+  background: #000 !important;
+  color: #fff !important;
+}
+html.uc-alto-contraste *:not(#uc-widget-acessibilidade *) {
+  border-color: #fff !important;
+}
+html.uc-alto-contraste a { color: #ffff00 !important; }
+html.uc-alto-contraste button, 
+html.uc-alto-contraste input,
+html.uc-alto-contraste select {
+  background: #000 !important; color: #fff !important; border: 1px solid #fff !important;
+}
+
+/* Escala de Cinza */
+html.uc-escala-cinza body {
+  filter: grayscale(100%);
+}
+
+/* Links Sublinhados */
+html.uc-links-sublinhados a {
+  text-decoration: underline !important;
+  font-weight: 700 !important;
+}
+
+/* Fonte Dislexia */
+html.uc-fonte-dislexia body,
+html.uc-fonte-dislexia p,
+html.uc-fonte-dislexia span,
+html.uc-fonte-dislexia h1,
+html.uc-fonte-dislexia h2,
+html.uc-fonte-dislexia h3,
+html.uc-fonte-dislexia button,
+html.uc-fonte-dislexia input {
+  font-family: 'Comic Sans MS', 'Arial', sans-serif !important;
+}
+
+/* Espaçamento */
+html.uc-espacamento-texto * {
+  line-height: 2 !important;
+  letter-spacing: 0.1em !important;
+  word-spacing: 0.2em !important;
+}
+
+/* Cursor Grande */
+html.uc-cursor-grande, html.uc-cursor-grande * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M0 0l20 20-9 2 6 10-4 2-6-10-7 6z' fill='black' stroke='white' stroke-width='2'/%3E%3C/svg%3E"), auto !important;
+}
+
+/* Parar Animações */
+html.uc-pausar-animacoes *,
+html.uc-pausar-animacoes *::before,
+html.uc-pausar-animacoes *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .uc-panel { width: 280px; right: -10px; bottom: 80px; }
+}
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); border: 0;
+}

@@ -141,6 +141,76 @@ const usuariosService = {
       co2_evitado_kg: parseFloat((km_total * 0.12).toFixed(2)),
       economia_reais: parseFloat((km_total * 0.70).toFixed(2))
     };
+  },
+
+  async redefinirSenha(token, novaSenha) {
+    const { rows } = await db.query(
+      `SELECT pr.*, u.id as user_id
+       FROM password_resets pr
+       JOIN usuarios u ON u.id = pr.user_id
+       WHERE pr.token = $1 AND pr.expires_at > NOW()`,
+      [token]
+    );
+
+    if (rows.length === 0) {
+      throw { status: 400, message: "Link de redefinição inválido ou expirado.", code: "TOKEN_INVALIDO" };
+    }
+
+    const reset = rows[0];
+    const senhaHash = await bcrypt.hash(novaSenha, BCRYPT_ROUNDS);
+
+    const client = await db.connect();
+    try {
+      await client.query('BEGIN');
+      // Atualiza a senha
+      await client.query('UPDATE usuarios SET senha_hash = $1 WHERE id = $2', [senhaHash, reset.user_id]);
+      // Remove o token utilizado
+      await client.query('DELETE FROM password_resets WHERE user_id = $1', [reset.user_id]);
+      await client.query('COMMIT');
+      return { mensagem: "Senha redefinida com sucesso." };
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  },
+
+  async solicitarRecuperacao(email, baseUrl) {
+    const emailNorm = email.toLowerCase();
+    const { rows } = await db.query('SELECT id, nome, email FROM usuarios WHERE email = $1', [emailNorm]);
+    
+    if (rows.length === 0) {
+      // Por segurança, não informamos se o e-mail existe ou não
+      return { mensagem: "Se o e-mail estiver cadastrado, um link de recuperação será enviado." };
+    }
+
+    const usuario = rows[0];
+    const token = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutos
+
+    const client = await db.connect();
+    try {
+      await client.query('BEGIN');
+      // Invalida tokens anteriores
+      await client.query('DELETE FROM password_resets WHERE user_id = $1', [usuario.id]);
+      // Insere novo token
+      await client.query(
+        'INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)',
+        [usuario.id, token, expiresAt]
+      );
+
+      const link = `${baseUrl}/pages/redefinir-senha.html?token=${token}`;
+      await mailService.sendResetEmail(usuario.email, link);
+
+      await client.query('COMMIT');
+      return { mensagem: "E-mail de recuperação enviado com sucesso." };
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
   }
 };
 
