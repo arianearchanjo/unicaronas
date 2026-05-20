@@ -57,6 +57,16 @@ Para instruções detalhadas de como configurar o ambiente e rodar o projeto loc
 
 ---
 
+## 🏗️ Configuração de Produção
+
+Para executar o UniCaronas em um ambiente de produção com máxima performance e segurança, siga as diretrizes abaixo:
+
+1. **Variáveis de Ambiente**: Certifique-se de definir `NODE_ENV=production` no seu arquivo `.env` ou nas configurações do seu servidor.
+2. **Execução**: Utilize o comando `npm start` na pasta `backend` para iniciar o servidor (em vez de `npm run dev`).
+3. **Segurança de Tokens**: Como parte do endurecimento de segurança da Sprint 8, os tokens JWT agora são armazenados em **HttpOnly Cookies**. Isso protege contra ataques XSS, mas requer que o suporte a **CORS** e as origens permitidas estejam corretamente configurados no backend.
+
+---
+
 ## 👥 Equipe de Desenvolvimento
 
 - **Ariane Archanjo** — *Scrum Master*

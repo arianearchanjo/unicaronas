@@ -3,12 +3,11 @@
  * Orquestrador do chat modularizado.
  * Depende de: chat-state.js, chat-api.js, chat-ui.js, chat-polling.js
  */
+import { ChatPolling } from './chat-polling.js';
 
-const ChatGlobal = (() => {
-  'use strict';
-
+const ChatGlobal = {
   // ── Inicialização ────────────────────────────────────────────────────────────
-  function init() {
+  init() {
     if (ChatState.inicializado) return;
     
     // getUser e isLogado são globais de api.js
@@ -17,39 +16,39 @@ const ChatGlobal = (() => {
 
     ChatUI.injetarHTML();
     ChatUI.injetarCSS();
-    bindEventos();
+    this.bindEventos();
     
-    carregarConversas();
-    ChatPolling.iniciar();
+    this.carregarConversas();
+    ChatPolling.iniciar(this);
     
     ChatState.inicializado = true;
 
     // Restaurar estado aberto
     if (localStorage.getItem(ChatState.STORAGE_KEY) === '1') {
-      setTimeout(() => abrirChat(), 300);
+      setTimeout(() => this.abrirChat(), 300);
     }
-  }
+  },
 
   // ── Eventos ──────────────────────────────────────────────────────────────────
-  function bindEventos() {
+  bindEventos() {
     const fab = document.getElementById('uc-chat-fab');
-    if (fab) fab.addEventListener('click', toggleChat);
+    if (fab) fab.addEventListener('click', () => this.toggleChat());
     
     const min = document.getElementById('uc-btn-minimize');
-    if (min) min.addEventListener('click', fecharChat);
+    if (min) min.addEventListener('click', () => this.fecharChat());
     
     const back = document.getElementById('uc-btn-back');
-    if (back) back.addEventListener('click', voltarLista);
+    if (back) back.addEventListener('click', () => this.voltarLista());
     
     const send = document.getElementById('uc-btn-send');
-    if (send) send.addEventListener('click', enviarMensagem);
+    if (send) send.addEventListener('click', () => this.enviarMensagem());
     
     const input = document.getElementById('uc-input');
     if (input) {
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
-          enviarMensagem();
+          this.enviarMensagem();
         }
       });
 
@@ -62,14 +61,14 @@ const ChatGlobal = (() => {
         }
       });
     }
-  }
+  },
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
-  function toggleChat() {
-    ChatState.aberto ? fecharChat() : abrirChat();
-  }
+  toggleChat() {
+    ChatState.aberto ? this.fecharChat() : this.abrirChat();
+  },
 
-  function abrirChat() {
+  abrirChat() {
     ChatState.aberto = true;
     localStorage.setItem(ChatState.STORAGE_KEY, '1');
     
@@ -88,10 +87,10 @@ const ChatGlobal = (() => {
     if (closeIcon) closeIcon.style.display = '';
     
     ChatUI.renderizarConversas(ChatState.conversas);
-    bindClicksConversas();
-  }
+    this.bindClicksConversas();
+  },
 
-  function fecharChat() {
+  fecharChat() {
     ChatState.aberto = false;
     ChatState.ativa = null;
     localStorage.removeItem(ChatState.STORAGE_KEY);
@@ -106,40 +105,40 @@ const ChatGlobal = (() => {
     if (closeIcon) closeIcon.style.display = 'none';
     
     ChatUI.mostrarTela('lista');
-  }
+  },
 
-  function voltarLista() {
+  voltarLista() {
     ChatState.ativa = null;
     ChatUI.mostrarTela('lista');
     ChatUI.renderizarConversas(ChatState.conversas);
-    bindClicksConversas();
-  }
+    this.bindClicksConversas();
+  },
 
-  function bindClicksConversas() {
+  bindClicksConversas() {
     const inner = document.getElementById('uc-conversas-inner');
     if (!inner) return;
     inner.querySelectorAll('.uc-conversa-item').forEach(el => {
       const sid = parseInt(el.dataset.sid, 10);
-      el.addEventListener('click', () => abrirConversa(sid));
-      el.addEventListener('keydown', (e) => { if (e.key === 'Enter') abrirConversa(sid); });
+      el.addEventListener('click', () => this.abrirConversa(sid));
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter') this.abrirConversa(sid); });
     });
-  }
+  },
 
-  function abrirConversa(solicitacaoId) {
+  abrirConversa(solicitacaoId) {
     ChatState.ativa = solicitacaoId;
     const conv = ChatState.getConversaAtiva();
     if (conv) conv.unread = 0;
     
     ChatUI.atualizarBadge(ChatState.getTotalUnread());
     ChatUI.mostrarTela('msgs');
-    atualizarMensagens();
+    this.atualizarMensagens();
     
     const input = document.getElementById('uc-input');
     if (input) input.focus();
-  }
+  },
 
   // ── Lógica de Dados ──────────────────────────────────────────────────────────
-  async function carregarConversas() {
+  async carregarConversas() {
     const novas = await ChatAPI.buscarConversas();
     
     // Atualiza estado, preservando mensagens carregadas localmente se possível
@@ -150,10 +149,10 @@ const ChatGlobal = (() => {
     }
     ChatState.conversas = novas;
     
-    await atualizarMensagens();
-  }
+    await this.atualizarMensagens();
+  },
 
-  async function atualizarMensagens() {
+  async atualizarMensagens() {
     let totalNaoLidas = 0;
 
     for (const conv of ChatState.conversas) {
@@ -184,12 +183,12 @@ const ChatGlobal = (() => {
         ChatUI.renderizarMensagens(ChatState.getConversaAtiva()?.mensagens || [], ChatState.ativa);
       } else {
         ChatUI.renderizarConversas(ChatState.conversas);
-        bindClicksConversas();
+        this.bindClicksConversas();
       }
     }
-  }
+  },
 
-  async function enviarMensagem() {
+  async enviarMensagem() {
     const input = document.getElementById('uc-input');
     if (!input) return;
     const txt = input.value.trim();
@@ -215,13 +214,13 @@ const ChatGlobal = (() => {
       input.disabled = false;
       input.focus();
     }
-  }
+  },
 
-  async function iniciarChatComSolicitacao(solicitacaoId, meta = {}) {
+  async iniciarChatComSolicitacao(solicitacaoId, meta = {}) {
     const sid = parseInt(solicitacaoId, 10);
     if (isNaN(sid) || sid <= 0) return;
 
-    if (!ChatState.inicializado) init();
+    if (!ChatState.inicializado) this.init();
 
     let conv = ChatState.conversas.find(c => c.solicitacao_id === sid);
     if (!conv) {
@@ -243,29 +242,31 @@ const ChatGlobal = (() => {
       conv.preview   = conv.mensagens.length > 0 ? conv.mensagens[conv.mensagens.length - 1].conteudo : '';
     } catch (_) {}
 
-    if (!ChatState.aberto) abrirChat();
-    abrirConversa(sid);
+    if (!ChatState.aberto) this.abrirChat();
+    this.abrirConversa(sid);
   }
+};
 
-  // ── Expor API pública ─────────────────────────────────────────────────────────
-  window.UCChat = {
-    init,
-    abrirConversa,
-    abrirChat,
-    fecharChat,
-    estaAberto: () => ChatState.aberto,
-    getChatAtivo: () => ChatState.ativa,
-    recarregar: carregarConversas,
-    iniciarChat: iniciarChatComSolicitacao,
-  };
+// ── Expor API pública ─────────────────────────────────────────────────────────
+window.UCChat = {
+  init: () => ChatGlobal.init(),
+  abrirConversa: (id) => ChatGlobal.abrirConversa(id),
+  abrirChat: () => ChatGlobal.abrirChat(),
+  fecharChat: () => ChatGlobal.fecharChat(),
+  estaAberto: () => ChatState.aberto,
+  getChatAtivo: () => ChatState.ativa,
+  recarregar: () => ChatGlobal.carregarConversas(),
+  iniciarChat: (id, meta) => ChatGlobal.iniciarChatComSolicitacao(id, meta),
+};
 
-  // ── Auto-init ────────────────────────────────────────────────────────────────
+// ── Expor para outros módulos ────────────────────────────────────────────────
+export { ChatGlobal };
+
+// ── Auto-init ────────────────────────────────────────────────────────────────
+if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => ChatGlobal.init());
   } else {
-    setTimeout(init, 200);
+    setTimeout(() => ChatGlobal.init(), 200);
   }
-
-  return { carregarConversas, atualizarMensagens };
-
-})();
+}

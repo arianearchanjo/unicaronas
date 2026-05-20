@@ -31,6 +31,26 @@ Esta API segue os princípios REST, utilizando JSON para entrada e saída de dad
 - **Desc:** Atualiza nome, telefone, curso ou foto de perfil.
 - **Body:** `FormData` ou `JSON`.
 
+### 1.5. Verificar E-mail
+`GET /verificar-email`
+- **Desc:** Valida o e-mail do usuário através de um token enviado via SMTP.
+
+### 1.6. Reenviar Token
+`POST /reenviar-token`
+- **Desc:** Envia um novo token de verificação para o e-mail cadastrado.
+
+### 1.7. Logout
+`POST /logout`
+- **Desc:** Encerra a sessão do usuário, removendo o Cookie HttpOnly do navegador.
+
+### 1.8. Recuperar Senha
+`POST /recuperar-senha`
+- **Desc:** Inicia o fluxo de recuperação de senha enviando um link seguro por e-mail.
+
+### 1.9. Redefinir Senha
+`PATCH /redefinir-senha`
+- **Desc:** Altera a senha do usuário utilizando o token de recuperação validado.
+
 ---
 
 ## 2. Módulo: Caronas (`/caronas`)
@@ -55,6 +75,11 @@ Esta API segue os princípios REST, utilizando JSON para entrada e saída de dad
 `POST /:id/espera`
 - **Auth:** Sim.
 - **Desc:** Se a carona estiver lotada, o usuário entra na fila.
+
+### 2.5. Comprovante em PDF
+`GET /comprovante-pdf`
+- **Auth:** Sim.
+- **Desc:** Gera e retorna um arquivo PDF com os detalhes e o resumo da carona concluída.
 
 ---
 
@@ -102,6 +127,18 @@ Esta API segue os princípios REST, utilizando JSON para entrada e saída de dad
 `PATCH /usuarios/:id/verificar`
 - **Auth:** Admin Only.
 - **Body:** `{ status }` (aprovado/rejeitado).
+
+---
+
+## 6. Módulo: Segurança e Estatísticas
+
+### 6.1. Estatísticas Ecológicas
+`GET /eco-stats`
+- **Desc:** Retorna métricas globais de redução de CO2 e economia gerada pela plataforma.
+
+### 6.2. Token CSRF
+`GET /csrf-token`
+- **Desc:** Fornece um token CSRF necessário para proteção de requisições de modificação (POST/PATCH/DELETE).
 
 ---
 
