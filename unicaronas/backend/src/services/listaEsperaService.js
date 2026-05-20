@@ -22,12 +22,14 @@ async function processarListaEspera() {
     // 2. Buscar caronas que têm vagas disponíveis e têm gente na fila 'aguardando'
     // Usamos FOR UPDATE para bloquear as linhas das caronas e evitar que outros processos vejam a mesma disponibilidade
     const query = `
-      SELECT DISTINCT c.id, c.vagas_disponiveis
+      SELECT id, vagas_disponiveis
       FROM caronas c
-      JOIN lista_espera l ON l.carona_id = c.id
-      WHERE c.status = 'ativa' 
-        AND c.vagas_disponiveis > 0 
-        AND l.status = 'aguardando'
+      WHERE status = 'ativa' 
+        AND vagas_disponiveis > 0 
+        AND EXISTS (
+          SELECT 1 FROM lista_espera l 
+          WHERE l.carona_id = c.id AND l.status = 'aguardando'
+        )
       FOR UPDATE
     `;
     const { rows: caronasComVaga } = await client.query(query);

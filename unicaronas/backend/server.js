@@ -67,15 +67,6 @@ app.use(express.urlencoded({ extended: true }));
 // ── Rate Limiting Global ─────────────────────────────────────
 app.use('/api', apiLimiter);
 
-// ── CSRF Protection ─────────────────────────────────────────
-const csrfProtection = csrf({ cookie: true });
-app.use(csrfProtection);
-
-// Endpoint para o frontend obter o token CSRF
-app.get('/api/csrf-token', (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
-
 // ── CORS Restrito (Produção vs Desenvolvimento) ──────────
 const corsOptions = {
   origin: (origin, callback) => {
@@ -105,6 +96,15 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
+
+// ── CSRF Protection ─────────────────────────────────────────
+const csrfProtection = csrf({ cookie: true });
+app.use(csrfProtection);
+
+// Endpoint para o frontend obter o token CSRF
+app.get('/api/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 // ── Helmet (depois do CORS para não conflitar) ──────────────
 app.use(helmet({
