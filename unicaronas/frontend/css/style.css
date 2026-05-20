@@ -739,7 +739,7 @@ a:focus-visible {
 .icone-erro {
   width: 14px;
   height: 14px;
-  color: var(--red);
+  color: var(--accent);
   margin-right: 5px;
   vertical-align: middle;
   flex-shrink: 0;
@@ -749,7 +749,7 @@ a:focus-visible {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: var(--red);
+  color: var(--accent);
   font-size: 0.8rem;
   margin-top: 4px;
 }
@@ -757,7 +757,7 @@ a:focus-visible {
 .icone-sucesso {
   width: 14px;
   height: 14px;
-  color: var(--green);
+  color: var(--accent);
   margin-right: 5px;
   vertical-align: middle;
   flex-shrink: 0;
@@ -767,7 +767,7 @@ a:focus-visible {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: var(--green);
+  color: var(--accent);
   font-size: 0.8rem;
   margin-top: 4px;
 }

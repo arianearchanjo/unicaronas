@@ -6,7 +6,7 @@
     "dev": "concurrently --kill-others-on-fail --names BACKEND,FRONTEND,BROWSER --prefix-colors blue,green,magenta \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:open\"",
     "dev:backend": "cd unicaronas/backend && npm run dev",
     "dev:frontend": "http-server ./unicaronas/frontend -p 5500 -c-1 --silent",
-    "dev:open": "node -e \"setTimeout(() => require('child_process').exec('npx open-cli http://localhost:5500/pages/login.html'), 2000)\""
+    "dev:open": "node -e \"setTimeout(() => { const exec = require('child_process').exec; const url = 'http://localhost:5500/pages/login.html'; if (process.platform === 'win32') exec(`start ${url}`); else exec(`npx open-cli ${url}`); }, 2000)\""
   },
   "repository": {
     "type": "git",
