@@ -1,0 +1,27 @@
+{
+  "name": "unicaronas",
+  "version": "1.0.0",
+  "description": "**Conectando estudantes para trajetos seguros, econômicos e sustentáveis.**",
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail --names BACKEND,FRONTEND,BROWSER --prefix-colors blue,green,magenta \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:open\"",
+    "dev:backend": "cd unicaronas/backend && npm run dev",
+    "dev:frontend": "http-server ./unicaronas/frontend -p 5500 -c-1 --silent",
+    "dev:open": "node -e \"setTimeout(() => require('child_process').exec('npx open-cli http://localhost:5500/pages/login.html'), 2000)\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arianearchanjo/unicaronas.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arianearchanjo/unicaronas/issues"
+  },
+  "homepage": "https://github.com/arianearchanjo/unicaronas#readme",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "http-server": "^14.1.1",
+    "open-cli": "^8.0.0"
+  }
+}

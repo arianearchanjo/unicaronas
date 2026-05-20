@@ -55,11 +55,17 @@
 
       <div class="grid-2">
         <div class="form-group">
-          <label class="form-label" data-i18n="label-origin">Origem</label>
+          <label class="form-label" data-i18n="label-origin">
+            Origem
+            <span class="campo-obrigatorio" aria-hidden="true" title="Campo obrigatório">●</span>
+          </label>
           <input class="form-control" id="origem" type="text" placeholder="Seu local de partida" autocomplete="off" aria-label="Origem" aria-required="true">
         </div>
         <div class="form-group">
-          <label class="form-label" data-i18n="label-destination">Destino</label>
+          <label class="form-label" data-i18n="label-destination">
+            Destino
+            <span class="campo-obrigatorio" aria-hidden="true" title="Campo obrigatório">●</span>
+          </label>
           <input class="form-control" id="destino" type="text" placeholder="Campus ou endereço de chegada" autocomplete="off" aria-label="Destino" aria-required="true">
         </div>
       </div>
@@ -75,13 +81,19 @@
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label" data-i18n="label-meeting-point">Ponto de encontro <span style="color:var(--red)">*</span></label>
+          <label class="form-label" data-i18n="label-meeting-point">
+            Ponto de encontro
+            <span class="campo-obrigatorio" aria-hidden="true" title="Campo obrigatório">●</span>
+          </label>
           <input class="form-control" id="ponto_encontro" type="text" placeholder="Ex: Portaria Principal ou Seu Endereço - Mogged by Japanoski" required aria-label="Ponto de encontro" aria-required="true">
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label" data-i18n="label-meeting-point-details">Detalhes do ponto de encontro <span style="color:var(--red)">*</span></label>
+        <label class="form-label" data-i18n="label-meeting-point-details">
+          Detalhes do ponto de encontro
+          <span class="campo-obrigatorio" aria-hidden="true" title="Campo obrigatório">●</span>
+        </label>
         <input class="form-control" id="ponto_encontro_detalhes" type="text" placeholder="Ex: ao lado da escada, em frente à copa..." required aria-label="Detalhes do ponto de encontro" aria-required="true">
       </div>
 
@@ -92,14 +104,20 @@
 
       <div class="grid-2">
         <div class="form-group">
-          <label class="form-label" data-i18n="label-datetime">Data e horário</label>
+          <label class="form-label" data-i18n="label-datetime">
+            Data e horário
+            <span class="campo-obrigatorio" aria-hidden="true" title="Campo obrigatório">●</span>
+          </label>
           <input class="form-control" id="horario" type="datetime-local" onchange="verificarDiaEad()" aria-label="Data e horário" aria-required="true">
           <div id="aviso-ead" class="alert alert-warning" style="display:none; margin-top:0.5rem; padding: 0.5rem; font-size: 0.8rem;">
             Atenção: Este é o seu dia EAD. Você tem certeza que deseja oferecer carona?
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label" data-i18n="label-vagas">Vagas disponíveis</label>
+          <label class="form-label" data-i18n="label-vagas">
+            Vagas disponíveis
+            <span class="campo-obrigatorio" aria-hidden="true" title="Campo obrigatório">●</span>
+          </label>
           <input class="form-control" id="vagas" type="number" min="1" max="6" value="3" aria-label="Vagas disponíveis" aria-required="true">
         </div>
       </div>
@@ -112,7 +130,10 @@
           <span class="form-hint">valor_sugerido = distância × R$ 0,30 / km</span>
         </div>
         <div class="form-group">
-          <label class="form-label" data-i18n="label-value">Valor por passageiro</label>
+          <label class="form-label" data-i18n="label-value">
+            Valor por passageiro
+            <span class="campo-obrigatorio" aria-hidden="true" title="Campo obrigatório">●</span>
+          </label>
           <input class="form-control" id="valor" type="number" min="0" step="0.50" placeholder="0,00" aria-label="Valor por passageiro" aria-required="true">
           <span class="form-hint" data-i18n="btn-publish">Aceite a sugestão ou defina outro valor</span>
         </div>

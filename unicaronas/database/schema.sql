@@ -109,7 +109,7 @@ CREATE TABLE caronas (
 );
 
 CREATE INDEX idx_caronas_motorista ON caronas (motorista_id);
-CREATE INDEX idx_caronas_status    ON caronas (status);
+CREATE INDEX IF NOT EXISTS idx_caronas_status ON caronas(status);
 CREATE INDEX idx_caronas_horario   ON caronas (horario_partida);
 
 -- =============================================================
@@ -128,6 +128,7 @@ CREATE TABLE solicitacoes_carona (
 
 CREATE INDEX idx_solicitacoes_carona     ON solicitacoes_carona (carona_id);
 CREATE INDEX idx_solicitacoes_passageiro ON solicitacoes_carona (passageiro_id);
+CREATE INDEX IF NOT EXISTS idx_solicitacoes_status ON solicitacoes_carona(status);
 
 -- =============================================================
 -- TABELA: mensagens_chat

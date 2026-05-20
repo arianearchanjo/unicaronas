@@ -713,6 +713,65 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .stats-grid { grid-template-columns: 1fr !important; }
 }
 
+/* Focus ring no padrão UniCaronas */
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 4px var(--accent-glow);
+}
+
+.campo-obrigatorio {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background-color: var(--accent);
+  border-radius: 50%;
+  margin-left: 4px;
+  vertical-align: middle;
+  cursor: help;
+}
+
+.icone-erro {
+  width: 14px;
+  height: 14px;
+  color: var(--red);
+  margin-right: 5px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.mensagem-erro {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--red);
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.icone-sucesso {
+  width: 14px;
+  height: 14px;
+  color: var(--green);
+  margin-right: 5px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.mensagem-sucesso {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--green);
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
 /* ── Footer ───────────────────────────────────────────────── */
 .footer {
   background: var(--bg-2);

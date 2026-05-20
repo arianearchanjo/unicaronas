@@ -42,6 +42,7 @@ const adminRoutes      = require('./src/routes/admin');
 const errorHandler     = require('./src/middleware/errorHandler');
 const { apiLimiter }   = require('./src/middleware/rateLimiter');
 const { processarListaEspera } = require('./src/services/listaEsperaService');
+require('./src/jobs/cleanupTokens');
 
 const app  = express();
 

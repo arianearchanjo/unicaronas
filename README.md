@@ -51,7 +51,26 @@ unicaronas/
 
 ## 🚀 Como Começar
 
-Para instruções detalhadas de como configurar o ambiente e rodar o projeto localmente, consulte o nosso:
+### Desenvolvimento (recomendado)
+Na raiz do projeto, rode:
+
+1. Instale as dependências:
+   ```bash
+   npm install
+   ```
+2. Inicie o sistema completo:
+   ```bash
+   npm run dev
+   ```
+
+O browser abrirá automaticamente em [http://localhost:5500/pages/login.html](http://localhost:5500/pages/login.html).
+O backend estará disponível em `http://localhost:3000`.
+
+### Comandos individuais (opcional)
+- `npm run dev:backend`  — apenas o servidor Node/Express
+- `npm run dev:frontend` — apenas o servidor de arquivos estáticos
+
+Para instruções detalhadas de como configurar o banco de dados e outras variáveis, consulte o nosso:
 
 👉 [**Guia de Sobrevivência**](./unicaronas/docs/GUIA_SOBREVIVENCIA.md)
 

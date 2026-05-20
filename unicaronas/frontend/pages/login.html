@@ -37,16 +37,22 @@
           <p data-i18n="login-sub">Acesse sua conta para continuar</p>
         </div>
 
-        <div id="alert-container" role="alert" aria-live="polite" role="alert" aria-live="polite"></div>
+        <div id="alert-container" role="alert" aria-live="polite"></div>
 
         <form id="form-login">
           <div class="form-group">
-            <label class="form-label" data-i18n="label-email">E-mail Institucional</label>
+            <label class="form-label" data-i18n="label-email">
+              E-mail Institucional
+              <span class="campo-obrigatorio" aria-hidden="true" title="Campo obrigatório">●</span>
+            </label>
             <input type="email" id="email" class="form-control" placeholder="nome@unibrasil.com.br" required aria-label="E-mail Institucional" aria-required="true">
           </div>
           <div class="form-group">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <label class="form-label" data-i18n="label-password">Senha</label>
+              <label class="form-label" data-i18n="label-password">
+                Senha
+                <span class="campo-obrigatorio" aria-hidden="true" title="Campo obrigatório">●</span>
+              </label>
               <a href="recuperar-senha.html" style="font-size: 0.75rem; color: var(--accent); margin-bottom: 0.4rem;">Esqueci a senha</a>
             </div>
             <input type="password" id="senha" class="form-control" placeholder="••••••••" required aria-label="Senha" aria-required="true">

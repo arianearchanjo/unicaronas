@@ -286,7 +286,24 @@ if (isLogado()) {
 const showAlert = (msg, tipo = 'success', containerId = 'alert-container') => {
   const el = document.getElementById(containerId);
   if (!el) return;
-  el.innerHTML = `<div class="alert alert-${tipo}" role="alert">${msg}</div>`;
+
+  let icone = '';
+  if (tipo === 'error' || tipo === 'danger') {
+    icone = `<svg class="icone-erro" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zm-7-4a1 1 0 10-2 0v3a1 1 0 002 0V6zm-1 7a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/>
+    </svg>`;
+  } else if (tipo === 'success') {
+    icone = `<svg class="icone-sucesso" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+    </svg>`;
+  }
+
+  el.innerHTML = `
+    <div class="mensagem-${(tipo === 'error' || tipo === 'danger') ? 'erro' : 'sucesso'}" role="${(tipo === 'error' || tipo === 'danger') ? 'alert' : 'status'}" aria-live="polite">
+      ${icone}
+      ${msg}
+    </div>
+  `;
   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   setTimeout(() => { el.innerHTML = ''; }, 5000);
 };
