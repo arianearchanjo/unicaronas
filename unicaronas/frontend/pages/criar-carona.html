@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/acessibilidade.css">
   <link rel="stylesheet" href="../css/autocomplete.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="../js/theme.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
@@ -15,6 +17,17 @@
       font-size: .76rem; color: var(--text-3);
       font-family: var(--font-mono);
       margin-top: .3rem;
+    }
+    #map {
+      height: 350px;
+      width: 100%;
+      border-radius: var(--radius-sm);
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+      z-index: 10;
+    }
+    @media (max-width: 768px) {
+      #map { height: 250px; }
     }
   </style>
 </head>
@@ -28,7 +41,7 @@
     </div>
 
     <div class="card fade-up">
-      <div id="alert-container" role="alert" aria-live="polite" role="alert" aria-live="polite"></div>
+      <div id="alert-container" role="alert" aria-live="polite"></div>
 
       <!-- Informativo de Endereço -->
       <div style="background: var(--bg-2); border-left: 4px solid var(--accent); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 0.75rem;">
@@ -50,6 +63,9 @@
           <input class="form-control" id="destino" type="text" placeholder="Campus ou endereço de chegada" autocomplete="off" aria-label="Destino" aria-required="true">
         </div>
       </div>
+
+      <!-- Mapa Leaflet -->
+      <div id="map"></div>
 
       <div class="grid-2">
         <div class="form-group">
@@ -145,9 +161,81 @@
   <script>
     protegerRota();
 
-    // Inicialização do Autocomplete
-    new AddressAutocomplete(document.getElementById('origem'));
-    new AddressAutocomplete(document.getElementById('destino'));
+    // --- Lógica do Mapa Leaflet ---
+    const map = L.map('map').setView([-25.4284, -49.2733], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    const greenIcon = new L.Icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    const redIcon = new L.Icon({
+      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41]
+    });
+
+    let markerOrigem = null;
+    let markerDestino = null;
+
+    async function geocode(endereco, tipo) {
+      if (!endereco || endereco.length < 3) return;
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(endereco)}&limit=1`);
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+          const { lat, lon } = data[0];
+          const coords = [parseFloat(lat), parseFloat(lon)];
+          
+          if (tipo === 'origem') {
+            if (markerOrigem) markerOrigem.setLatLng(coords);
+            else markerOrigem = L.marker(coords, { icon: greenIcon }).addTo(map);
+          } else {
+            if (markerDestino) markerDestino.setLatLng(coords);
+            else markerDestino = L.marker(coords, { icon: redIcon }).addTo(map);
+          }
+          
+          const markers = [markerOrigem, markerDestino].filter(m => m !== null);
+          if (markers.length > 0) {
+            const group = L.featureGroup(markers);
+            map.fitBounds(group.getBounds().pad(0.2));
+          }
+        }
+      } catch (e) {
+        console.warn('Falha ao localizar endereço no mapa:', e);
+      }
+    }
+
+    function debounce(fn, ms = 800) {
+      let timeout;
+      return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn(...args), ms);
+      };
+    }
+    const debouncedGeocode = debounce(geocode, 1000);
+
+    // Inicialização do Autocomplete com integração ao Mapa
+    new AddressAutocomplete(document.getElementById('origem'), {
+      onSelect: (item) => geocode(document.getElementById('origem').value, 'origem')
+    });
+    new AddressAutocomplete(document.getElementById('destino'), {
+      onSelect: (item) => geocode(document.getElementById('destino').value, 'destino')
+    });
+
+    document.getElementById('origem').addEventListener('input', (e) => debouncedGeocode(e.target.value, 'origem'));
+    document.getElementById('destino').addEventListener('input', (e) => debouncedGeocode(e.target.value, 'destino'));
 
     const agora = new Date();
     agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());

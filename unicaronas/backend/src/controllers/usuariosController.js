@@ -113,14 +113,21 @@ const ecoStats = async (req, res, next) => {
 };
 
 const recuperarSenha = async (req, res, next) => {
-  // Implementação simplificada mantendo compatibilidade
-  res.status(501).json({ success: false, error: 'Não implementado nesta refatoração' });
+  try {
+    const { email } = req.body;
+    const baseUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
+    const resultado = await usuariosService.solicitarRecuperacao(email, baseUrl);
+    res.json({ success: true, data: resultado });
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ success: false, error: err.message, code: err.code });
+    next(err);
+  }
 };
 
 const redefinirSenha = async (req, res, next) => {
   try {
-    const { email, token, novaSenha } = req.body;
-    const resultado = await usuariosService.redefinirSenha(email, token, novaSenha);
+    const { token, novaSenha } = req.body;
+    const resultado = await usuariosService.redefinirSenha(token, novaSenha);
     res.json({ success: true, data: resultado });
   } catch (err) {
     if (err.status) return res.status(err.status).json({ success: false, error: err.message, code: err.code });

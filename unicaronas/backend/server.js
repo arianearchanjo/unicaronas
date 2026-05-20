@@ -20,11 +20,15 @@ const veiculoRoutes    = require('./src/routes/veiculoRoutes');
 const notificacoesRoutes = require('./src/routes/notificacoes');
 const adminRoutes      = require('./src/routes/admin');
 const errorHandler     = require('./src/middleware/errorHandler');
+const { apiLimiter }   = require('./src/middleware/rateLimiter');
 const { processarListaEspera } = require('./src/services/listaEsperaService');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
+
+// Confiar em proxies (necessário para express-rate-limit em produção)
+app.set('trust proxy', 1);
 
 // ── Logging (Morgan) ────────────────────────────────────────
 if (isProduction) {
@@ -40,6 +44,9 @@ setInterval(processarListaEspera, 60000);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ── Rate Limiting Global ─────────────────────────────────────
+app.use('/api', apiLimiter);
 
 // ── CSRF Protection ─────────────────────────────────────────
 const csrfProtection = csrf({ cookie: true });

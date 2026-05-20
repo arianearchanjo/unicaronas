@@ -52,4 +52,60 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB para documentos
 });
 
-module.exports = upload;
+/**
+ * Middleware para validar magic bytes dos arquivos após o upload pelo Multer
+ */
+const verificarMagicBytes = async (req, res, next) => {
+  const files = [];
+  
+  if (req.file) files.push(req.file);
+  if (req.files) {
+    if (Array.isArray(req.files)) {
+      files.push(...req.files);
+    } else {
+      Object.values(req.files).forEach(fileArray => {
+        files.push(...fileArray);
+      });
+    }
+  }
+
+  if (files.length === 0) return next();
+
+  try {
+    for (const file of files) {
+      const buffer = Buffer.alloc(12);
+      const fd = fs.openSync(file.path, 'r');
+      fs.readSync(fd, buffer, 0, 12, 0);
+      fs.closeSync(fd);
+
+      const isJPG  = buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF;
+      const isPNG  = buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47;
+      const isPDF  = buffer[0] === 0x25 && buffer[1] === 0x50 && buffer[2] === 0x44 && buffer[3] === 0x46;
+      const isWEBP = buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
+                     buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50;
+
+      let isValid = false;
+      const mime = file.mimetype.toLowerCase();
+
+      if (mime.includes('jpeg') || mime.includes('jpg')) isValid = isJPG;
+      else if (mime.includes('png')) isValid = isPNG;
+      else if (mime.includes('pdf')) isValid = isPDF;
+      else if (mime.includes('webp')) isValid = isWEBP;
+
+      if (!isValid) {
+        // Deleta o arquivo malicioso/inválido
+        fs.unlinkSync(file.path);
+        return res.status(400).json({
+          success: false,
+          error: `Conteúdo do arquivo ${file.originalname} não corresponde ao tipo permitido.`
+        });
+      }
+    }
+    next();
+  } catch (err) {
+    console.error('Erro na validação de magic bytes:', err);
+    return res.status(500).json({ success: false, error: 'Erro interno ao processar arquivos.' });
+  }
+};
+
+module.exports = { upload, verificarMagicBytes };

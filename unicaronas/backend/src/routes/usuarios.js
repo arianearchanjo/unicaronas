@@ -1,9 +1,10 @@
 const router = require('express').Router();
 const ctrl   = require('../controllers/usuariosController');
 const { auth }   = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { upload, verificarMagicBytes } = require('../middleware/upload');
 const { validar } = require('../middleware/validacao');
 const { verificarDominioEmail } = require('../middleware/verificarDominio');
+const { authLimiter } = require('../middleware/rateLimiter');
 
 const schemasCadastro = {
   nome:        { required: true, type: 'string', minLength: 2, maxLength: 100 },
@@ -28,22 +29,24 @@ const schemaPerfil = {
 };
 
 router.post('/',
+  authLimiter,
   upload.fields([
     { name: 'cnh', maxCount: 1 },
     { name: 'identidade', maxCount: 1 }
   ]),
+  verificarMagicBytes,
   validar(schemasCadastro),
   verificarDominioEmail,
   ctrl.cadastrar
 );
-router.post('/login',           validar(schemasLogin),    ctrl.login);
+router.post('/login',           authLimiter, validar(schemasLogin),    ctrl.login);
 router.post('/verificar-email',                           ctrl.verificarEmail);
 router.post('/reenviar-token',                            ctrl.reenviarToken);
-router.post('/recuperar-senha',                           ctrl.recuperarSenha);
-router.post('/redefinir-senha',                           ctrl.redefinirSenha);
+router.post('/recuperar-senha', authLimiter,              ctrl.recuperarSenha);
+router.post('/redefinir-senha', authLimiter,              ctrl.redefinirSenha);
 router.get('/:id',              auth,                     ctrl.buscarPorId);
 router.get('/:id/eco-stats',    auth,                     ctrl.ecoStats);
-router.patch('/perfil', auth, upload.single('foto'), validar(schemaPerfil), ctrl.atualizarPerfil);
+router.patch('/perfil', auth, upload.single('foto'), verificarMagicBytes, validar(schemaPerfil), ctrl.atualizarPerfil);
 router.patch('/senha',  auth,                     ctrl.atualizarSenha);
 router.delete('/conta', auth,                     ctrl.deletarConta);
 
