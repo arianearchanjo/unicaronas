@@ -16,7 +16,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #1a73e8;
+  background: var(--accent, #6c63ff);
   color: #fff;
   border: none;
   cursor: pointer;
@@ -26,7 +26,7 @@
   justify-content: center;
   transition: transform 0.2s, background 0.2s;
 }
-#uc-btn-fab:hover { transform: scale(1.1); background: #1557b0; }
+#uc-btn-fab:hover { transform: scale(1.1); filter: brightness(1.1); }
 #uc-btn-fab svg { width: 28px; height: 28px; }
 
 /* ── Painel ── */
@@ -35,14 +35,18 @@
   bottom: 70px;
   right: 0;
   width: 300px;
-  background: #fff;
+  background: var(--bg-2, #111118);
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   animation: ucSlideIn 0.3s ease;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border, #2a2a38);
+}
+
+.uc-panel[hidden] {
+  display: none !important;
 }
 
 @keyframes ucSlideIn {
@@ -51,7 +55,7 @@
 }
 
 .uc-panel-header {
-  background: #1a73e8;
+  background: var(--accent, #6c63ff);
   color: #fff;
   padding: 12px 16px;
   display: flex;
@@ -67,22 +71,22 @@
   padding: 16px;
   max-height: 450px;
   overflow-y: auto;
-  color: #333;
+  color: var(--text, #f0f0f5);
 }
 
 .uc-control-group { margin-bottom: 20px; }
 .uc-label {
-  display: block; font-size: 12px; font-weight: 700; color: #666;
+  display: block; font-size: 11px; font-weight: 700; color: var(--text-3, #55556a);
   text-transform: uppercase; margin-bottom: 8px;
 }
 
 /* ── Fonte ── */
 .uc-font-row { display: flex; align-items: center; gap: 8px; }
 .uc-font-row button {
-  flex: 1; padding: 8px; border: 1px solid #ddd; background: #f8f9fa;
-  border-radius: 6px; cursor: pointer; font-weight: 700;
+  flex: 1; padding: 8px; border: 1px solid var(--border, #2a2a38); background: var(--surface, #1c1c25);
+  border-radius: 6px; cursor: pointer; font-weight: 700; color: var(--text, #f0f0f5);
 }
-.uc-font-row button:hover { background: #e9ecef; }
+.uc-font-row button:hover { background: var(--surface-2, #22222c); }
 #uc-f-val { min-width: 50px; text-align: center; font-weight: 700; }
 
 /* ── Toggles ── */
@@ -92,7 +96,7 @@
 }
 .uc-toggle input { display: none; }
 .uc-t-box {
-  width: 40px; height: 22px; background: #ccc; border-radius: 11px;
+  width: 40px; height: 22px; background: var(--border-2, #333345); border-radius: 11px;
   position: relative; transition: 0.3s; flex-shrink: 0;
 }
 .uc-t-box::before {
@@ -100,23 +104,23 @@
   background: #fff; border-radius: 50%; top: 3px; left: 3px;
   transition: 0.3s;
 }
-.uc-toggle input:checked + .uc-t-box { background: #1a73e8; }
+.uc-toggle input:checked + .uc-t-box { background: var(--accent, #6c63ff); }
 .uc-toggle input:checked + .uc-t-box::before { transform: translateX(18px); }
 
 /* ── Botões Leitor ── */
 .uc-reader-btns { display: flex; gap: 8px; margin-top: 8px; }
 .uc-btn-s {
   flex: 1; padding: 6px; font-size: 12px; border-radius: 4px;
-  border: 1px solid #1a73e8; color: #1a73e8; background: #fff; cursor: pointer;
+  border: 1px solid var(--accent, #6c63ff); color: var(--accent, #6c63ff); background: transparent; cursor: pointer;
 }
-.uc-btn-s:hover { background: #f0f7ff; }
+.uc-btn-s:hover { background: var(--accent-glow); }
 
 .uc-btn-reset {
   width: 100%; padding: 10px; margin-top: 10px; border: none;
-  background: #f1f3f4; color: #5f6368; border-radius: 6px;
+  background: var(--surface, #1c1c25); color: var(--text-2, #a0a0b8); border-radius: 6px;
   cursor: pointer; font-weight: 600;
 }
-.uc-btn-reset:hover { background: #e8eaed; color: #202124; }
+.uc-btn-reset:hover { background: var(--surface-2, #22222c); color: var(--text, #f0f0f5); }
 
 /* ── Modos Aplicados ao HTML ── */
 
