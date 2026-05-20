@@ -605,7 +605,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
 
 /* ── Alert ────────────────────────────────────────────────── */
-.alert { padding: .8rem 1rem; border-radius: var(--radius-sm); font-size: .87rem; margin-bottom: 1rem; border: 1px solid; }
+.alert { padding: .8rem 1rem; border-radius: var(--radius-sm); font-size: .87rem; margin-bottom: 1rem; border: 1px solid; white-space: pre-wrap; }
 .alert-success { background: var(--green-dim); color: var(--green); border-color: rgba(34,211,160,.2); }
 .alert-error   { background: var(--red-dim);   color: var(--red);   border-color: rgba(255,92,92,.2); }
 

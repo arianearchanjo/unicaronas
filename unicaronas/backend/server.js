@@ -1,11 +1,32 @@
 // =============================================================
 // UniCaronas — server.js
 // =============================================================
+// Carrega e valida variáveis de ambiente primeiro
+const { isProduction, PORT } = require('./src/config/env');
+
+// ── Supressão de Logs em Produção ───────────────────────────
+if (isProduction) {
+  // Salva o original caso queira usar em logs específicos
+  const originalLog = console.log;
+  const originalWarn = console.warn;
+
+  console.log = () => {}; // Silencia logs comuns
+  console.debug = () => {}; // Silencia debugs
+  
+  // Avisos podem ser mantidos ou redirecionados para o erro
+  console.warn = (...args) => {
+    // Exemplo: redirecionar avisos críticos para o stderr em produção
+    // console.error('[WARN]', ...args); 
+  };
+  
+  // console.error permanece ativo para diagnósticos de falhas
+}
+
 const express = require('express');
 const cors    = require('cors');
 const helmet  = require('helmet');
+const cookieParser = require('cookie-parser');
 const path    = require('path');
-require('dotenv').config();
 
 const usuariosRoutes   = require('./src/routes/usuarios');
 const caronasRoutes    = require('./src/routes/caronas');
@@ -19,21 +40,42 @@ const errorHandler     = require('./src/middleware/errorHandler');
 const { processarListaEspera } = require('./src/services/listaEsperaService');
 
 const app  = express();
-const PORT = process.env.PORT || 3000;
 
 // Job para processar lista de espera a cada 60 segundos
 setInterval(processarListaEspera, 60000);
 
-// ── CORS explícito (resolve problemas com Live Server / file://) ──
+// ── CORS Restrito (Produção vs Desenvolvimento) ──────────
 const corsOptions = {
-  origin: '*',
+  origin: (origin, callback) => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const frontendUrl = process.env.FRONTEND_URL;
+
+    // Permitir requisições sem 'origin' (como Postman ou chamadas entre servidores)
+    if (!origin) return callback(null, true);
+
+    // Em desenvolvimento, permitimos origens locais comuns
+    if (!isProduction) {
+      return callback(null, true);
+    }
+
+    // Em produção, validamos contra a FRONTEND_URL definida
+    if (frontendUrl && origin === frontendUrl) {
+      return callback(null, true);
+    }
+
+    // Bloqueia qualquer outra origem em produção
+    console.warn(`[CORS] Bloqueado: ${origin}`);
+    return callback(new Error('Acesso não permitido por política de CORS'), false);
+  },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: false,
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // responde preflight em todas as rotas
+
+app.use(cookieParser());
 
 // ── Helmet (depois do CORS para não conflitar) ──────────────
 app.use(helmet({

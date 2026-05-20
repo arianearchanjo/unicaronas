@@ -571,17 +571,12 @@
       try {
         const res = await api.cadastrar(form);
 
-        showAlert('Conta criada com sucesso! Entrando...', 'success');
+        showAlert('Conta criada com sucesso! Redirecionando...', 'success');
 
-        if (res.data && res.data.token) {
-          setToken(res.data.token);
-          setUser(res.data.usuario);
-          setTimeout(() => window.location.href = 'dashboard.html', 1500);
-        } else {
-          setTimeout(() => window.location.href = 'login.html', 2000);
-        }
+        setTimeout(() => window.location.href = 'login.html', 2000);
 
       } catch (err) {
+
         showAlert(err.message, 'error');
         btn.disabled = false;
         btn.textContent = 'Criar conta';

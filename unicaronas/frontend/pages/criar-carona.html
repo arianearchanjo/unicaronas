@@ -256,10 +256,9 @@
         let msg = currentLang === 'pt' ? 'Carona publicada com sucesso!' : 'Ride published successfully!';
         if (res.avisos && res.avisos.length > 0) {
           msg += '\n\nNotas:\n' + res.avisos.join('\n');
-          alert(msg);
-        } else {
-          showAlert(msg, 'success');
         }
+        
+        showAlert(msg, 'success');
 
         setTimeout(() => window.location.href = `carona.html?id=${res.data.id}`, 2000);
       } catch(err) {

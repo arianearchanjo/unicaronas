@@ -13,12 +13,42 @@ const login = async (req, res, next) => {
     }
 
     const usuario = rows[0];
-    const token = jwt.sign({ id: usuario.id, email: usuario.email, is_admin: usuario.is_admin }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+    const token = jwt.sign({ id: usuario.id, email: usuario.email, is_admin: usuario.is_admin }, process.env.JWT_SECRET || 'secret', { expiresIn: '24h' });
 
-    res.json({ success: true, data: { token, usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email, perfil_tipo: usuario.perfil_tipo, email_verificado: usuario.email_verificado } } });
+    // Configuração de segurança do cookie
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000 // 24 horas
+    };
+
+    res.cookie('token', token, cookieOptions);
+
+    res.json({ 
+      success: true, 
+      data: { 
+        usuario: { 
+          id: usuario.id, 
+          nome: usuario.nome, 
+          email: usuario.email, 
+          perfil_tipo: usuario.perfil_tipo, 
+          email_verificado: usuario.email_verificado 
+        } 
+      } 
+    });
   } catch (err) {
     next(err);
   }
+};
+
+const logout = async (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict'
+  });
+  res.json({ success: true, data: { mensagem: 'Logout realizado com sucesso' } });
 };
 
 const cadastrar = async (req, res, next) => {
@@ -139,4 +169,4 @@ const deletarConta = async (req, res, next) => {
   }
 };
 
-module.exports = { cadastrar, login, buscarPorId, atualizarPerfil, ecoStats, verificarEmail, reenviarToken, recuperarSenha, redefinirSenha, atualizarSenha, deletarConta };
+module.exports = { cadastrar, login, logout, buscarPorId, atualizarPerfil, ecoStats, verificarEmail, reenviarToken, recuperarSenha, redefinirSenha, atualizarSenha, deletarConta };

@@ -7,19 +7,21 @@ const API_URL = 'http://localhost:3000/api';
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
-const getToken  = () => localStorage.getItem('unicaronas_token');
 const getUser   = () => JSON.parse(localStorage.getItem('unicaronas_user') || 'null');
-const setToken  = (t) => localStorage.setItem('unicaronas_token', t);
 const setUser   = (u) => localStorage.setItem('unicaronas_user', JSON.stringify(u));
-const clearToken= () => localStorage.removeItem('unicaronas_token');
 const clearUser = () => localStorage.removeItem('unicaronas_user');
-const isLogado  = () => !!getToken();
+const isLogado  = () => !!getUser();
 
-// Idêntico ao original — redireciona para login.html relativo à página atual
-const logout = () => {
-  clearToken();
-  clearUser();
-  window.location.href = 'login.html';
+// Modificado para chamar o endpoint de logout do backend
+const logout = async () => {
+  try {
+    await api.logout();
+  } catch (e) {
+    console.error('Erro ao fazer logout no servidor:', e);
+  } finally {
+    clearUser();
+    window.location.href = 'login.html';
+  }
 };
 
 // Redireciona se não estiver logado (nome original mantido)
@@ -62,34 +64,57 @@ const aplicarRegrasPerfil = () => {
     window.location.href = 'dashboard.html';
   }
 };
-
 // ─── Requisição base ───────────────────────────────────────────────────────────
 
 const request = async (path, options = {}) => {
-  const token = getToken();
   const headers = { ...options.headers };
-  
+
   // Se não for FormData, define Content-Type como JSON
   if (!(options.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
-  
-  if (token) headers['Authorization'] = `Bearer ${token}`;
 
   let response;
   try {
-    response = await fetch(`${API_URL}${path}`, { ...options, headers });
+    // Adicionado credentials: 'include' para enviar cookies HttpOnly
+    response = await fetch(`${API_URL}${path}`, { 
+      ...options, 
+      headers,
+      credentials: 'include'
+    });
   } catch (e) {
-    const errorMsg = (typeof currentLang !== 'undefined' && currentLang === 'en') 
-      ? 'Could not connect to the server. Check your connection.' 
-      : (typeof currentLang !== 'undefined' && currentLang === 'es')
-      ? 'No se pudo conectar al servidor. Verifique su conexión.'
-      : 'Não foi possível conectar ao servidor. Verifique sua conexão.';
+    // Erro de rede ou conexão
+    const errorMsg = typeof t !== 'undefined' ? t('error-network') : 'Erro de conexão com o servidor.';
+    showAlert(errorMsg, 'error');
     throw new Error(errorMsg);
   }
 
+  // Se o servidor retornar 401, limpa o usuário e desloga (sessão expirada)
+  if (response.status === 401 && !path.includes('/login')) {
+    const errorMsg = typeof t !== 'undefined' ? t('error-session-expired') : 'Sua sessão expirou.';
+    showAlert(errorMsg, 'error');
+    clearUser();
+    setTimeout(() => window.location.href = 'login.html', 2000);
+    return;
+  }
+
   const data = await response.json();
-  if (!response.ok) throw new Error(data.error || `Erro ${response.status}`);
+
+  if (!response.ok) {
+    let msg = data.error;
+
+    // Mapeamento de erros por status se não houver mensagem do servidor
+    if (!msg) {
+      if (response.status === 403) msg = typeof t !== 'undefined' ? t('error-unauthorized') : 'Acesso negado.';
+      else if (response.status === 404) msg = typeof t !== 'undefined' ? t('error-not-found') : 'Não encontrado.';
+      else if (response.status >= 500) msg = typeof t !== 'undefined' ? t('error-server') : 'Erro interno no servidor.';
+      else msg = typeof t !== 'undefined' ? t('error-unexpected') : 'Erro inesperado.';
+    }
+
+    showAlert(msg, 'error');
+    throw new Error(msg);
+  }
+
   return data;
 };
 
@@ -101,6 +126,7 @@ const api = {
     body: body instanceof FormData ? body : JSON.stringify(body) 
   }),
   login:           (body) => request('/usuarios/login', { method: 'POST', body: JSON.stringify(body) }),
+  logout:          ()     => request('/usuarios/logout', { method: 'POST' }),
   recuperarSenha:  (body) => request('/usuarios/recuperar-senha', { method: 'POST', body: JSON.stringify(body) }),
   redefinirSenha:  (body) => request('/usuarios/redefinir-senha', { method: 'POST', body: JSON.stringify(body) }),
   perfil:          (id)   => request(`/usuarios/${id}`),

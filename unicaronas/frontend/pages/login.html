@@ -87,7 +87,6 @@
 
       try {
         const res = await api.login({ email, senha });
-        setToken(res.data.token);
         setUser(res.data.usuario);
         window.location.href = 'dashboard.html';
       } catch (err) {

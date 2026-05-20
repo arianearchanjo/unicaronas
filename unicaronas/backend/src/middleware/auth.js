@@ -2,16 +2,14 @@
 const jwt = require('jsonwebtoken');
 
 const auth = (req, res, next) => {
-  const header = req.headers.authorization;
+  const token = req.cookies.token;
 
-  if (!header || !header.startsWith('Bearer ')) {
+  if (!token) {
     return res.status(401).json({
       success: false,
       error: 'Token de autenticação não fornecido'
     });
   }
-
-  const token = header.split(' ')[1];
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

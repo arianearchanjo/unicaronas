@@ -35,6 +35,7 @@ router.post('/',
   ctrl.cadastrar
 );
 router.post('/login',           validar(schemasLogin),    ctrl.login);
+router.post('/logout',                                    ctrl.logout);
 router.post('/verificar-email',                           ctrl.verificarEmail);
 router.post('/reenviar-token',                            ctrl.reenviarToken);
 router.post('/recuperar-senha',                           ctrl.recuperarSenha);

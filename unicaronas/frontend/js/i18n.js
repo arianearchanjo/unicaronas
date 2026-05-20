@@ -131,6 +131,14 @@ const translations = {
     'feature-2-desc': 'Apenas usuários com e-mail institucional podem participar.',
     'feature-3-title': 'Sustentabilidade',
     'feature-3-desc': 'Menos carros nas ruas, menos emissão de CO2.',
+
+    // Erros e Mensagens do Sistema
+    'error-network': 'Não foi possível conectar ao servidor. Verifique sua conexão.',
+    'error-session-expired': 'Sua sessão expirou. Por favor, faça login novamente.',
+    'error-unauthorized': 'Você não tem permissão para realizar esta ação.',
+    'error-not-found': 'Recurso não encontrado.',
+    'error-server': 'Ocorreu um erro no servidor. Tente novamente mais tarde.',
+    'error-unexpected': 'Ocorreu um erro inesperado.',
   },
   en: {
     // Navbar
@@ -253,6 +261,14 @@ const translations = {
     'feature-2-desc': 'Only users with institutional email can participate.',
     'feature-3-title': 'Sustainability',
     'feature-3-desc': 'Fewer cars on the streets, less CO2 emissions.',
+
+    // System Errors and Messages
+    'error-network': 'Could not connect to the server. Check your connection.',
+    'error-session-expired': 'Your session has expired. Please log in again.',
+    'error-unauthorized': 'You do not have permission to perform this action.',
+    'error-not-found': 'Resource not found.',
+    'error-server': 'A server error occurred. Please try again later.',
+    'error-unexpected': 'An unexpected error occurred.',
   },
   es: {
     // Navbar
@@ -376,6 +392,14 @@ const translations = {
     'feature-2-desc': 'Sólo pueden participar usuarios con correo institucional.',
     'feature-3-title': 'Sostenibilidad',
     'feature-3-desc': 'Menos coches en las calles, menos emisiones de CO2.',
+
+    // Errores y Mensajes del Sistema
+    'error-network': 'No se pudo conectar al servidor. Verifique su conexión.',
+    'error-session-expired': 'Su sesión ha expirado. Por favor, inicie sesión de nuevo.',
+    'error-unauthorized': 'No tiene permiso para realizar esta acción.',
+    'error-not-found': 'Recurso no encontrado.',
+    'error-server': 'Ocurrió um erro no servidor. Inténtelo de nuevo más tarde.',
+    'error-unexpected': 'Ocurreu un error inesperado.',
   }
 };
 
