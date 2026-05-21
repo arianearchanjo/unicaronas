@@ -140,7 +140,7 @@ html.uc-alto-contraste select {
 }
 
 /* Escala de Cinza */
-html.uc-escala-cinza body {
+html.uc-escala-cinza {
   filter: grayscale(100%);
 }
 

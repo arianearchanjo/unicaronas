@@ -149,7 +149,7 @@ const Acessibilidade = (() => {
       </div>
     `;
 
-    document.body.appendChild(div);
+    document.documentElement.appendChild(div);
     vincularEventos();
   }
 

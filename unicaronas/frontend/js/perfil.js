@@ -19,18 +19,35 @@ document.addEventListener('DOMContentLoaded', async () => {
   setLoader(true);
 
   try {
-    const [resU, resAv, resHis, resEco] = await Promise.all([
+    const results = await Promise.allSettled([
       api.perfil(perfilId),
       api.avaliacoes(perfilId),
       api.getHistorico(perfilId),
       api.getEcoStats(perfilId)
     ]);
 
+    const [resU, resAv, resHis, resEco] = results.map(r => r.status === 'fulfilled' ? r.value : { data: r.reason?.data || (Array.isArray(r.reason?.data) ? [] : {}) });
+
+    if (results[0].status === 'rejected') {
+      throw results[0].reason;
+    }
+
     renderPerfil(resU.data, ehProprio);
     renderStats(resU.data);
-    renderEcoStats(resEco.data);
-    renderAvaliacoes(resAv.data);
-    renderHistorico(resHis.data);
+    
+    if (results[3].status === 'fulfilled') {
+      renderEcoStats(resEco.data);
+    } else {
+      console.warn('Eco stats não disponíveis');
+    }
+
+    if (results[1].status === 'fulfilled') {
+      renderAvaliacoes(resAv.data);
+    }
+
+    if (results[2].status === 'fulfilled') {
+      renderHistorico(resHis.data);
+    }
     
     // Novas funcionalidades de gamificação
     renderCompletude(resU.data, ehProprio);
