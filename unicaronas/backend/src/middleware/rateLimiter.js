@@ -2,17 +2,17 @@ const rateLimit = require('express-rate-limit');
 
 /**
  * Limiter global para toda a API
- * 20 requisições por minuto
+ * 100 requisições por minuto (ajustado para suportar polling e navegação rápida)
  */
 const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minuto
-  max: 20,
+  max: 100,
   message: {
     success: false,
     error: 'Muitas requisições vindas deste IP, tente novamente em um minuto.'
   },
-  standardHeaders: true, // Retorna as informações de limite nos headers `RateLimit-*`
-  legacyHeaders: false, // Desabilita os headers `X-RateLimit-*`
+  standardHeaders: true, 
+  legacyHeaders: false,
 });
 
 /**

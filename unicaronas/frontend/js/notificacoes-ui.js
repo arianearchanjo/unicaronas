@@ -46,49 +46,65 @@ export const NotificacoesUI = {
   },
 
   createElements() {
-    const actions = document.querySelector('.navbar-actions');
-    if (!actions) return;
+    const inject = () => {
+      const actions = document.querySelector('.navbar-actions');
+      if (!actions) return false;
 
-    const userDropdown = document.getElementById('user-dropdown');
-    const btnWrap = document.createElement('div');
-    btnWrap.id = 'uc-notif-container';
-    btnWrap.innerHTML = `
-      <button id="uc-notif-btn" aria-label="Notificações">
-        <i data-lucide="bell"></i>
-        <span id="uc-notif-badge">0</span>
-      </button>
-    `;
+      if (document.getElementById('uc-notif-container')) return true;
 
-    if (userDropdown) {
-      actions.insertBefore(btnWrap, userDropdown);
-    } else {
-      actions.appendChild(btnWrap);
+      const userDropdown = document.getElementById('user-dropdown');
+      const btnWrap = document.createElement('div');
+      btnWrap.id = 'uc-notif-container';
+      btnWrap.innerHTML = `
+        <button id="uc-notif-btn" aria-label="Notificações">
+          <i data-lucide="bell"></i>
+          <span id="uc-notif-badge">0</span>
+        </button>
+      `;
+
+      if (userDropdown) {
+        actions.insertBefore(btnWrap, userDropdown);
+      } else {
+        actions.appendChild(btnWrap);
+      }
+
+      const overlay = document.createElement('div');
+      overlay.className = 'uc-notif-overlay';
+      overlay.id = 'uc-notif-overlay';
+      
+      const panel = document.createElement('div');
+      panel.id = 'uc-notif-panel';
+      panel.innerHTML = `
+        <div class="uc-notif-header">
+          <h3>Notificações</h3>
+          <button class="uc-notif-close">&times;</button>
+        </div>
+        <div class="uc-notif-list" id="uc-notif-list"></div>
+      `;
+
+      document.body.appendChild(overlay);
+      document.body.appendChild(panel);
+
+      this.addEventListeners();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      return true;
+    };
+
+    if (!inject()) {
+      const interval = setInterval(() => {
+        if (inject()) clearInterval(interval);
+      }, 500);
+      setTimeout(() => clearInterval(interval), 5000);
     }
-
-    const overlay = document.createElement('div');
-    overlay.className = 'uc-notif-overlay';
-    overlay.id = 'uc-notif-overlay';
-    
-    const panel = document.createElement('div');
-    panel.id = 'uc-notif-panel';
-    panel.innerHTML = `
-      <div class="uc-notif-header">
-        <h3>Notificações</h3>
-        <button class="uc-notif-close">&times;</button>
-      </div>
-      <div class="uc-notif-list" id="uc-notif-list"></div>
-    `;
-
-    document.body.appendChild(overlay);
-    document.body.appendChild(panel);
-
-    if (typeof lucide !== 'undefined') lucide.createIcons();
   },
 
   addEventListeners() {
     const btn = document.getElementById('uc-notif-btn');
     const panel = document.getElementById('uc-notif-panel');
     const overlay = document.getElementById('uc-notif-overlay');
+    
+    if (!btn || !panel || !overlay) return;
+
     const close = panel.querySelector('.uc-notif-close');
 
     const togglePanel = async (open) => {

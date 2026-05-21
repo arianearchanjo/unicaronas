@@ -26,7 +26,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       api.getEcoStats(perfilId)
     ]);
 
-    const [resU, resAv, resHis, resEco] = results.map(r => r.status === 'fulfilled' ? r.value : { data: r.reason?.data || (Array.isArray(r.reason?.data) ? [] : {}) });
+    const [resU, resAv, resHis, resEco] = results.map((r, i) => {
+      if (r.status === 'fulfilled') return r.value;
+      // Retorna array vazio para avaliações (index 1) e histórico (index 2) em caso de erro
+      if (i === 1 || i === 2) return { data: [] };
+      return { data: {} };
+    });
 
     if (results[0].status === 'rejected') {
       throw results[0].reason;

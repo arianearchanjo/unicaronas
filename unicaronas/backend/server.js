@@ -145,7 +145,7 @@ app.use((err, req, res, next) => {
 app.use(errorHandler);
 
 // ── Iniciar servidor ────────────────────────────────────────
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   logger.log(`UniCaronas API rodando em http://localhost:${PORT}`);
 
   // Iniciar Jobs agendados

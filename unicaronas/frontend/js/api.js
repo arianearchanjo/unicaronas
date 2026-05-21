@@ -3,7 +3,7 @@
  * Compatível com uso direto em browser (sem bundler/módulos ES).
  */
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = `http://${window.location.hostname || 'localhost'}:3000/api`;
 
 // ─── CSRF ─────────────────────────────────────────────────────────────────────
 
@@ -87,8 +87,8 @@ const aplicarRegrasPerfil = () => {
 const request = async (path, options = {}) => {
   const headers = { ...options.headers };
 
-  // Se não for FormData, define Content-Type como JSON
-  if (!(options.body instanceof FormData)) {
+  // Só define Content-Type se houver corpo e não for FormData
+  if (options.body && !(options.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
   
@@ -102,16 +102,19 @@ const request = async (path, options = {}) => {
 
   let response;
   try {
-    // Adicionado credentials: 'include' para enviar cookies HttpOnly (JWT e CSRF)
     response = await fetch(`${API_URL}${path}`, { 
       ...options, 
       headers,
       credentials: 'include'
     });
   } catch (e) {
-    // Erro de rede ou conexão
-    const errorMsg = typeof t !== 'undefined' ? t('error-network') : 'Erro de conexão com o servidor.';
-    showAlert(errorMsg, 'error');
+    console.error(`[API Error] ${options.method || 'GET'} ${path}:`, e);
+    const errorMsg = typeof t !== 'undefined' ? t('error-network') : 'Não foi possível conectar ao servidor. Verifique sua conexão.';
+    // Evita múltiplos alertas iguais em curto intervalo
+    if (!window._lastAlertTime || Date.now() - window._lastAlertTime > 2000) {
+      showAlert(errorMsg, 'error');
+      window._lastAlertTime = Date.now();
+    }
     throw new Error(errorMsg);
   }
 
@@ -308,17 +311,27 @@ const showAlert = (msg, tipo = 'success', containerId = 'alert-container') => {
   setTimeout(() => { el.innerHTML = ''; }, 5000);
 };
 
-const formatarData = (iso) =>
-  new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+const formatarData = (iso) => {
+  if (!iso) return 'Data não disponível';
+  const data = new Date(iso);
+  return isNaN(data.getTime()) ? 'Data inválida' : data.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+};
 
-const formatarDataCurta = (iso) =>
-  new Date(iso).toLocaleDateString('pt-BR', { dateStyle: 'long' });
+const formatarDataCurta = (iso) => {
+  if (!iso) return 'Data não disponível';
+  const data = new Date(iso);
+  return isNaN(data.getTime()) ? 'Data inválida' : data.toLocaleDateString('pt-BR', { dateStyle: 'long' });
+};
 
-const formatarDataLonga = (iso) => 
-  new Date(iso).toLocaleString('pt-BR', { 
+const formatarDataLonga = (iso) => {
+  if (!iso) return 'Data não disponível';
+  const data = new Date(iso);
+  if (isNaN(data.getTime())) return 'Data inválida';
+  return data.toLocaleString('pt-BR', { 
     weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', 
     hour: '2-digit', minute: '2-digit' 
   }).replace(',', ' às');
+};
 
 const formatarMoeda = (v) =>
   Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });

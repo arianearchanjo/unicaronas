@@ -85,7 +85,7 @@ const reenviarToken = async (req, res, next) => {
 
 const buscarPorId = async (req, res, next) => {
   try {
-    const { rows } = await db.query('SELECT id, nome, email, matricula, telefone, foto_url, curso, dia_ead, perfil_tipo, avaliacao_media, total_avaliacoes, genero, status_verificacao, is_admin, email_verificado, instituicao_nome FROM usuarios WHERE id = $1', [req.params.id]);
+    const { rows } = await db.query('SELECT id, nome, email, matricula, telefone, foto_url, curso, dia_ead, perfil_tipo, avaliacao_media, total_avaliacoes, genero, status_verificacao, is_admin, email_verificado, instituicao_nome, criado_em FROM usuarios WHERE id = $1', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ success: false, error: 'Usuário não encontrado', code: 'NAO_ENCONTRADO' });
     res.json({ success: true, data: rows[0] });
   } catch (err) {
