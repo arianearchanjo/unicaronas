@@ -155,7 +155,7 @@
       const html = `
         <nav class="navbar" aria-label="Navegação principal">
           <div class="container">
-            <button class="navbar-toggle" onclick="Navbar.toggleMobileMenu()" aria-label="Abrir menu">
+            <button class="navbar-toggle" onclick="this.parentElement.querySelector('.navbar-links').classList.toggle('active')" aria-label="Abrir menu">
               <span></span><span></span><span></span>
             </button>
             

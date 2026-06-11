@@ -184,7 +184,15 @@ html.uc-pausar-animacoes *::after {
 
 /* Mobile */
 @media (max-width: 480px) {
-  .uc-panel { width: 280px; right: -10px; bottom: 80px; }
+  .uc-panel { width: 280px; right: 10px; bottom: 80px; }
+}
+
+/* Evita que VLibras ou outros overlays quebrem o position fixed */
+[vw-access-button] {
+  position: fixed !important;
+}
+[vw-access-button].active {
+  bottom: 20px !important;
 }
 
 /* Screen Reader Only */
