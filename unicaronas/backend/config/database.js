@@ -7,17 +7,25 @@ pool é um gerenciador de conexões, em vez de abrir uma nova conexão a cada re
 ele mantem um conjunto de conexões já abertas pra uso
 */
 
-// cria uma instancia do pool e configura com as variaveis definidas em .env
-const pool = new Pool({
-  host:     process.env.DB_HOST     || 'localhost',
-  port:     parseInt(process.env.DB_PORT) || 5432, // (|| 'valor') -> é um fallback
-  database: process.env.DB_NAME     || 'unicaronas',
-  user:     process.env.DB_USER     || 'postgres',
-  password: process.env.DB_PASSWORD || '',
-  max:      10,       // máximo de conexões no pool
-  idleTimeoutMillis: 30000, // fecha o pool após 30 segundos sem usar
-  connectionTimeoutMillis: 2000, // retorna erro após 2 segundos
-});
+// Se DATABASE_URL existir (Neon/Cloud), usa ela; senão usa variáveis individuais
+const poolConfig = process.env.DATABASE_URL
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }, // Neon exige SSL
+    }
+  : {
+      host:     process.env.DB_HOST     || 'localhost',
+      port:     parseInt(process.env.DB_PORT) || 5432,
+      database: process.env.DB_NAME     || 'unicaronas',
+      user:     process.env.DB_USER     || 'postgres',
+      password: process.env.DB_PASSWORD || '',
+    };
+
+poolConfig.max = 10;
+poolConfig.idleTimeoutMillis = 30000;
+poolConfig.connectionTimeoutMillis = 2000;
+
+const pool = new Pool(poolConfig);
 
 pool.on('error', (err) => {
   logger.error('Erro inesperado no pool do PostgreSQL:', err); // tratamento de erros

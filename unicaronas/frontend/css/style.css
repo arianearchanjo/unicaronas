@@ -652,6 +652,15 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   transition: 0.3s;
 }
 
+@media (max-width: 992px) {
+  .detalhe-layout { grid-template-columns: 1fr; }
+  .navbar-links { gap: 1rem; }
+}
+
+@media (max-width: 900px) {
+  .filtros-grid { grid-template-columns: 1fr 1fr; }
+}
+
 @media (max-width: 768px) {
   .navbar .container { 
     justify-content: flex-start;
@@ -674,9 +683,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
     z-index: 200;
   }
 
-  .navbar-links.active {
-    display: flex;
-  }
+  .navbar-links.active { display: flex; }
 
   .navbar-links li {
     width: 100%;
@@ -689,28 +696,37 @@ textarea.form-control { resize: vertical; min-height: 80px; }
     font-size: .9rem;
   }
 
-  /* (3) Dashboard & Perfil Stats Grid */
-  .stats-grid { 
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important; 
-    gap: 1rem !important;
-  }
-
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .filtros-grid { grid-template-columns: 1fr; }
-  .carona-footer { flex-direction: column; align-items: flex-start; gap: 1rem; }
+
+  .carona-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .msg-layout { grid-template-columns: 1fr; }
+  .msg-lista { display: none; }
+  .msg-chat { display: flex; }
+  .chat-open .msg-lista { display: none; }
+  .chat-open .msg-chat { display: flex; }
 }
 
 @media (max-width: 600px) {
-  /* (4) Buscar Button Width */
   .filtros-grid .btn { width: 100%; }
-  
-  /* (7) Perfil Avaliação Rota */
   .avaliacao-rota { margin-left: 0 !important; margin-top: .5rem; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 2.5rem; }
+  .features { grid-template-columns: 1fr; }
+  .hero-buttons { flex-direction: column; }
+  .btn-lg { width: 100%; justify-content: center; }
 }
 
 @media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr !important; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .metodo-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .metodo-desc { display: none; }
+  #mapa-carona { height: 220px; }
 }
 
 /* Focus ring no padrão UniCaronas */

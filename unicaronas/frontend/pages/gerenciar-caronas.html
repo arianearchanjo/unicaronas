@@ -98,7 +98,7 @@
   <footer class="footer">
     <div class="container footer-content">
       <div class="navbar-brand-img" style="margin-bottom: 1rem;"></div>
-      <div class="footer-dev">Desenvolvido pelas divas: <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
+      <div class="footer-dev">Desenvolvido por: <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
       <div class="footer-copyright">© 2026 UniCaronas — Todos os direitos reservados.</div>
     </div>
   </footer>
@@ -298,7 +298,7 @@
                   ${formatarData(c.horario_partida)} ${c.recorrente ? '· <span class="badge-semanal">Semanal</span>' : ''}
                 </div>
               </div>
-              <div style="display:flex; gap: .5rem;">
+              <div style="display:flex; gap: .5rem; flex-wrap: wrap;">
                 <button class="btn btn-success btn-sm" onclick="concluirMinhaCarona(${c.id})">${currentLang === 'pt' ? 'Encerrar' : 'Finish'}</button>
                 <button class="btn btn-danger btn-sm" onclick="cancelarMinhaCarona(${c.id})">${currentLang === 'pt' ? 'Cancelar' : 'Cancel'}</button>
                 <a href="carona.html?id=${c.id}" class="btn btn-ghost btn-sm">${currentLang === 'pt' ? 'Ver Detalhes' : 'View Details'}</a>

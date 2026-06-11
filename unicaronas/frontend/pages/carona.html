@@ -92,7 +92,7 @@
   <footer class="footer">
     <div class="container footer-content">
       <div class="navbar-brand-img" style="margin-bottom: 1rem;"></div>
-      <div class="footer-dev">Desenvolvido pelas divas: <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
+      <div class="footer-dev">Desenvolvido por: <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
       <div class="footer-copyright">© 2026 UniCaronas — Todos os direitos reservados.</div>
     </div>
   </footer>
@@ -334,7 +334,7 @@
                 <div class="user-rating">${s.passageiro_curso || 'Curso não informado'} · ${parseFloat(s.passageiro_avaliacao || 0).toFixed(1)} ★</div>
               </div>
             </div>
-            <div style="display:flex; gap:.5rem; align-items:center; margin-left:auto">
+            <div style="display:flex; gap:.5rem; align-items:center; margin-left:auto; flex-wrap: wrap;">
               ${s.status === 'pendente' ? `
                 <button class="btn btn-success btn-sm" onclick="aceitarSolicitacao(${s.id}, '${s.passageiro_nome}')">Aceitar</button>
                 <button class="btn btn-danger btn-sm" onclick="recusarSolicitacao(${s.id})">Recusar</button>
