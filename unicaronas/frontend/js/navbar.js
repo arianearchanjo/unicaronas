@@ -12,9 +12,9 @@ const Navbar = {
     const html = `
       <nav class="navbar" aria-label="Navegação principal">
         <div class="container">
-          <button class="navbar-toggle" onclick="Navbar.toggleMobileMenu()" aria-label="Abrir menu">
+          ${!isPublicPage ? `<button class="navbar-toggle" onclick="Navbar.toggleMobileMenu()" aria-label="Abrir menu">
             <span></span><span></span><span></span>
-          </button>
+          </button>` : ''}
           
           <a href="${isPublicPage ? 'login.html' : 'dashboard.html'}" class="navbar-brand-wrap" aria-label="UniCaronas Home">
             <div class="navbar-brand-img"></div>
@@ -23,7 +23,7 @@ const Navbar = {
           
           ${!isPublicPage ? this.getLinks(usuario, currentPage) : ''}
           
-          <div class="navbar-actions" style="display: flex; align-items: center; gap: 0.5rem;">
+          <div class="navbar-actions">
             ${isPublicPage ? this.getLangButtons() + `<button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Alternar tema"></button>` : ''}
             ${!isPublicPage ? this.getUserDropdown(usuario) : ''}
           </div>

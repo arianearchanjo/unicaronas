@@ -737,6 +737,13 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 @media (max-width: 480px) {
   .container { padding: 0 0.75rem; }
   .card { padding: 1rem; }
+  .navbar { padding: 0.8rem 0; }
+  .navbar .container { gap: 0.5rem; }
+  .navbar-brand-img { width: 36px; height: 36px; }
+  .navbar-brand-text { font-size: 1.2rem; }
+  .navbar-actions { gap: 0.4rem; }
+  .lang-toggle { padding: 0 0.6rem; font-size: 0.7rem; height: 34px; }
+  .theme-toggle { width: 34px; height: 34px; }
   .hero h1 { font-size: 1.75rem; }
   .login-card { padding: 1.5rem; }
   .login-wrap { padding: 1.5rem 0; }

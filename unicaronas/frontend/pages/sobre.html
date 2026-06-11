@@ -189,14 +189,28 @@
     }
     .status-box p:last-child { margin-bottom: 0; }
 
+    @media (max-width: 768px) {
+      .sobre-hero { padding: 2rem 0 1.5rem; }
+      .sobre-section { margin-bottom: 2rem; }
+      .sobre-section h2 { font-size: 1.15rem; }
+    }
     @media (max-width: 600px) {
-      .sobre-hero h1 { font-size: 1.6rem; }
-      .dev-list { grid-template-columns: 1fr 1fr; }
-      .tech-grid { grid-template-columns: 1fr 1fr; }
+      .sobre-hero { padding: 1.5rem 0 1rem; }
+      .sobre-hero h1 { font-size: 1.5rem; }
+      .sobre-hero p { font-size: 0.9rem; }
+      .dev-list { grid-template-columns: 1fr 1fr; gap: 1rem; }
+      .tech-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+      .dev-card { padding: 1.5rem 1rem 1.25rem; }
+      .dev-avatar { width: 64px; height: 64px; }
+      .sobre-section > p { font-size: 0.88rem; }
+      .status-box { padding: 1rem; }
+      .status-box p { font-size: 0.85rem; }
     }
     @media (max-width: 480px) {
       .dev-list { grid-template-columns: 1fr; }
+      .dev-card { padding: 1.25rem 1rem 1rem; }
       .tech-grid { grid-template-columns: 1fr; }
+      .sobre-hero h1 { font-size: 1.35rem; }
     }
   </style>
 </head>
