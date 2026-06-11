@@ -300,7 +300,7 @@
           Envie uma foto ou scan do seu RG ou documento de identificação.
           Isso garante a segurança de todos na plataforma.
         </p>
-        <div class="doc-upload-box" id="box-identidade" onclick="document.getElementById('input-identidade').click()">
+        <div class="doc-upload-box" id="box-identidade">
           <input type="file" id="input-identidade" name="identidade"
                  accept="image/jpeg,image/png,image/webp,application/pdf"
                  onchange="onDocFile(this, 'box-identidade', 'nome-identidade')"
@@ -325,7 +325,7 @@
           Motoristas devem enviar uma foto ou PDF da CNH para conduzir passageiros.
           Após análise, você receberá o selo <strong>Motorista verificado ✔️</strong> no seu perfil.
         </p>
-        <div class="doc-upload-box" id="box-cnh" onclick="document.getElementById('input-cnh').click()">
+        <div class="doc-upload-box" id="box-cnh">
           <input type="file" id="input-cnh" name="cnh"
                  accept="image/jpeg,image/png,image/webp,application/pdf"
                  onchange="onDocFile(this, 'box-cnh', 'nome-cnh')"
@@ -353,7 +353,7 @@
 
           <div>
             <p style="font-size:0.82rem;font-weight:600;margin-bottom:0.5rem;color:var(--text)">🪪 CNH (motorista)</p>
-            <div class="doc-upload-box" id="box-cnh-misto" onclick="document.getElementById('input-cnh-misto').click()">
+            <div class="doc-upload-box" id="box-cnh-misto">
               <input type="file" id="input-cnh-misto" name="cnh"
                      accept="image/jpeg,image/png,image/webp,application/pdf"
                      onchange="onDocFile(this, 'box-cnh-misto', 'nome-cnh-misto')"
@@ -369,7 +369,7 @@
 
           <div>
             <p style="font-size:0.82rem;font-weight:600;margin-bottom:0.5rem;color:var(--text)">📄 Identidade (passageiro)</p>
-            <div class="doc-upload-box" id="box-identidade-misto" onclick="document.getElementById('input-identidade-misto').click()">
+            <div class="doc-upload-box" id="box-identidade-misto">
               <input type="file" id="input-identidade-misto" name="identidade"
                      accept="image/jpeg,image/png,image/webp,application/pdf"
                      onchange="onDocFile(this, 'box-identidade-misto', 'nome-identidade-misto')"

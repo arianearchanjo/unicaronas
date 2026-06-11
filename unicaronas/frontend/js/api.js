@@ -56,6 +56,7 @@ const protegerRota = () => {
 const aplicarRegrasPerfil = () => {
   const u = getUser();
   if (!u) return;
+  if (u.is_admin) return;
 
   const tipo = u.perfil_tipo || 'misto';
 
