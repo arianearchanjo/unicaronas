@@ -737,13 +737,16 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 @media (max-width: 480px) {
   .container { padding: 0 0.75rem; }
   .card { padding: 1rem; }
-  .navbar { padding: 0.8rem 0; }
-  .navbar .container { gap: 0.5rem; }
-  .navbar-brand-img { width: 36px; height: 36px; }
-  .navbar-brand-text { font-size: 1.2rem; }
-  .navbar-actions { gap: 0.4rem; }
-  .lang-toggle { padding: 0 0.6rem; font-size: 0.7rem; height: 34px; }
-  .theme-toggle { width: 34px; height: 34px; }
+  .navbar { padding: 0.7rem 0; }
+  .navbar .container { gap: 0.4rem; }
+  .navbar-brand-img { width: 32px; height: 32px; }
+  .navbar-brand-text { font-size: 1.05rem; letter-spacing: -.3px; }
+  .navbar-actions { gap: 0.3rem; }
+  .navbar-toggle { padding: 3px; }
+  .navbar-toggle span { width: 22px; }
+  .lang-toggle { padding: 0 0.5rem; font-size: 0.65rem; height: 30px; }
+  .theme-toggle { width: 30px; height: 30px; }
+  .avatar-trigger { width: 30px; height: 30px; font-size: 0.75rem; }
   .hero h1 { font-size: 1.75rem; }
   .login-card { padding: 1.5rem; }
   .login-wrap { padding: 1.5rem 0; }
@@ -754,6 +757,21 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .metodo-desc { display: none; }
   #mapa-carona { height: 220px; }
   .chat-wrap { height: 340px; }
+}
+
+/* ── Academic banner mobile ─────────────────────────────── */
+@media (max-width: 600px) {
+  .academic-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem 1.25rem;
+  }
+  .academic-banner .banner-body {
+    min-width: 0;
+  }
+  .academic-banner .btn {
+    width: 100%;
+  }
 }
 
 /* Focus ring no padrão UniCaronas */

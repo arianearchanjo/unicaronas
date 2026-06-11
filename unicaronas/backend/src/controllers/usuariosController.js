@@ -27,13 +27,14 @@ const login = async (req, res, next) => {
       success: true, 
       data: { 
         token,
-        usuario: { 
-          id: usuario.id, 
-          nome: usuario.nome, 
-          email: usuario.email, 
-          perfil_tipo: usuario.perfil_tipo, 
-          email_verificado: usuario.email_verificado 
-        } 
+          usuario: { 
+            id: usuario.id, 
+            nome: usuario.nome, 
+            email: usuario.email, 
+            perfil_tipo: usuario.perfil_tipo, 
+            email_verificado: usuario.email_verificado,
+            is_admin: usuario.is_admin 
+          } 
       } 
     });
   } catch (err) {

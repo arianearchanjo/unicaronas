@@ -161,7 +161,13 @@
               <div class="navbar-brand-text">Uni<span>Caronas</span></div>
             </a>
             
-            <div class="navbar-actions" style="display: flex; align-items: center; gap: 0.5rem;">
+            <ul class="navbar-links" role="list">
+              <li><a href="pages/login.html">Entrar</a></li>
+              <li><a href="pages/cadastro.html">Cadastre-se</a></li>
+              <li><a href="pages/sobre.html">Sobre</a></li>
+            </ul>
+            
+            <div class="navbar-actions">
               <div class="lang-dropdown">
                 <button class="lang-toggle" aria-haspopup="true" aria-expanded="false">
                   ${currentLang.toUpperCase()}
@@ -173,10 +179,7 @@
                 </div>
               </div>
               <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Alternar tema"></button>
-              ${!isPublicPage ? this.getUserDropdown(usuario) : `
-                <a href="pages/login.html" class="btn btn-ghost btn-sm" data-i18n="btn-login">Entrar</a>
-                <a href="pages/cadastro.html" class="btn btn-primary btn-sm" data-i18n="btn-register">Cadastrar</a>
-              `}
+              ${!isPublicPage ? this.getUserDropdown(usuario) : ''}
             </div>
           </div>
         </nav>
