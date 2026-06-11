@@ -70,6 +70,9 @@
       .features { grid-template-columns: 1fr; }
       .hero-buttons { flex-direction: column; }
     }
+    @media (max-width: 480px) {
+      .nav-public-btns { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -179,6 +182,10 @@
                 </div>
               </div>
               <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Alternar tema"></button>
+              <div class="nav-public-btns">
+                <a href="pages/login.html" class="btn btn-ghost btn-sm" data-i18n="btn-login">Entrar</a>
+                <a href="pages/cadastro.html" class="btn btn-primary btn-sm" data-i18n="btn-register">Cadastrar</a>
+              </div>
               ${!isPublicPage ? this.getUserDropdown(usuario) : ''}
             </div>
           </div>

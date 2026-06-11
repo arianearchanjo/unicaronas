@@ -760,7 +760,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 }
 
 /* ── Academic banner mobile ─────────────────────────────── */
-@media (max-width: 600px) {
+@media (max-width: 750px) {
   .academic-banner {
     flex-direction: column;
     text-align: center;
@@ -771,6 +771,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   }
   .academic-banner .btn {
     width: 100%;
+  }
+}
+@media (max-width: 480px) {
+  .academic-banner .banner-text {
+    word-break: break-word;
   }
 }
 
