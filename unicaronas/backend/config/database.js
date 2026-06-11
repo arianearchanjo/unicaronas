@@ -23,7 +23,7 @@ const poolConfig = process.env.DATABASE_URL
 
 poolConfig.max = 10;
 poolConfig.idleTimeoutMillis = 30000;
-poolConfig.connectionTimeoutMillis = 2000;
+poolConfig.connectionTimeoutMillis = process.env.NODE_ENV === 'production' ? 10000 : 2000;
 
 const pool = new Pool(poolConfig);
 

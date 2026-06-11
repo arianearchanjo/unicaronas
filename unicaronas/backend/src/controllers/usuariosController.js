@@ -99,7 +99,7 @@ const atualizarPerfil = async (req, res, next) => {
     const id = req.usuario.id;
     let foto_url = undefined;
 
-    if (req.file) {
+    if (req.file && req.file.filename) {
       const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
       foto_url = `${baseUrl}/uploads/profiles/${req.file.filename}`;
     }
