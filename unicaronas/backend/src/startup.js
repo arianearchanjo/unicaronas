@@ -61,11 +61,11 @@ async function initDatabase() {
           console.error('[startup] Nenhum usuario encontrado. Populando dados iniciais...');
         }
 
-        const seedPath = path.join(dbPath, 'setup_sprint5.sql');
+        const seedPath = path.join(dbPath, 'seed_admin.sql');
         if (fs.existsSync(seedPath)) {
           const seedSql = fs.readFileSync(seedPath, 'utf8');
           await db.query(seedSql);
-          console.error('[startup] Dados iniciais inseridos (incluindo 4 administradores).');
+          console.error('[startup] Banco resetado — apenas 4 administradores inseridos.');
         }
       } else {
         console.error(`[startup] Banco possui ${totalUsuarios} usuario(s) e ${totalAdmins} admin(s). Seed ignorado.`);
