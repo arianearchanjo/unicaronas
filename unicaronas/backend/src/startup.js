@@ -47,16 +47,28 @@ async function initDatabase() {
       const { rows: userRows } = await db.query('SELECT COUNT(*) AS total FROM usuarios');
       const totalUsuarios = parseInt(userRows[0].total, 10);
 
-      if (totalUsuarios === 0) {
-        console.error('[startup] Nenhum usuario encontrado. Populando dados iniciais...');
+      // Verifica se os admins padrao ja existem
+      const { rows: adminRows } = await db.query(
+        "SELECT COUNT(*) AS total FROM usuarios WHERE email LIKE '%@unicaronas.divas.com' AND is_admin = true"
+      );
+      const totalAdmins = parseInt(adminRows[0].total, 10);
+      const precisaSeed = totalUsuarios === 0 || totalAdmins < 4;
+
+      if (precisaSeed) {
+        if (totalUsuarios > 0) {
+          console.error(`[startup] Banco com ${totalUsuarios} usuario(s) mas apenas ${totalAdmins} admin(s). Resetando dados...`);
+        } else {
+          console.error('[startup] Nenhum usuario encontrado. Populando dados iniciais...');
+        }
+
         const seedPath = path.join(dbPath, 'setup_sprint5.sql');
         if (fs.existsSync(seedPath)) {
           const seedSql = fs.readFileSync(seedPath, 'utf8');
           await db.query(seedSql);
-          console.error('[startup] Dados iniciais inseridos (incluindo administradores).');
+          console.error('[startup] Dados iniciais inseridos (incluindo 4 administradores).');
         }
       } else {
-        console.error(`[startup] Banco ja possui ${totalUsuarios} usuario(s). Seed ignorado.`);
+        console.error(`[startup] Banco possui ${totalUsuarios} usuario(s) e ${totalAdmins} admin(s). Seed ignorado.`);
       }
 
       dbReady = true;
