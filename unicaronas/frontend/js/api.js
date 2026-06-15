@@ -3,7 +3,9 @@
  * Compatível com uso direto em browser (sem bundler/módulos ES).
  */
 
-const API_URL = `http://${window.location.hostname || 'localhost'}:3000/api`;
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000/api'
+  : '/api';
 
 // ─── CSRF ─────────────────────────────────────────────────────────────────────
 
@@ -54,6 +56,7 @@ const protegerRota = () => {
 const aplicarRegrasPerfil = () => {
   const u = getUser();
   if (!u) return;
+  if (u.is_admin) return;
 
   const tipo = u.perfil_tipo || 'misto';
 

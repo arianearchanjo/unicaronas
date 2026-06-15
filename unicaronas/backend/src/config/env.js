@@ -8,8 +8,7 @@ const isProduction = process.env.NODE_ENV === 'production';
  */
 const requiredEnvVars = [
   'JWT_SECRET',
-  'FRONTEND_URL',
-  'MAIL_PASS'
+  'FRONTEND_URL'
 ];
 
 /**
@@ -28,7 +27,6 @@ const validateEnv = () => {
       console.error('\x1b[31m%s\x1b[0m', ' [CRITICAL ERROR] Falha na configuração de Produção:');
       console.error('\x1b[31m%s\x1b[0m', ` As seguintes variáveis de ambiente são obrigatórias: ${missing.join(', ')}`);
       console.error('\x1b[33m%s\x1b[0m', ' Verifique o arquivo .env ou as configurações do seu provedor de cloud.');
-      process.exit(1);
     }
   }
 };
@@ -41,5 +39,7 @@ module.exports = {
   PORT: process.env.PORT || 3000,
   JWT_SECRET: process.env.JWT_SECRET,
   FRONTEND_URL: process.env.FRONTEND_URL,
+  MAIL_PASS: process.env.MAIL_PASS,
+  hasMailConfig: !!(process.env.MAIL_HOST && process.env.MAIL_USER && process.env.MAIL_PASS),
   isProduction
 };

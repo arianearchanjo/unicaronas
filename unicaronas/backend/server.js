@@ -3,6 +3,7 @@
 // =============================================================
 // Carrega e valida variáveis de ambiente primeiro
 const { isProduction, PORT } = require('./src/config/env');
+const { initDatabase, waitForDb } = require('./src/startup');
 
 // ── Supressão de Logs em Produção ───────────────────────────
 if (isProduction) {
@@ -43,6 +44,9 @@ const errorHandler     = require('./src/middleware/errorHandler');
 const { apiLimiter }   = require('./src/middleware/rateLimiter');
 const { processarListaEspera } = require('./src/services/listaEsperaService');
 require('./src/jobs/cleanupTokens');
+
+// Inicializa banco de dados (migrações + seed) de forma assíncrona
+initDatabase();
 
 const app  = express();
 
@@ -110,6 +114,9 @@ app.get('/api/csrf-token', (req, res) => {
 app.use(helmet({
   crossOriginResourcePolicy: false,
 }));
+
+// ── Middleware que aguarda inicialização do banco ───────────
+app.use(waitForDb());
 
 // ── Servir arquivos estáticos (uploads) ─────────────────────
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

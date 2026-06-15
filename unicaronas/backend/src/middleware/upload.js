@@ -2,38 +2,41 @@ const multer = require('multer');
 const path   = require('path');
 const fs     = require('fs');
 
-// Garante que os diretórios de uploads existem
-const DIRS = {
-  profiles: path.join(__dirname, '../../uploads/profiles'),
-  documentos: path.join(__dirname, '../../uploads/documentos')
-};
+const isProduction = process.env.NODE_ENV === 'production';
 
-Object.values(DIRS).forEach(dir => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-});
+// Em produção (Vercel), usa memória; local usa disco
+const storage = isProduction
+  ? multer.memoryStorage()
+  : (() => {
+      const DIRS = {
+        profiles: path.join(__dirname, '../../uploads/profiles'),
+        documentos: path.join(__dirname, '../../uploads/documentos'),
+      };
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // Define a pasta de destino baseada no campo do formulário
-    if (file.fieldname === 'foto') {
-      cb(null, DIRS.profiles);
-    } else if (file.fieldname === 'cnh' || file.fieldname === 'identidade') {
-      cb(null, DIRS.documentos);
-    } else {
-      cb(null, DIRS.profiles);
-    }
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    
-    // Se tiver usuário logado, usa o ID. Se não (cadastro), usa apenas o sufixo.
-    const prefix = req.usuario ? `user-${req.usuario.id}` : 'new';
-    cb(null, `${file.fieldname}-${prefix}-${uniqueSuffix}${ext}`);
-  },
-});
+      Object.values(DIRS).forEach(dir => {
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+      });
+
+      return multer.diskStorage({
+        destination: (req, file, cb) => {
+          if (file.fieldname === 'foto') {
+            cb(null, DIRS.profiles);
+          } else if (file.fieldname === 'cnh' || file.fieldname === 'identidade') {
+            cb(null, DIRS.documentos);
+          } else {
+            cb(null, DIRS.profiles);
+          }
+        },
+        filename: (req, file, cb) => {
+          const ext = path.extname(file.originalname);
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const prefix = req.usuario ? `user-${req.usuario.id}` : 'new';
+          cb(null, `${file.fieldname}-${prefix}-${uniqueSuffix}${ext}`);
+        },
+      });
+    })();
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png|webp|pdf/;
@@ -49,15 +52,12 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB para documentos
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-/**
- * Middleware para validar magic bytes dos arquivos após o upload pelo Multer
- */
 const verificarMagicBytes = async (req, res, next) => {
   const files = [];
-  
+
   if (req.file) files.push(req.file);
   if (req.files) {
     if (Array.isArray(req.files)) {
@@ -73,10 +73,18 @@ const verificarMagicBytes = async (req, res, next) => {
 
   try {
     for (const file of files) {
-      const buffer = Buffer.alloc(12);
-      const fd = fs.openSync(file.path, 'r');
-      fs.readSync(fd, buffer, 0, 12, 0);
-      fs.closeSync(fd);
+      let buffer;
+
+      if (file.buffer) {
+        // memoryStorage — já temos o buffer
+        buffer = file.buffer;
+      } else {
+        // diskStorage — ler do disco
+        buffer = Buffer.alloc(12);
+        const fd = fs.openSync(file.path, 'r');
+        fs.readSync(fd, buffer, 0, 12, 0);
+        fs.closeSync(fd);
+      }
 
       const isJPG  = buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF;
       const isPNG  = buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47;
@@ -93,17 +101,16 @@ const verificarMagicBytes = async (req, res, next) => {
       else if (mime.includes('webp')) isValid = isWEBP;
 
       if (!isValid) {
-        // Deleta o arquivo malicioso/inválido
-        fs.unlinkSync(file.path);
+        if (file.path) fs.unlinkSync(file.path);
         return res.status(400).json({
           success: false,
-          error: `Conteúdo do arquivo ${file.originalname} não corresponde ao tipo permitido.`
+          error: `Conteudo do arquivo ${file.originalname} nao corresponde ao tipo permitido.`
         });
       }
     }
     next();
   } catch (err) {
-    console.error('Erro na validação de magic bytes:', err);
+    console.error('Erro na validacao de magic bytes:', err);
     return res.status(500).json({ success: false, error: 'Erro interno ao processar arquivos.' });
   }
 };

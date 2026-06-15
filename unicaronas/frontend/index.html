@@ -70,6 +70,9 @@
       .features { grid-template-columns: 1fr; }
       .hero-buttons { flex-direction: column; }
     }
+    @media (max-width: 480px) {
+      .nav-public-btns { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -84,6 +87,21 @@
         <a href="pages/login.html" class="btn btn-ghost btn-lg" data-i18n="btn-login">Entrar</a>
       </div>
     </section>
+
+    <div class="academic-banner fade-up" style="max-width: 750px; margin: 0 auto 2rem;">
+      <div class="banner-body">
+        <div class="banner-title">Projeto Acadêmico</div>
+        <div class="banner-text">
+          Desenvolvido por <strong>Ariane Archanjo</strong>, <strong>Matheus Sizanoski</strong>, 
+          <strong>Pedro Kafka</strong> e <strong>Rafael Machado</strong> em 8 sprints para a disciplina de 
+          <em>Prática Profissional em Programação WEB</em>. O sistema é funcional, mas o processamento de 
+          pagamentos não foi configurado.
+        </div>
+      </div>
+      <a href="pages/sobre.html" class="btn btn-primary btn-sm" style="flex-shrink: 0;">
+        Entender mais
+      </a>
+    </div>
 
     <div class="divider"></div>
 
@@ -116,6 +134,7 @@
     <div class="container footer-content">
       <div class="navbar-brand-img" style="margin-bottom: 1rem;"></div>
       <div class="footer-copyright" data-i18n="footer-rights">© 2026 UniCaronas — Todos os direitos reservados.</div>
+      <div class="footer-disclaimer">Projeto acadêmico — sistema de pagamento não funcional</div>
     </div>
   </footer>
 
@@ -136,7 +155,7 @@
       const html = `
         <nav class="navbar" aria-label="Navegação principal">
           <div class="container">
-            <button class="navbar-toggle" onclick="Navbar.toggleMobileMenu()" aria-label="Abrir menu">
+            <button class="navbar-toggle" onclick="this.parentElement.querySelector('.navbar-links').classList.toggle('active')" aria-label="Abrir menu">
               <span></span><span></span><span></span>
             </button>
             
@@ -145,7 +164,13 @@
               <div class="navbar-brand-text">Uni<span>Caronas</span></div>
             </a>
             
-            <div class="navbar-actions" style="display: flex; align-items: center; gap: 0.5rem;">
+            <ul class="navbar-links" role="list">
+              <li><a href="pages/login.html">Entrar</a></li>
+              <li><a href="pages/cadastro.html">Cadastre-se</a></li>
+              <li><a href="pages/sobre.html">Sobre</a></li>
+            </ul>
+            
+            <div class="navbar-actions">
               <div class="lang-dropdown">
                 <button class="lang-toggle" aria-haspopup="true" aria-expanded="false">
                   ${currentLang.toUpperCase()}
@@ -157,10 +182,11 @@
                 </div>
               </div>
               <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Alternar tema"></button>
-              ${!isPublicPage ? this.getUserDropdown(usuario) : `
+              <div class="nav-public-btns">
                 <a href="pages/login.html" class="btn btn-ghost btn-sm" data-i18n="btn-login">Entrar</a>
                 <a href="pages/cadastro.html" class="btn btn-primary btn-sm" data-i18n="btn-register">Cadastrar</a>
-              `}
+              </div>
+              ${!isPublicPage ? this.getUserDropdown(usuario) : ''}
             </div>
           </div>
         </nav>

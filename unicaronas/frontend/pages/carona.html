@@ -92,8 +92,9 @@
   <footer class="footer">
     <div class="container footer-content">
       <div class="navbar-brand-img" style="margin-bottom: 1rem;"></div>
-      <div class="footer-dev">Desenvolvido pelas divas: <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
+      <div class="footer-dev">Desenvolvido por: <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
       <div class="footer-copyright">© 2026 UniCaronas — Todos os direitos reservados.</div>
+      <div class="footer-disclaimer">Projeto acadêmico — sistema de pagamento não funcional</div>
     </div>
   </footer>
 
@@ -181,15 +182,17 @@
 
             ${!sou_motorista && minhaSol?.status === 'aceita' ? `
               <div class="alert alert-success mt-2" style="margin-bottom: 0.5rem;">Sua vaga está confirmada!</div>
-              
-              ${minhaSol.pagamento_status === 'pago' ? `
-                <div class="alert alert-info mt-1" style="font-size: 0.85rem; color: var(--green); background: rgba(34,211,160,0.1); border-color: rgba(34,211,160,0.2); display: flex; align-items: center; gap: 0.5rem;">
-                  <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i> Pagamento confirmado
+
+              <div class="academic-banner mt-1" style="margin-bottom: 0.5rem; padding: 0.75rem 1rem;">
+                <div class="banner-icon" style="width: 32px; height: 32px;">
+                  <i data-lucide="graduation-cap" style="width: 16px; height: 16px;"></i>
                 </div>
-              ` : `
-                <div class="alert alert-warning mt-1" style="font-size: 0.85rem; margin-bottom: 1rem;">Pagamento pendente</div>
-                <a href="pagamento.html?solicitacao_id=${minhaSol.id}&carona_id=${id}" class="btn btn-primary btn-full mb-2">Efetuar Pagamento</a>
-              `}
+                <div class="banner-body" style="min-width: 0;">
+                  <div class="banner-text" style="font-size: 0.8rem;">
+                    Projeto acadêmico — o sistema de pagamento não está funcional. <a href="sobre.html" style="color: var(--accent); text-decoration: underline;">Saiba mais</a>
+                  </div>
+                </div>
+              </div>
 
               <button class="btn-chat-iniciar btn-full mt-2" onclick="abrirChatCarona(${minhaSol.id}, '${c.motorista_nome}', '${c.origem}', '${c.destino}')">
                 <i data-lucide="message-square" style="width: 16px; height: 16px;"></i>
@@ -334,7 +337,7 @@
                 <div class="user-rating">${s.passageiro_curso || 'Curso não informado'} · ${parseFloat(s.passageiro_avaliacao || 0).toFixed(1)} ★</div>
               </div>
             </div>
-            <div style="display:flex; gap:.5rem; align-items:center; margin-left:auto">
+            <div style="display:flex; gap:.5rem; align-items:center; margin-left:auto; flex-wrap: wrap;">
               ${s.status === 'pendente' ? `
                 <button class="btn btn-success btn-sm" onclick="aceitarSolicitacao(${s.id}, '${s.passageiro_nome}')">Aceitar</button>
                 <button class="btn btn-danger btn-sm" onclick="recusarSolicitacao(${s.id})">Recusar</button>

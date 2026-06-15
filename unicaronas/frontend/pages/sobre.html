@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobre — UniCaronas</title>
+  <link rel="icon" type="image/png" href="../img/icon.png?v=2">
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/theme.js"></script>
+  <style>
+    .sobre-hero {
+      padding: 3rem 0 2rem;
+      text-align: center;
+    }
+    .sobre-hero h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+    }
+    .sobre-hero p {
+      color: var(--text-2);
+      font-size: 1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .sobre-section {
+      margin-bottom: 2.5rem;
+    }
+    .sobre-section h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sobre-section > p {
+      color: var(--text-2);
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+
+    .dev-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+    .dev-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.25rem 1.5rem;
+      text-align: center;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .dev-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), #22d3a0);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .dev-card:hover {
+      border-color: var(--border-2);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .dev-card:hover::before {
+      opacity: 1;
+    }
+    .dev-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--accent), #22d3a0);
+      border: 3px solid var(--border);
+      transition: border-color 0.25s;
+    }
+    .dev-card:hover .dev-avatar {
+      border-color: var(--accent);
+    }
+    .dev-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .dev-avatar .initials {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.5rem;
+      pointer-events: none;
+    }
+    .dev-name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+    .dev-github {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--text-3);
+      text-decoration: none;
+      padding: 0.3rem 0.75rem;
+      border-radius: 99px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .dev-github:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .tech-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1rem;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .tech-item:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .tech-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.75rem;
+      color: var(--accent);
+    }
+    .tech-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+    .tech-desc {
+      font-size: 0.75rem;
+      color: var(--text-3);
+      font-weight: 500;
+    }
+
+    .status-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--amber);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-top: 1rem;
+    }
+    .status-box p {
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+    .status-box p:last-child { margin-bottom: 0; }
+
+    @media (max-width: 768px) {
+      .sobre-hero { padding: 2rem 0 1.5rem; }
+      .sobre-section { margin-bottom: 2rem; text-align: center; }
+      .sobre-section h2 { font-size: 1.15rem; justify-content: center; }
+      .status-box { text-align: left; }
+    }
+    @media (max-width: 600px) {
+      .sobre-hero { padding: 1.5rem 0 1rem; }
+      .sobre-hero h1 { font-size: 1.5rem; }
+      .sobre-hero p { font-size: 0.9rem; }
+      .dev-list { grid-template-columns: 1fr 1fr; gap: 1rem; }
+      .tech-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+      .dev-card { padding: 1.5rem 1rem 1.25rem; }
+      .dev-avatar { width: 64px; height: 64px; }
+      .sobre-section > p { font-size: 0.88rem; }
+      .status-box { padding: 1rem; }
+      .status-box p { font-size: 0.85rem; }
+    }
+    @media (max-width: 480px) {
+      .dev-list { grid-template-columns: 1fr; }
+      .dev-card { padding: 1.25rem 1rem 1rem; }
+      .tech-grid { grid-template-columns: 1fr; }
+      .sobre-hero h1 { font-size: 1.35rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar-placeholder"></div>
+
+  <main class="container">
+    <div class="sobre-hero fade-up">
+      <div class="accent-bar" style="margin: 0 auto 1rem;"></div>
+      <h1>Sobre o UniCaronas</h1>
+      <p>Entenda o projeto, as tecnologias utilizadas e o propósito acadêmico por trás da plataforma.</p>
+    </div>
+
+    <div class="sobre-section fade-up">
+      <h2><i data-lucide="book-open" style="width: 20px; height: 20px; color: var(--accent);"></i> O Projeto</h2>
+      <p>
+        O <strong>UniCaronas</strong> é uma plataforma web desenvolvida como projeto final da disciplina de 
+        <strong>Prática Profissional em Programação WEB</strong>, ao longo de <strong>8 sprints</strong> de desenvolvimento.
+        O objetivo é conectar estudantes universitários para compartilhar caronas de forma segura, econômica e sustentável,
+        utilizando o e-mail institucional como forma de autenticação e verificação.
+      </p>
+    </div>
+
+    <div class="sobre-section fade-up">
+      <h2><i data-lucide="users" style="width: 20px; height: 20px; color: var(--accent);"></i> Desenvolvedores</h2>
+      <p>Projeto desenvolvido por:</p>
+      <div class="dev-list">
+        <div class="dev-card">
+          <div class="dev-avatar">
+            <img src="../img/devs/ariane.jpeg" alt="Ariane Archanjo" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'">
+            <span class="initials">A</span>
+          </div>
+          <div class="dev-name">Ariane Archanjo</div>
+          <a href="https://github.com/arianearchanjo" target="_blank" class="dev-github">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink: 0;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            arianearchanjo
+          </a>
+        </div>
+        <div class="dev-card">
+          <div class="dev-avatar">
+            <img src="../img/devs/matheus.jpeg" alt="Matheus Sizanoski" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'">
+            <span class="initials">M</span>
+          </div>
+          <div class="dev-name">Matheus Sizanoski</div>
+          <a href="https://github.com/matheussiza" target="_blank" class="dev-github">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink: 0;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            matheussiza
+          </a>
+        </div>
+        <div class="dev-card">
+          <div class="dev-avatar">
+            <img src="../img/devs/pedro.jpeg" alt="Pedro Kafka" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'">
+            <span class="initials">P</span>
+          </div>
+          <div class="dev-name">Pedro Kafka</div>
+          <a href="https://github.com/PedroZaratino" target="_blank" class="dev-github">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink: 0;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            PedroZaratino
+          </a>
+        </div>
+        <div class="dev-card">
+          <div class="dev-avatar">
+            <img src="../img/devs/rafael.jpeg" alt="Rafael Machado" onerror="this.style.display='none'" onload="this.nextElementSibling.style.display='none'">
+            <span class="initials">R</span>
+          </div>
+          <div class="dev-name">Rafael Machado</div>
+          <a href="https://github.com/kaiserraf" target="_blank" class="dev-github">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink: 0;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            kaiserraf
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="sobre-section fade-up">
+      <h2><i data-lucide="code" style="width: 20px; height: 20px; color: var(--accent);"></i> Tecnologias</h2>
+      <p>Tecnologias e ferramentas utilizadas no desenvolvimento:</p>
+      <div class="tech-grid">
+        <div class="tech-item">
+          <div class="tech-icon"><i data-lucide="file-code" style="width: 18px; height: 18px;"></i></div>
+          <div class="tech-name">HTML5</div>
+          <div class="tech-desc">Estrutura</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon"><i data-lucide="palette" style="width: 18px; height: 18px;"></i></div>
+          <div class="tech-name">CSS3</div>
+          <div class="tech-desc">Estilização</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon"><i data-lucide="terminal" style="width: 18px; height: 18px;"></i></div>
+          <div class="tech-name">JavaScript</div>
+          <div class="tech-desc">Interatividade</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon"><i data-lucide="server" style="width: 18px; height: 18px;"></i></div>
+          <div class="tech-name">Node.js</div>
+          <div class="tech-desc">Backend</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon"><i data-lucide="zap" style="width: 18px; height: 18px;"></i></div>
+          <div class="tech-name">Express</div>
+          <div class="tech-desc">Framework HTTP</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon"><i data-lucide="database" style="width: 18px; height: 18px;"></i></div>
+          <div class="tech-name">PostgreSQL</div>
+          <div class="tech-desc">Banco de Dados</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon"><i data-lucide="map-pin" style="width: 18px; height: 18px;"></i></div>
+          <div class="tech-name">Leaflet</div>
+          <div class="tech-desc">Mapas</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon"><i data-lucide="image" style="width: 18px; height: 18px;"></i></div>
+          <div class="tech-name">Lucide</div>
+          <div class="tech-desc">Ícones</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon"><i data-lucide="lock" style="width: 18px; height: 18px;"></i></div>
+          <div class="tech-name">JWT</div>
+          <div class="tech-desc">Autenticação</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon"><i data-lucide="cloud" style="width: 18px; height: 18px;"></i></div>
+          <div class="tech-name">Vercel</div>
+          <div class="tech-desc">Deploy</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sobre-section fade-up">
+      <h2><i data-lucide="info" style="width: 20px; height: 20px; color: var(--accent);"></i> Status do Projeto</h2>
+      <div class="status-box">
+        <p><i data-lucide="check-circle" style="width: 16px; height: 16px; color: var(--green); vertical-align: middle; margin-right: 4px;"></i> O sistema está <strong>funcional</strong> — é possível se cadastrar, criar e buscar caronas, gerenciar solicitações, conversar via chat e muito mais.</p>
+        <p><i data-lucide="alert-triangle" style="width: 16px; height: 16px; color: var(--amber); vertical-align: middle; margin-right: 4px;"></i> O módulo de <strong>processamento de pagamentos</strong> não foi configurado no ambiente atual. Em produção real, seria integrado a um provedor de pagamentos (Pix, cartão, etc.).</p>
+        <p><i data-lucide="briefcase" style="width: 16px; height: 16px; color: var(--accent); vertical-align: middle; margin-right: 4px;"></i> Caso tenha interesse em <strong>investir no projeto</strong> ou contratar a solução para sua instituição, entre em contato através dos desenvolvedores listados acima.</p>
+        <p style="font-size: 0.85rem; color: var(--text-3); margin-top: 0.5rem;">© 2026 UniCaronas — Todos os direitos reservados aos desenvolvedores.</p>
+      </div>
+    </div>
+
+    <div style="text-align: center; padding: 2rem 0 3rem;">
+      <a href="dashboard.html" class="btn btn-primary">Voltar ao início</a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="navbar-brand-img" style="margin-bottom: 1rem;"></div>
+      <div class="footer-dev">Desenvolvido por: <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
+      <div class="footer-copyright">© 2026 UniCaronas — Todos os direitos reservados.</div>
+      <div class="footer-disclaimer">Projeto acadêmico — sistema de pagamento não funcional</div>
+    </div>
+  </footer>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/navbar.js"></script>
+  <script src="../js/acessibilidade.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

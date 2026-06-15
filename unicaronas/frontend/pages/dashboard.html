@@ -44,7 +44,8 @@
     }
     .sol-aceita-flash { animation: aceito-flash 1.2s ease; }
 
-    @media(max-width:600px){ .stats-grid{grid-template-columns:1fr 1fr;} .actions-bar{flex-direction:column;} }
+    @media(max-width:600px){ .actions-bar{flex-direction:column;} }
+    @media(max-width:480px){ .stats-grid{grid-template-columns:1fr;} }
   </style>
   <link rel="stylesheet" href="../css/acessibilidade.css">
 </head>
@@ -57,6 +58,25 @@
       <div class="accent-bar"></div>
       <h2 id="boas-vindas" data-i18n="welcome-loading">Carregando...</h2>
       <p id="sub-welcome-text" data-i18n="sub-welcome">Encontre ou ofereça uma carona para hoje</p>
+    </div>
+
+    <div class="academic-banner fade-up">
+      <div class="banner-icon">
+        <i data-lucide="graduation-cap" style="width: 20px; height: 20px;"></i>
+      </div>
+      <div class="banner-body">
+        <div class="banner-title">Projeto Acadêmico</div>
+        <div class="banner-text">
+          Desenvolvido por <strong>Ariane Archanjo</strong>, <strong>Matheus Sizanoski</strong>, 
+          <strong>Pedro Kafka</strong> e <strong>Rafael Machado</strong> em 8 sprints para a disciplina de 
+          <em>Prática Profissional em Programação WEB</em>. O sistema é funcional, mas o processamento de 
+          pagamentos não foi configurado.
+        </div>
+      </div>
+      <a href="sobre.html" class="btn btn-ghost btn-sm" style="flex-shrink: 0;">
+        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+        Entender mais
+      </a>
     </div>
 
     <div class="stats-grid">
@@ -101,8 +121,9 @@
   <footer class="footer">
     <div class="container footer-content">
       <div class="navbar-brand-img" style="margin-bottom: 1rem;"></div>
-      <div class="footer-dev">Desenvolvido pelas divas: <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
+      <div class="footer-dev">Desenvolvido por: <a href="#">Ariane Archanjo</a>, <a href="#">Matheus Sizanoski</a>, <a href="#">Pedro Kafka</a> e <a href="#">Rafael Machado</a></div>
       <div class="footer-copyright">© 2026 UniCaronas — Todos os direitos reservados.</div>
+      <div class="footer-disclaimer">Projeto acadêmico — sistema de pagamento não funcional</div>
     </div>
   </footer>
 

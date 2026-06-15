@@ -82,6 +82,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 ::-webkit-scrollbar { width: 5px; }
@@ -652,6 +653,15 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   transition: 0.3s;
 }
 
+@media (max-width: 992px) {
+  .detalhe-layout { grid-template-columns: 1fr; }
+  .navbar-links { gap: 1rem; }
+}
+
+@media (max-width: 900px) {
+  .filtros-grid { grid-template-columns: 1fr 1fr; }
+}
+
 @media (max-width: 768px) {
   .navbar .container { 
     justify-content: flex-start;
@@ -674,9 +684,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
     z-index: 200;
   }
 
-  .navbar-links.active {
-    display: flex;
-  }
+  .navbar-links.active { display: flex; }
 
   .navbar-links li {
     width: 100%;
@@ -687,30 +695,88 @@ textarea.form-control { resize: vertical; min-height: 80px; }
     display: block;
     padding: 12px;
     font-size: .9rem;
+    white-space: normal;
   }
 
-  /* (3) Dashboard & Perfil Stats Grid */
-  .stats-grid { 
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important; 
-    gap: 1rem !important;
-  }
+  .card { padding: 1.25rem; }
+  .page-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .container { padding: 0 1rem; }
 
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .filtros-grid { grid-template-columns: 1fr; }
-  .carona-footer { flex-direction: column; align-items: flex-start; gap: 1rem; }
+
+  .carona-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .msg-layout { grid-template-columns: 1fr; }
+  .msg-lista { display: none; }
+  .msg-chat { display: flex; }
+  .chat-open .msg-lista { display: none; }
+  .chat-open .msg-chat { display: flex; }
 }
 
 @media (max-width: 600px) {
-  /* (4) Buscar Button Width */
   .filtros-grid .btn { width: 100%; }
-  
-  /* (7) Perfil Avaliação Rota */
   .avaliacao-rota { margin-left: 0 !important; margin-top: .5rem; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 2rem; }
+  .hero p { font-size: 1rem; }
+  .features { grid-template-columns: 1fr; }
+  .hero-buttons { flex-direction: column; }
+  .btn-lg { width: 100%; justify-content: center; }
+  .action-buttons { flex-wrap: wrap; }
+  .error-actions { flex-wrap: wrap; }
+  .user-card { grid-template-columns: 1fr; }
+  h2 { font-size: 1.3rem; }
+  .page-header h2 { font-size: 1.25rem; }
 }
 
 @media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr !important; }
+  .container { padding: 0 0.75rem; }
+  .card { padding: 1rem; }
+  .navbar { padding: 0.7rem 0; }
+  .navbar .container { gap: 0.4rem; }
+  .navbar-brand-img { width: 32px; height: 32px; }
+  .navbar-brand-text { font-size: 1.05rem; letter-spacing: -.3px; }
+  .navbar-actions { gap: 0.3rem; }
+  .navbar-toggle { padding: 3px; }
+  .navbar-toggle span { width: 22px; }
+  .lang-toggle { padding: 0 0.5rem; font-size: 0.65rem; height: 30px; }
+  .theme-toggle { width: 30px; height: 30px; }
+  .avatar-trigger { width: 30px; height: 30px; font-size: 0.75rem; }
+  .hero h1 { font-size: 1.75rem; }
+  .login-card { padding: 1.5rem; }
+  .login-wrap { padding: 1.5rem 0; }
+  .stat-num { font-size: 1.6rem; }
+  .footer-content { flex-direction: column; gap: 0.5rem; align-items: center; text-align: center; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .metodo-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .metodo-desc { display: none; }
+  #mapa-carona { height: 220px; }
+  .chat-wrap { height: 340px; }
+}
+
+/* ── Academic banner mobile ─────────────────────────────── */
+@media (max-width: 750px) {
+  .academic-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem 1.25rem;
+  }
+  .academic-banner .banner-body {
+    min-width: 0;
+  }
+  .academic-banner .btn {
+    width: 100%;
+  }
+}
+@media (max-width: 480px) {
+  .academic-banner .banner-text {
+    word-break: break-word;
+  }
 }
 
 /* Focus ring no padrão UniCaronas */
@@ -817,6 +883,63 @@ a:focus-visible {
   font-size: 0.75rem;
   color: var(--text-3);
   font-family: var(--font-mono);
+}
+
+.footer-disclaimer {
+  font-size: 0.6rem;
+  color: var(--text-3);
+  background: var(--surface-2);
+  padding: 2px 10px;
+  border-radius: 99px;
+  display: inline-block;
+  letter-spacing: 0.03em;
+}
+
+.academic-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface) 100%);
+  border: 1px solid var(--border-2);
+  margin-bottom: 1.5rem;
+}
+.academic-banner .banner-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(245, 166, 35, 0.1);
+  border: 1px solid rgba(245, 166, 35, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.academic-banner .banner-icon svg,
+.academic-banner .banner-icon i {
+  color: var(--amber);
+}
+.academic-banner .banner-body {
+  flex: 1;
+  min-width: 200px;
+}
+.academic-banner .banner-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--amber);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.academic-banner .banner-text {
+  font-size: 0.85rem;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+.academic-banner .banner-text strong {
+  color: var(--text);
+  font-weight: 600;
 }
 
 /* ── Perfil avatar fix ─────────────────────────────────────── */

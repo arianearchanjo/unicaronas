@@ -8,6 +8,11 @@ const Navbar = {
     const usuario = typeof getUser === 'function' ? getUser() : null;
     const isPublicPage = !usuario || window.location.pathname.includes('login.html') || window.location.pathname.includes('cadastro.html');
     const currentPage = window.location.pathname.split('/').pop() || 'dashboard.html';
+    const publicLinks = [
+      { id: 'login.html', label: 'Entrar' },
+      { id: 'cadastro.html', label: 'Cadastre-se' },
+      { id: 'sobre.html', label: 'Sobre' },
+    ];
 
     const html = `
       <nav class="navbar" aria-label="Navegação principal">
@@ -21,9 +26,11 @@ const Navbar = {
             <div class="navbar-brand-text">Uni<span>Caronas</span></div>
           </a>
           
-          ${!isPublicPage ? this.getLinks(usuario, currentPage) : ''}
+          ${isPublicPage
+            ? `<ul class="navbar-links" role="list">${publicLinks.map(l => `<li><a href="${l.id}">${l.label}</a></li>`).join('')}</ul>`
+            : this.getLinks(usuario, currentPage)}
           
-          <div class="navbar-actions" style="display: flex; align-items: center; gap: 0.5rem;">
+          <div class="navbar-actions">
             ${isPublicPage ? this.getLangButtons() + `<button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Alternar tema"></button>` : ''}
             ${!isPublicPage ? this.getUserDropdown(usuario) : ''}
           </div>
@@ -57,7 +64,6 @@ const Navbar = {
       if (typeof applyTranslations === 'function') applyTranslations();
       this.initDropdownListeners();
       
-      // Atualiza o ícone do tema se o botão existir
       if (typeof updateThemeIcon === 'function') updateThemeIcon();
 
       if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -108,7 +114,6 @@ const Navbar = {
             
             <div class="menu-settings-row" style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; gap: 0.5rem;">
               <button class="theme-toggle" onclick="toggleTheme()" style="flex: 1; height: 36px;" aria-label="Alternar tema">
-                <!-- O ícone será inserido pelo theme.js -->
               </button>
               
               <div class="lang-dropdown" style="flex: 1;">
@@ -156,7 +161,6 @@ const Navbar = {
     const tipo = usuario?.perfil_tipo || 'misto';
     const ehAdmin = usuario?.is_admin;
 
-    // Se for admin, mostra apenas os links de gestão
     if (ehAdmin) {
       const adminLinks = [
         { id: 'admin.html', label: 'Verificações', show: true },
@@ -221,13 +225,11 @@ const Navbar = {
   }
 };
 
-// Funções Globais de Reportar Erro
 window.abrirModalErro = () => {
   const modal = document.getElementById('modal-reportar-erro');
   if (modal) {
     modal.style.display = 'block';
     document.getElementById('erro-descricao').value = '';
-    // Fecha o dropdown se estiver aberto
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) dropdown.classList.remove('active');
   }
@@ -259,10 +261,8 @@ window.enviarRelatorioErro = async () => {
   }
 };
 
-// Inicializa a navbar quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
   Navbar.render();
   
-  // Re-renderizar se o idioma mudar (opcional, applyTranslations geralmente resolve)
   window.addEventListener('languageChanged', () => Navbar.render());
 });

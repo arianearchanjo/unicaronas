@@ -27,13 +27,14 @@ const login = async (req, res, next) => {
       success: true, 
       data: { 
         token,
-        usuario: { 
-          id: usuario.id, 
-          nome: usuario.nome, 
-          email: usuario.email, 
-          perfil_tipo: usuario.perfil_tipo, 
-          email_verificado: usuario.email_verificado 
-        } 
+          usuario: { 
+            id: usuario.id, 
+            nome: usuario.nome, 
+            email: usuario.email, 
+            perfil_tipo: usuario.perfil_tipo, 
+            email_verificado: usuario.email_verificado,
+            is_admin: usuario.is_admin 
+          } 
       } 
     });
   } catch (err) {
@@ -99,7 +100,7 @@ const atualizarPerfil = async (req, res, next) => {
     const id = req.usuario.id;
     let foto_url = undefined;
 
-    if (req.file) {
+    if (req.file && req.file.filename) {
       const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
       foto_url = `${baseUrl}/uploads/profiles/${req.file.filename}`;
     }

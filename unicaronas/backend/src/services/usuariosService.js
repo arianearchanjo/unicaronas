@@ -29,8 +29,8 @@ const usuariosService = {
     let cnh_url = null;
     let identidade_url = null;
     if (files) {
-      if (files.cnh && files.cnh[0]) cnh_url = `${baseUrl}/uploads/documentos/${files.cnh[0].filename}`;
-      if (files.identidade && files.identidade[0]) identidade_url = `${baseUrl}/uploads/documentos/${files.identidade[0].filename}`;
+      if (files.cnh && files.cnh[0] && files.cnh[0].filename) cnh_url = `${baseUrl}/uploads/documentos/${files.cnh[0].filename}`;
+      if (files.identidade && files.identidade[0] && files.identidade[0].filename) identidade_url = `${baseUrl}/uploads/documentos/${files.identidade[0].filename}`;
     }
 
     const client = await db.connect();
@@ -55,9 +55,13 @@ const usuariosService = {
         [novoUsuario.id, token, expiresAt]
       );
 
-      await mailService.sendVerificationEmail(emailNorm, token);
-
       await client.query('COMMIT');
+
+      // E-mail após COMMIT — falha não impede o cadastro
+      mailService.sendVerificationEmail(emailNorm, token).catch(err => {
+        console.error('[email] Falha ao enviar e-mail de verificação:', err.message);
+      });
+
       return novoUsuario;
     } catch (err) {
       await client.query('ROLLBACK');
@@ -111,8 +115,12 @@ const usuariosService = {
       await client.query('BEGIN');
       await client.query('UPDATE verification_tokens SET used = TRUE WHERE usuario_id = $1', [usuario.id]);
       await client.query('INSERT INTO verification_tokens (usuario_id, token, expires_at) VALUES ($1, $2, $3)', [usuario.id, token, expiresAt]);
-      await mailService.sendVerificationEmail(usuario.email, token);
       await client.query('COMMIT');
+
+      mailService.sendVerificationEmail(usuario.email, token).catch(err => {
+        console.error('[email] Falha ao reenviar e-mail:', err.message);
+      });
+
       return { mensagem: "Novo token enviado." };
     } catch (err) {
       await client.query('ROLLBACK');
@@ -201,9 +209,12 @@ const usuariosService = {
       );
 
       const link = `${baseUrl}/pages/redefinir-senha.html?token=${token}`;
-      await mailService.sendResetEmail(usuario.email, link);
-
       await client.query('COMMIT');
+
+      mailService.sendResetEmail(usuario.email, link).catch(err => {
+        console.error('[email] Falha ao enviar e-mail de recuperação:', err.message);
+      });
+
       return { mensagem: "E-mail de recuperação enviado com sucesso." };
     } catch (err) {
       await client.query('ROLLBACK');
