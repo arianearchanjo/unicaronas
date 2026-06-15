@@ -1,4 +1,4 @@
-# Roadmap Técnico: Sprint Final 🚀
+# Roadmap Técnico: Sprint Final 
 
 Este documento define as prioridades técnicas e o backlog de melhorias para a conclusão do projeto UniCaronas.
 
@@ -29,7 +29,7 @@ Este documento define as prioridades técnicas e o backlog de melhorias para a c
 
 ---
 
-## 📈 Tabela de Backlog Técnico
+##  Tabela de Backlog Técnico
 
 | Tarefa | Prioridade | Dificuldade | Dependências |
 | :--- | :--- | :--- | :--- |

@@ -1,4 +1,4 @@
-# Documentação de Segurança 🛡️
+# Documentação de Segurança 
 
 O UniCaronas implementa múltiplas camadas de proteção para garantir a integridade dos dados e a privacidade dos usuários acadêmicos.
 

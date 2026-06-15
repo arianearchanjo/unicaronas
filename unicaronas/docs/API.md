@@ -1,4 +1,4 @@
-# Documentação da API 🚀
+# Documentação da API 
 
 Esta API segue os princípios REST, utilizando JSON para entrada e saída de dados.
 

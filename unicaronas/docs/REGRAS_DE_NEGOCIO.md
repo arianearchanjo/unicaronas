@@ -1,4 +1,4 @@
-# Regras de Negócio 📋
+# Regras de Negócio 
 
 Este documento descreve as políticas, restrições e cálculos que governam o comportamento do UniCaronas.
 

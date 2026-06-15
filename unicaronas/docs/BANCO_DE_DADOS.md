@@ -1,4 +1,4 @@
-# Banco de Dados 🗄️
+# Banco de Dados 
 
 Este documento detalha o modelo de dados, relacionamentos e regras de integridade do UniCaronas.
 

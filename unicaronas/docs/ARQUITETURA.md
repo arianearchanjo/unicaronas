@@ -1,4 +1,4 @@
-# Arquitetura do Sistema 🏗️
+# Arquitetura do Sistema 
 
 Este documento descreve a organização técnica, padrões de projeto e o fluxo de dados do UniCaronas.
 

@@ -1,31 +1,31 @@
-# 🎓 Apresentação do Projeto: UniCaronas — 1º Bimestre 2026
+#  Apresentação do Projeto: UniCaronas — 1º Bimestre 2026
 
 O **UniCaronas** é a solução definitiva para o transporte universitário, transformando a rotina de quem estuda e trabalha na universidade em algo mais econômico, seguro e sustentável.
 
 ---
 
-## 🌟 O que realizamos neste período?
+##  O que realizamos neste período?
 
 Neste bimestre, focamos em construir uma **experiência completa**, saindo de um protótipo e entregando um sistema que realmente resolve o problema da carona solidária.
 
-### 🚗 1. O Sistema de Carona na Prática
+###  1. O Sistema de Carona na Prática
 Não apenas criamos formulários; desenvolvemos um fluxo real:
 *   **Inteligência de Rotas:** Integramos mapas reais para que motoristas e passageiros saibam exatamente onde se encontrar.
 *   **Gestão de Vagas:** O sistema controla automaticamente quantas pessoas podem ir na carona, evitando sobrecarga.
 *   **Precificação Justa:** Criamos um algoritmo que sugere o valor da carona baseado na distância e no custo do combustível.
 
-### 💬 2. Comunicação Integrada
+###  2. Comunicação Integrada
 Eliminamos a necessidade de grupos de WhatsApp bagunçados:
 *   **Chat Interno:** Motoristas e passageiros conversam diretamente dentro da plataforma para combinar detalhes da viagem.
 *   **Histórico e Notificações:** Sistema de mensagens com marcação de leitura e organização por conversa.
 
-### 🎨 3. Design e Acessibilidade (UX/UI)
+###  3. Design e Acessibilidade (UX/UI)
 Levamos o visual a um nível profissional:
 *   **Modo Escuro & Claro:** Interface adaptável que respeita a preferência do usuário.
 *   **Navegação Dinâmica:** Criamos uma Navbar inteligente com **Avatar Dropdown** que centraliza perfil, configurações e trocas de idioma em um só lugar.
 *   **Internacionalização:** O sistema fala **Português, Inglês e Espanhol**, atendendo também alunos de intercâmbio.
 
-### 💳 4. Confiança e Pagamento
+###  4. Confiança e Pagamento
 Segurança é nossa prioridade:
 *   **Acesso Restrito:** Apenas e-mails institucionais da universidade podem se cadastrar.
 *   **Checkout Simulado:** Fluxo completo de reserva com escolha de pagamento via **Pix, Cartão ou Dinheiro**.
@@ -33,7 +33,7 @@ Segurança é nossa prioridade:
 
 ---
 
-## 🛠️ Por trás das cortinas (Tecnologia)
+##  Por trás das cortinas (Tecnologia)
 
 Para quem gosta de saber como as engrenagens giram, utilizamos:
 *   **Backend (Cérebro):** Node.js com uma API rápida e segura.
@@ -43,7 +43,7 @@ Para quem gosta de saber como as engrenagens giram, utilizamos:
 
 ---
 
-## 👥 Nossa Equipe
+##  Nossa Equipe
 Trabalhamos de forma integrada para entregar excelência:
 *   **Ariane Archanjo** — Scrum Master
 *   **Matheus Sizanoski** — Fullstack Developer

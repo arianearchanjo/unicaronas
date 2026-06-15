@@ -1,11 +1,11 @@
-# UniCaronas — Documentação Técnica 🚗🎓
+# UniCaronas — Documentação Técnica 
 
 Bem-vindo à documentação oficial do **UniCaronas**, um sistema de caronas universitárias projetado para facilitar o transporte compartilhado entre estudantes e professores, otimizando custos e promovendo a integração acadêmica.
 
-## 📌 Visão Geral
+##  Visão Geral
 O UniCaronas é uma plataforma completa (Web) que permite aos usuários oferecerem ou buscarem caronas dentro da comunidade universitária. O sistema gerencia desde o cadastro de veículos e definição de rotas até o processamento de pagamentos via Pix e avaliações mútuas.
 
-## 🛠️ Stack Tecnológica Identificada
+##  Stack Tecnológica Identificada
 - **Backend:** Node.js com Express.js
 - **Banco de Dados:** PostgreSQL 14+
 - **Frontend:** Vanilla JavaScript (ES6+), HTML5, CSS3
@@ -14,7 +14,7 @@ O UniCaronas é uma plataforma completa (Web) que permite aos usuários oferecer
 - **Jobs/Processamento:** Node-cron e `setInterval` para tarefas em background
 - **Outros:** Multer (Uploads), Helmet (Segurança), Nodemailer (E-mails)
 
-## 🏗️ Arquitetura Resumida
+##  Arquitetura Resumida
 O projeto segue uma arquitetura **Monolítica Modular**:
 - **Frontend Separado:** Consome a API via Fetch.
 - **Backend Organizado por Camadas:**
@@ -24,7 +24,7 @@ O projeto segue uma arquitetura **Monolítica Modular**:
   - `middleware/`: Autenticação, validação e tratamento de erros.
   - `utils/`: Funções utilitárias (Pix, precificação, etc).
 
-## 🗂️ Índice da Documentação
+##  Índice da Documentação
 Navegue pelos documentos detalhados abaixo:
 
 1.  [**Arquitetura do Sistema**](ARQUITETURA.md) — Visão técnica detalhada e diagramas.
@@ -39,7 +39,7 @@ Navegue pelos documentos detalhados abaixo:
 10. [**Status da Sprint Final**](SPRINT_STATUS.md) — O que está pronto e o que falta.
 11. [**Roadmap Técnico**](ROADMAP_FINAL.md) — Próximos passos e backlog.
 
-## 🚀 Resumo das Funcionalidades
+##  Resumo das Funcionalidades
 - **Gestão de Usuários:** Cadastro, Login, Perfil e Verificação de Identidade (Admin).
 - **Caronas:** Criação (recorrente ou única), busca com filtros, itinerários e preferência de gênero.
 - **Interatividade:** Chat em tempo real (polling), indicadores de digitação e notificações.

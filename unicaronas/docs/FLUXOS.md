@@ -1,4 +1,4 @@
-# Fluxos do Sistema 🔄
+# Fluxos do Sistema 
 
 Este documento ilustra os principais fluxos operacionais do UniCaronas através de diagramas de sequência.
 

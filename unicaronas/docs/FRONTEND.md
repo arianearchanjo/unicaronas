@@ -1,4 +1,4 @@
-# Documentação do Frontend 🎨
+# Documentação do Frontend 
 
 O frontend do UniCaronas é desenvolvido com tecnologias web padrão (Vanilla JS, HTML5, CSS3), focado em performance e compatibilidade sem a necessidade de frameworks complexos.
 

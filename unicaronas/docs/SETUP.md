@@ -1,4 +1,4 @@
-# Guia de Setup e Instalação 🛠️
+# Guia de Setup e Instalação 
 
 Siga estas instruções para configurar o ambiente de desenvolvimento do UniCaronas.
 

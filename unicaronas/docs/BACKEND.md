@@ -1,4 +1,4 @@
-# Documentação do Backend ⚙️
+# Documentação do Backend 
 
 O backend do UniCaronas é uma API robusta construída em Node.js, projetada para ser escalável, segura e fácil de manter.
 

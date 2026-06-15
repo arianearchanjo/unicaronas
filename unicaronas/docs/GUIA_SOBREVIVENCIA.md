@@ -1,4 +1,4 @@
-# 🆘 GUIA DE SOBREVIVÊNCIA (LEIA ISSO SE O PROJETO NÃO FUNCIONA)
+#  GUIA DE SOBREVIVÊNCIA (LEIA ISSO SE O PROJETO NÃO FUNCIONA)
 
 Se você acabou de puxar o projeto e nada funciona, a culpa provavelmente é sua (ou do seu ambiente). Siga estes passos **EXATAMENTE** na ordem:
 
@@ -16,7 +16,7 @@ Muitos erros ocorrem porque o banco de dados não existe ou está vazio.
    ```
    *Dica: Se você não sabe usar o terminal para isso, abra os arquivos .sql no seu editor de banco de dados e execute o conteúdo.*
 
-### 🔄 Resetando o Banco (Zerar e Recomeçar)
+###  Resetando o Banco (Zerar e Recomeçar)
 Se o seu banco de dados está bagunçado ou você quer limpar tudo e usar os dados de exemplo, siga estes passos:
 
 1. **Limpar e recriar tabelas:** (Na pasta `unicaronas/database`)
@@ -48,8 +48,8 @@ npm run dev
 **O que acontece agora?**
 - O sistema vai rodar o script de migração (`npm run migrate`) **SOZINHO**.
 - Ele vai criar as colunas novas, tabelas de veículos e chats que estiverem nos arquivos `migration_*.sql`.
-- Se aparecer `🎉 Tudo pronto! O banco de dados está atualizado.`, você não precisa fazer mais nada no PostgreSQL.
-- Se o servidor rodar e aparecer `✅ UniCaronas API rodando em http://localhost:3000`, parabéns! Você conseguiu.
+- Se aparecer ` Tudo pronto! O banco de dados está atualizado.`, você não precisa fazer mais nada no PostgreSQL.
+- Se o servidor rodar e aparecer ` UniCaronas API rodando em http://localhost:3000`, parabéns! Você conseguiu.
 
 ### 4. Rodando o Frontend
 1. Não tente abrir os arquivos HTML direto no navegador clicando neles. **NÃO FUNCIONA.**
